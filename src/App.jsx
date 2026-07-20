@@ -2,7 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/auth/AuthContext";
 import ProtectedRoute from "@/auth/ProtectedRoute";
 import Login from "@/pages/Login";
-import AdminDashboard from "@/pages/admin/DashboardHome";
+import AdminLayout from "@/layouts/AdminLayout";
+import ComingSoon from "@/components/admin/ComingSoon";
 import DriverDashboard from "@/pages/driver/DashboardHome";
 import PassengerDashboard from "@/pages/passenger/DashboardHome";
 
@@ -23,7 +24,18 @@ export default function App() {
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
-            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<Navigate to="/admin/buses" replace />} />
+              <Route path="buses" element={<ComingSoon title="Buses" />} />
+              <Route path="stations" element={<ComingSoon title="Stations" />} />
+              <Route path="routes" element={<ComingSoon title="Routes" />} />
+              <Route path="drivers" element={<ComingSoon title="Drivers" />} />
+              <Route path="schedules" element={<ComingSoon title="Schedules" />} />
+              <Route path="schedule-days" element={<ComingSoon title="Schedule Days" />} />
+              <Route path="maintenance" element={<ComingSoon title="Maintenance" />} />
+              <Route path="route-stations" element={<ComingSoon title="Route Stations" />} />
+              <Route path="trips" element={<ComingSoon title="Trips" />} />
+            </Route>
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={["driver"]} />}>
