@@ -4,6 +4,7 @@ import ProtectedRoute from "@/auth/ProtectedRoute";
 import Login from "@/pages/Login";
 import AdminLayout from "@/layouts/AdminLayout";
 import ComingSoon from "@/components/admin/ComingSoon";
+import BusesPage from "@/pages/admin/buses/BusesPage";
 import DriverDashboard from "@/pages/driver/DashboardHome";
 import PassengerDashboard from "@/pages/passenger/DashboardHome";
 
@@ -26,7 +27,7 @@ export default function App() {
           <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<Navigate to="/admin/buses" replace />} />
-              <Route path="buses" element={<ComingSoon title="Buses" />} />
+              <Route path="buses" element={<BusesPage />} />
               <Route path="stations" element={<ComingSoon title="Stations" />} />
               <Route path="routes" element={<ComingSoon title="Routes" />} />
               <Route path="drivers" element={<ComingSoon title="Drivers" />} />
