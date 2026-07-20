@@ -1,5 +1,17 @@
 import { useState } from "react";
-import { useBuses } from "@/api/buses";
+import { useBuses, useDeleteBus } from "@/api/buses";
+import { Button } from "@/components/ui/button";
+import BusFormDialog from "./BusFormDialog";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 
 const STATUS_STYLE = {
   in_service: { bg: "var(--success-bg)", fg: "var(--success)", label: "In service" },
@@ -10,6 +22,26 @@ const STATUS_STYLE = {
 export default function BusesPage() {
   const [page, setPage] = useState(1);
   const { data, isLoading, isError } = useBuses(page);
+  const deleteBus = useDeleteBus();
+
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingBus, setEditingBus] = useState(null);
+  const [deletingBus, setDeletingBus] = useState(null);
+
+  function openCreate() {
+    setEditingBus(null);
+    setFormOpen(true);
+  }
+
+  function openEdit(bus) {
+    setEditingBus(bus);
+    setFormOpen(true);
+  }
+
+  async function confirmDelete() {
+    await deleteBus.mutateAsync(deletingBus.id);
+    setDeletingBus(null);
+  }
 
   return (
     <div>
@@ -17,6 +49,7 @@ export default function BusesPage() {
         <h1 className="font-display text-3xl font-extrabold" style={{ color: "var(--text)" }}>
           Buses
         </h1>
+        <Button onClick={openCreate}>Add Bus</Button>
       </div>
 
       <div className="overflow-x-auto rounded-xl" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
@@ -34,7 +67,7 @@ export default function BusesPage() {
           <table className="w-full border-collapse">
             <thead>
               <tr style={{ background: "var(--surface-2)" }}>
-                {["Plate", "Manufacturer", "Model", "Year", "Capacity", "Status"].map((h) => (
+                {["Plate", "Manufacturer", "Model", "Year", "Capacity", "Status", ""].map((h) => (
                   <th
                     key={h}
                     className="px-5 py-3 text-left text-[11.5px] font-bold uppercase"
@@ -73,6 +106,14 @@ export default function BusesPage() {
                         {status.label}
                       </span>
                     </td>
+                    <td className="px-5 py-3 text-sm">
+                      <button onClick={() => openEdit(bus)} className="mr-3 font-semibold" style={{ color: "var(--accent)" }}>
+                        Edit
+                      </button>
+                      <button onClick={() => setDeletingBus(bus)} className="font-semibold" style={{ color: "var(--critical)" }}>
+                        Delete
+                      </button>
+                    </td>
                   </tr>
                 );
               })}
@@ -106,6 +147,23 @@ export default function BusesPage() {
           </div>
         </div>
       )}
+
+      <BusFormDialog open={formOpen} onOpenChange={setFormOpen} bus={editingBus} />
+
+      <AlertDialog open={Boolean(deletingBus)} onOpenChange={(open) => !open && setDeletingBus(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this bus?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete {deletingBus?.plate_number}. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
