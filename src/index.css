@@ -1,1 +1,118 @@
 @import "tailwindcss";
+@import "@fontsource/barlow/400.css";
+@import "@fontsource/barlow/500.css";
+@import "@fontsource/barlow/600.css";
+@import "@fontsource/barlow-condensed/600.css";
+@import "@fontsource/barlow-condensed/800.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+
+@theme {
+  --font-display: "Barlow Condensed", system-ui, sans-serif;
+  --font-sans: "Barlow", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+:root {
+  --bg: #F3F6F5;
+  --surface: #FFFFFF;
+  --surface-2: #E9F0EF;
+  --border: #D3DEDC;
+  --text: #16252F;
+  --text-muted: #5B7079;
+  --accent: #1F8B84;
+  --accent-strong: #17716B;
+  --accent-ink: #FFFFFF;
+  --success: #2F9D64;
+  --success-bg: #E1F3E9;
+  --warning: #B9791F;
+  --warning-bg: #FBEEDD;
+  --critical: #C64A38;
+  --critical-bg: #FBE7E3;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0F1B24;
+    --surface: #16252F;
+    --surface-2: #1D2E3A;
+    --border: #28404D;
+    --text: #EAF0F2;
+    --text-muted: #86A0AA;
+    --accent: #4FC7BF;
+    --accent-strong: #6FE0D8;
+    --accent-ink: #06201E;
+    --success: #4FCB8C;
+    --success-bg: #163229;
+    --warning: #E7B75C;
+    --warning-bg: #3A2E19;
+    --critical: #EC7C6B;
+    --critical-bg: #3A211D;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #0F1B24;
+  --surface: #16252F;
+  --surface-2: #1D2E3A;
+  --border: #28404D;
+  --text: #EAF0F2;
+  --text-muted: #86A0AA;
+  --accent: #4FC7BF;
+  --accent-strong: #6FE0D8;
+  --accent-ink: #06201E;
+  --success: #4FCB8C;
+  --success-bg: #163229;
+  --warning: #E7B75C;
+  --warning-bg: #3A2E19;
+  --critical: #EC7C6B;
+  --critical-bg: #3A211D;
+}
+
+:root[data-theme="light"] {
+  --bg: #F3F6F5;
+  --surface: #FFFFFF;
+  --surface-2: #E9F0EF;
+  --border: #D3DEDC;
+  --text: #16252F;
+  --text-muted: #5B7079;
+  --accent: #1F8B84;
+  --accent-strong: #17716B;
+  --accent-ink: #FFFFFF;
+  --success: #2F9D64;
+  --success-bg: #E1F3E9;
+  --warning: #B9791F;
+  --warning-bg: #FBEEDD;
+  --critical: #C64A38;
+  --critical-bg: #FBE7E3;
+}
+
+/* Map shadcn's expected tokens onto our design system so shadcn/ui
+   components (Button, Input, Card, ...) automatically match our brand
+   without per-component overrides. */
+:root {
+  --background: var(--bg);
+  --foreground: var(--text);
+  --card: var(--surface);
+  --card-foreground: var(--text);
+  --popover: var(--surface);
+  --popover-foreground: var(--text);
+  --primary: var(--accent);
+  --primary-foreground: var(--accent-ink);
+  --secondary: var(--surface-2);
+  --secondary-foreground: var(--text);
+  --muted: var(--surface-2);
+  --muted-foreground: var(--text-muted);
+  --accent-foreground: var(--text);
+  --destructive: var(--critical);
+  --destructive-foreground: #FFFFFF;
+  --input: var(--border);
+  --ring: var(--accent);
+  --radius: 0.75rem;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+}
