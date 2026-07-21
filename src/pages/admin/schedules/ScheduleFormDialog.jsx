@@ -72,8 +72,10 @@ export default function ScheduleFormDialog({ open, onOpenChange, schedule }) {
       }
       onOpenChange(false);
     } catch (err) {
-      if (err.response?.status === 422) {
-        setErrors(err.response.data.errors ?? {});
+      if (err.response?.status === 422 && err.response.data.errors) {
+        setErrors(err.response.data.errors);
+      } else if (err.response?.data?.message) {
+        setGeneralError(err.response.data.message);
       } else {
         setGeneralError("Something went wrong. Please try again.");
       }
