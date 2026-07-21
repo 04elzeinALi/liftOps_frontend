@@ -5,6 +5,7 @@ import Login from "@/pages/Login";
 import AdminLayout from "@/layouts/AdminLayout";
 import ComingSoon from "@/components/admin/ComingSoon";
 import BusesPage from "@/pages/admin/buses/BusesPage";
+import SchedulesPage from "@/pages/admin/schedules/SchedulesPage";
 import DriverDashboard from "@/pages/driver/DashboardHome";
 import PassengerDashboard from "@/pages/passenger/DashboardHome";
 
@@ -31,7 +32,7 @@ export default function App() {
               <Route path="stations" element={<ComingSoon title="Stations" />} />
               <Route path="routes" element={<ComingSoon title="Routes" />} />
               <Route path="drivers" element={<ComingSoon title="Drivers" />} />
-              <Route path="schedules" element={<ComingSoon title="Schedules" />} />
+              <Route path="schedules" element={<SchedulesPage />} />
               <Route path="schedule-days" element={<ComingSoon title="Schedule Days" />} />
               <Route path="maintenance" element={<ComingSoon title="Maintenance" />} />
               <Route path="route-stations" element={<ComingSoon title="Route Stations" />} />
