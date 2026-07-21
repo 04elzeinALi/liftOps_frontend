@@ -40,6 +40,10 @@ export default function BusesPage() {
   }
 
   async function confirmDelete(event) {
+    // AlertDialogAction is Radix's DialogPrimitive.Close under the hood, so it
+    // auto-closes on click unless we preventDefault() before the first await —
+    // without this, the dialog closes immediately regardless of whether the
+    // delete succeeds, and the error message below can never be seen.
     event.preventDefault();
     setDeleteError("");
     try {
