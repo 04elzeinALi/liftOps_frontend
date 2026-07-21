@@ -39,7 +39,8 @@ export default function BusesPage() {
     setFormOpen(true);
   }
 
-  async function confirmDelete() {
+  async function confirmDelete(event) {
+    event.preventDefault();
     setDeleteError("");
     try {
       await deleteBus.mutateAsync(deletingBus.id);
