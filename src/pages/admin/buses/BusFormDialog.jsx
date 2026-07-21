@@ -23,6 +23,7 @@ const EMPTY_FORM = {
 export default function BusFormDialog({ open, onOpenChange, bus }) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
+  const [generalError, setGeneralError] = useState("");
   const createBus = useCreateBus();
   const updateBus = useUpdateBus();
   const isEditing = Boolean(bus);
@@ -43,6 +44,7 @@ export default function BusFormDialog({ open, onOpenChange, bus }) {
           : EMPTY_FORM
       );
       setErrors({});
+      setGeneralError("");
     }
   }, [open, bus]);
 
@@ -53,6 +55,7 @@ export default function BusFormDialog({ open, onOpenChange, bus }) {
   async function handleSubmit(e) {
     e.preventDefault();
     setErrors({});
+    setGeneralError("");
     const payload = {
       ...form,
       production_year: Number(form.production_year),
@@ -68,6 +71,8 @@ export default function BusFormDialog({ open, onOpenChange, bus }) {
     } catch (err) {
       if (err.response?.status === 422) {
         setErrors(err.response.data.errors ?? {});
+      } else {
+        setGeneralError("Something went wrong. Please try again.");
       }
     }
   }
@@ -170,6 +175,11 @@ export default function BusFormDialog({ open, onOpenChange, bus }) {
               </p>
             )}
           </div>
+          {generalError && (
+            <p className="text-sm" style={{ color: "var(--critical)" }}>
+              {generalError}
+            </p>
+          )}
           <DialogFooter>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? "Saving…" : "Save"}

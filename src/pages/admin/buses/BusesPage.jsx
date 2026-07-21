@@ -27,6 +27,7 @@ export default function BusesPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editingBus, setEditingBus] = useState(null);
   const [deletingBus, setDeletingBus] = useState(null);
+  const [deleteError, setDeleteError] = useState("");
 
   function openCreate() {
     setEditingBus(null);
@@ -39,8 +40,13 @@ export default function BusesPage() {
   }
 
   async function confirmDelete() {
-    await deleteBus.mutateAsync(deletingBus.id);
-    setDeletingBus(null);
+    setDeleteError("");
+    try {
+      await deleteBus.mutateAsync(deletingBus.id);
+      setDeletingBus(null);
+    } catch {
+      setDeleteError("Failed to delete this bus. Please try again.");
+    }
   }
 
   return (
@@ -150,13 +156,26 @@ export default function BusesPage() {
 
       <BusFormDialog open={formOpen} onOpenChange={setFormOpen} bus={editingBus} />
 
-      <AlertDialog open={Boolean(deletingBus)} onOpenChange={(open) => !open && setDeletingBus(null)}>
+      <AlertDialog
+        open={Boolean(deletingBus)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeletingBus(null);
+            setDeleteError("");
+          }
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete this bus?</AlertDialogTitle>
             <AlertDialogDescription>
               This will permanently delete {deletingBus?.plate_number}. This action cannot be undone.
             </AlertDialogDescription>
+            {deleteError && (
+              <p className="mt-2 text-sm" style={{ color: "var(--critical)" }}>
+                {deleteError}
+              </p>
+            )}
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
