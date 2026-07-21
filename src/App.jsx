@@ -3,7 +3,6 @@ import { AuthProvider, useAuth } from "@/auth/AuthContext";
 import ProtectedRoute from "@/auth/ProtectedRoute";
 import Login from "@/pages/Login";
 import AdminLayout from "@/layouts/AdminLayout";
-import ComingSoon from "@/components/admin/ComingSoon";
 import BusesPage from "@/pages/admin/buses/BusesPage";
 import SchedulesPage from "@/pages/admin/schedules/SchedulesPage";
 import StationsPage from "@/pages/admin/stations/StationsPage";
@@ -12,6 +11,7 @@ import ScheduleDaysPage from "@/pages/admin/schedule-days/ScheduleDaysPage";
 import MaintenancePage from "@/pages/admin/maintenance/MaintenancePage";
 import RouteStationsPage from "@/pages/admin/route-stations/RouteStationsPage";
 import TripsPage from "@/pages/admin/trips/TripsPage";
+import DriversPage from "@/pages/admin/drivers/DriversPage";
 import DriverDashboard from "@/pages/driver/DashboardHome";
 import PassengerDashboard from "@/pages/passenger/DashboardHome";
 
@@ -37,7 +37,7 @@ export default function App() {
               <Route path="buses" element={<BusesPage />} />
               <Route path="stations" element={<StationsPage />} />
               <Route path="routes" element={<RoutesPage />} />
-              <Route path="drivers" element={<ComingSoon title="Drivers" />} />
+              <Route path="drivers" element={<DriversPage />} />
               <Route path="schedules" element={<SchedulesPage />} />
               <Route path="schedule-days" element={<ScheduleDaysPage />} />
               <Route path="maintenance" element={<MaintenancePage />} />
