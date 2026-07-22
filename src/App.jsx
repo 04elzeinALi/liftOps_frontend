@@ -15,7 +15,12 @@ import DriversPage from "@/pages/admin/drivers/DriversPage";
 import DriverLayout from "@/layouts/DriverLayout";
 import DriverTripsPage from "@/pages/driver/DriverTripsPage";
 import TripManifestPage from "@/pages/driver/TripManifestPage";
-import PassengerDashboard from "@/pages/passenger/DashboardHome";
+import PassengerLayout from "@/layouts/PassengerLayout";
+import TripsBrowsePage from "@/pages/passenger/TripsBrowsePage";
+import BookTripPage from "@/pages/passenger/BookTripPage";
+import MyTravelCardsPage from "@/pages/passenger/MyTravelCardsPage";
+import BuyTravelCardPage from "@/pages/passenger/BuyTravelCardPage";
+import MyReservationsPage from "@/pages/passenger/MyReservationsPage";
 
 function RoleHomeRedirect() {
   const { user } = useAuth();
@@ -57,7 +62,14 @@ export default function App() {
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={["passenger"]} />}>
-            <Route path="/passenger" element={<PassengerDashboard />} />
+            <Route path="/passenger" element={<PassengerLayout />}>
+              <Route index element={<Navigate to="/passenger/trips" replace />} />
+              <Route path="trips" element={<TripsBrowsePage />} />
+              <Route path="trips/:id/book" element={<BookTripPage />} />
+              <Route path="cards" element={<MyTravelCardsPage />} />
+              <Route path="cards/buy" element={<BuyTravelCardPage />} />
+              <Route path="reservations" element={<MyReservationsPage />} />
+            </Route>
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />
