@@ -12,7 +12,9 @@ import MaintenancePage from "@/pages/admin/maintenance/MaintenancePage";
 import RouteStationsPage from "@/pages/admin/route-stations/RouteStationsPage";
 import TripsPage from "@/pages/admin/trips/TripsPage";
 import DriversPage from "@/pages/admin/drivers/DriversPage";
-import DriverDashboard from "@/pages/driver/DashboardHome";
+import DriverLayout from "@/layouts/DriverLayout";
+import DriverTripsPage from "@/pages/driver/DriverTripsPage";
+import TripManifestPage from "@/pages/driver/TripManifestPage";
 import PassengerDashboard from "@/pages/passenger/DashboardHome";
 
 function RoleHomeRedirect() {
@@ -47,7 +49,11 @@ export default function App() {
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={["driver"]} />}>
-            <Route path="/driver" element={<DriverDashboard />} />
+            <Route path="/driver" element={<DriverLayout />}>
+              <Route index element={<Navigate to="/driver/trips" replace />} />
+              <Route path="trips" element={<DriverTripsPage />} />
+              <Route path="trips/:id" element={<TripManifestPage />} />
+            </Route>
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={["passenger"]} />}>
