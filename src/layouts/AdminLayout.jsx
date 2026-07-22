@@ -29,6 +29,14 @@ const NAV_GROUPS = [
     label: "People",
     items: [{ to: "/admin/drivers", label: "Drivers" }],
   },
+  {
+    label: "Accounts",
+    items: [
+      { to: "/admin/passengers", label: "Passengers" },
+      { to: "/admin/travel-cards", label: "Travel Cards" },
+      { to: "/admin/payments", label: "Payments" },
+    ],
+  },
 ];
 
 export default function AdminLayout() {

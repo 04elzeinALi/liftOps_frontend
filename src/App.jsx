@@ -12,6 +12,9 @@ import MaintenancePage from "@/pages/admin/maintenance/MaintenancePage";
 import RouteStationsPage from "@/pages/admin/route-stations/RouteStationsPage";
 import TripsPage from "@/pages/admin/trips/TripsPage";
 import DriversPage from "@/pages/admin/drivers/DriversPage";
+import AdminPassengersPage from "@/pages/admin/passengers/PassengersPage";
+import AdminTravelCardsPage from "@/pages/admin/travel-cards/TravelCardsPage";
+import AdminPaymentsPage from "@/pages/admin/payments/PaymentsPage";
 import DriverLayout from "@/layouts/DriverLayout";
 import DriverTripsPage from "@/pages/driver/DriverTripsPage";
 import TripManifestPage from "@/pages/driver/TripManifestPage";
@@ -50,6 +53,9 @@ export default function App() {
               <Route path="maintenance" element={<MaintenancePage />} />
               <Route path="route-stations" element={<RouteStationsPage />} />
               <Route path="trips" element={<TripsPage />} />
+              <Route path="passengers" element={<AdminPassengersPage />} />
+              <Route path="travel-cards" element={<AdminTravelCardsPage />} />
+              <Route path="payments" element={<AdminPaymentsPage />} />
             </Route>
           </Route>
 
