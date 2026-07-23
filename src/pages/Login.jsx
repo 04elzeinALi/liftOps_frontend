@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/auth/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -73,6 +73,13 @@ export default function Login() {
             {submitting ? "Signing in…" : "Sign in"}
           </Button>
         </form>
+
+        <p className="mt-6 text-sm" style={{ color: "var(--text-muted)" }}>
+          Don't have an account?{" "}
+          <Link to="/signup" className="font-semibold" style={{ color: "var(--accent)" }}>
+            Sign up
+          </Link>
+        </p>
       </div>
     </div>
   );
