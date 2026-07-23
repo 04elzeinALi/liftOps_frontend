@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const STATUSES = ["scheduled", "ongoing", "completed", "cancelled"];
+const STATUSES = ["scheduled", "ongoing", "completed", "cancelled", "emergency"];
 
 const EMPTY_FORM = {
   schedule_id: "",

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { parseApiError } from "@/api/errors";
 import { useCreateRoute, useUpdateRoute } from "@/api/routes";
+import { useStationsList } from "@/api/stations";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +12,13 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const EMPTY_FORM = {
   route_name: "",
@@ -25,6 +33,7 @@ export default function RouteFormDialog({ open, onOpenChange, route }) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
   const [generalError, setGeneralError] = useState("");
+  const { data: stations } = useStationsList();
   const createRoute = useCreateRoute();
   const updateRoute = useUpdateRoute();
   const isEditing = Boolean(route);
@@ -102,12 +111,18 @@ export default function RouteFormDialog({ open, onOpenChange, route }) {
           </div>
           <div>
             <Label htmlFor="origin">Origin</Label>
-            <Input
-              id="origin"
-              value={form.origin}
-              onChange={(e) => handleChange("origin", e.target.value)}
-              required
-            />
+            <Select value={form.origin || ""} onValueChange={(value) => handleChange("origin", value)}>
+              <SelectTrigger id="origin" className="w-full">
+                <SelectValue placeholder="Select a station" />
+              </SelectTrigger>
+              <SelectContent>
+                {stations?.map((station) => (
+                  <SelectItem key={station.id} value={station.station_name}>
+                    {station.station_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {errors.origin && (
               <p className="mt-1 text-xs" style={{ color: "var(--critical)" }}>
                 {errors.origin[0]}
@@ -116,12 +131,18 @@ export default function RouteFormDialog({ open, onOpenChange, route }) {
           </div>
           <div>
             <Label htmlFor="destination">Destination</Label>
-            <Input
-              id="destination"
-              value={form.destination}
-              onChange={(e) => handleChange("destination", e.target.value)}
-              required
-            />
+            <Select value={form.destination || ""} onValueChange={(value) => handleChange("destination", value)}>
+              <SelectTrigger id="destination" className="w-full">
+                <SelectValue placeholder="Select a station" />
+              </SelectTrigger>
+              <SelectContent>
+                {stations?.map((station) => (
+                  <SelectItem key={station.id} value={station.station_name}>
+                    {station.station_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {errors.destination && (
               <p className="mt-1 text-xs" style={{ color: "var(--critical)" }}>
                 {errors.destination[0]}

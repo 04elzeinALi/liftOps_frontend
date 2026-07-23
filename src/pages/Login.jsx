@@ -4,6 +4,7 @@ import { useAuth } from "@/auth/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function Login() {
   const { login } = useAuth();
@@ -28,7 +29,10 @@ export default function Login() {
   }
 
   return (
-    <div className="grid min-h-screen place-items-center px-4" style={{ background: "var(--bg)" }}>
+    <div className="relative grid min-h-screen place-items-center px-4" style={{ background: "var(--bg)" }}>
+      <div className="absolute right-4 top-4">
+        <ThemeToggle />
+      </div>
       <div className="w-full max-w-sm">
         <p
           className="mb-2 text-xs font-semibold uppercase"
@@ -37,8 +41,11 @@ export default function Login() {
           Operations console
         </p>
         <h1 className="font-display mb-1 text-3xl font-extrabold" style={{ color: "var(--text)" }}>
-          Sign in
+          Welcome to LiftOps
         </h1>
+        <p className="mb-1 text-sm" style={{ color: "var(--text-muted)" }}>
+          Every journey starts with a single lift.
+        </p>
         <p className="mb-7 text-sm" style={{ color: "var(--text-muted)" }}>
           Enter your credentials to access your dashboard.
         </p>

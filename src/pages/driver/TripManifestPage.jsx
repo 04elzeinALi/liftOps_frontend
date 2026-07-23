@@ -3,18 +3,33 @@ import StatusPill from "@/components/StatusPill";
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useMarkBoarded, useTripDetail, useTripManifest, useUpdateTripStatus } from "@/api/driverTrips";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 
 const STATUS_STYLE = {
   scheduled: { bg: "var(--warning-bg)", fg: "var(--warning)", label: "Scheduled" },
   ongoing: { bg: "var(--success-bg)", fg: "var(--success)", label: "Ongoing" },
   completed: { bg: "var(--success-bg)", fg: "var(--success)", label: "Completed" },
   cancelled: { bg: "var(--critical-bg)", fg: "var(--critical)", label: "Cancelled" },
+  emergency: { bg: "var(--critical-bg)", fg: "var(--critical)", label: "Emergency" },
 };
 
 const NEXT_STATUS = {
   scheduled: { label: "Start Trip", status: "ongoing" },
   ongoing: { label: "End Trip", status: "completed" },
 };
+
+// A driver can flag an emergency any time their trip is still actively
+// running — not once it's already completed/cancelled, and not twice.
+const CAN_FLAG_EMERGENCY = ["scheduled", "ongoing"];
 
 export default function TripManifestPage() {
   const { id } = useParams();
@@ -24,6 +39,7 @@ export default function TripManifestPage() {
   const markBoarded = useMarkBoarded();
   const [statusError, setStatusError] = useState("");
   const [boardingErrors, setBoardingErrors] = useState({});
+  const [confirmingEmergency, setConfirmingEmergency] = useState(false);
 
   async function handleStatusChange(nextStatus) {
     setStatusError("");
@@ -31,6 +47,19 @@ export default function TripManifestPage() {
       await updateStatus.mutateAsync({ id, status: nextStatus });
     } catch (err) {
       setStatusError(getApiErrorMessage(err, "Failed to update trip status. Please try again."));
+    }
+  }
+
+  async function confirmFlagEmergency(event) {
+    // AlertDialogAction auto-closes on click (see the note on delete
+    // confirms elsewhere) unless we preventDefault() before the first await.
+    event.preventDefault();
+    setStatusError("");
+    try {
+      await updateStatus.mutateAsync({ id, status: "emergency" });
+      setConfirmingEmergency(false);
+    } catch (err) {
+      setStatusError(getApiErrorMessage(err, "Failed to flag this trip. Please try again."));
     }
   }
 
@@ -98,14 +127,48 @@ export default function TripManifestPage() {
               {updateStatus.isPending ? "Saving…" : nextAction.label}
             </button>
           )}
+          {CAN_FLAG_EMERGENCY.includes(trip.status) && (
+            <button
+              onClick={() => setConfirmingEmergency(true)}
+              disabled={updateStatus.isPending}
+              className="rounded-lg px-3 py-1.5 text-sm font-semibold"
+              style={{ background: "var(--critical-bg)", color: "var(--critical)", border: "1px solid var(--critical)" }}
+            >
+              Flag Emergency
+            </button>
+          )}
         </div>
       </div>
+
+      {trip.status === "emergency" && (
+        <p
+          className="mb-4 rounded-lg px-4 py-3 text-sm font-semibold"
+          style={{ background: "var(--critical-bg)", color: "var(--critical)" }}
+        >
+          This trip is flagged as an emergency — admins will see this the next time they check Trips. For anything urgent, contact them directly.
+        </p>
+      )}
 
       {statusError && (
         <p className="mb-4 text-sm" style={{ color: "var(--critical)" }}>
           {statusError}
         </p>
       )}
+
+      <AlertDialog open={confirmingEmergency} onOpenChange={setConfirmingEmergency}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Flag this trip as an emergency?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This immediately marks the trip as an emergency for the admin to see. Only use this for an actual emergency.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmFlagEmergency}>Flag Emergency</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <div className="overflow-x-auto rounded-xl" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
         {manifestLoading && (

@@ -25,6 +25,7 @@ import BookTripPage from "@/pages/passenger/BookTripPage";
 import MyTravelCardsPage from "@/pages/passenger/MyTravelCardsPage";
 import BuyTravelCardPage from "@/pages/passenger/BuyTravelCardPage";
 import MyReservationsPage from "@/pages/passenger/MyReservationsPage";
+import MyPaymentsPage from "@/pages/passenger/MyPaymentsPage";
 
 function RoleHomeRedirect() {
   const { user } = useAuth();
@@ -77,6 +78,7 @@ export default function App() {
               <Route path="cards" element={<MyTravelCardsPage />} />
               <Route path="cards/buy" element={<BuyTravelCardPage />} />
               <Route path="reservations" element={<MyReservationsPage />} />
+              <Route path="payments" element={<MyPaymentsPage />} />
             </Route>
           </Route>
 

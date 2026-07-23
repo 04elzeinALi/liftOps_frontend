@@ -1,5 +1,6 @@
 import { Outlet, NavLink } from "react-router-dom";
 import { useAuth } from "@/auth/AuthContext";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const NAV_GROUPS = [
   {
@@ -26,13 +27,15 @@ const NAV_GROUPS = [
     ],
   },
   {
-    label: "People",
-    items: [{ to: "/admin/drivers", label: "Drivers" }],
-  },
-  {
     label: "Accounts",
     items: [
+      { to: "/admin/drivers", label: "Drivers" },
       { to: "/admin/passengers", label: "Passengers" },
+    ],
+  },
+  {
+    label: "Transactions",
+    items: [
       { to: "/admin/travel-cards", label: "Travel Cards" },
       { to: "/admin/payments", label: "Payments" },
     ],
@@ -99,13 +102,16 @@ export default function AdminLayout() {
             </div>
             {user?.name}
           </div>
-          <button
-            onClick={logout}
-            className="rounded-lg px-3 py-1.5 text-sm font-semibold"
-            style={{ background: "var(--surface-2)", color: "var(--text)", border: "1px solid var(--border)" }}
-          >
-            Log out
-          </button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <button
+              onClick={logout}
+              className="rounded-lg px-3 py-1.5 text-sm font-semibold"
+              style={{ background: "var(--surface-2)", color: "var(--text)", border: "1px solid var(--border)" }}
+            >
+              Log out
+            </button>
+          </div>
         </header>
 
         <main className="flex-1 p-7">

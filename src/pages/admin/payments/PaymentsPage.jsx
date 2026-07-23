@@ -1,6 +1,6 @@
 import { useState } from "react";
 import StatusPill from "@/components/StatusPill";
-import { useDeletePayment, usePayments } from "@/api/payments";
+import { useDeletePayment, usePayments, usePaymentsSummary } from "@/api/payments";
 import { Button } from "@/components/ui/button";
 import Pagination from "@/components/Pagination";
 import PaymentFormDialog from "./PaymentFormDialog";
@@ -20,6 +20,147 @@ const STATUS_STYLE = {
   unpaid: { bg: "var(--warning-bg)", fg: "var(--warning)", label: "Unpaid" },
   failed: { bg: "var(--critical-bg)", fg: "var(--critical)", label: "Failed" },
 };
+
+const PERIODS = [
+  { value: "day", label: "Today" },
+  { value: "week", label: "This Week" },
+  { value: "month", label: "This Month" },
+];
+
+function formatDateTime(value) {
+  if (!value) return "—";
+  return new Date(value).toLocaleString(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+}
+
+function SummarySection() {
+  const [period, setPeriod] = useState("day");
+  const { data: summary, isLoading } = usePaymentsSummary(period);
+
+  const billed = summary?.total_billed ?? 0;
+  const received = summary?.total_received ?? 0;
+  const gap = billed - received;
+
+  return (
+    <div className="mb-6 rounded-xl p-5" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="font-display text-lg font-bold" style={{ color: "var(--text)" }}>
+          Totals
+        </h2>
+        <div className="flex gap-1">
+          {PERIODS.map((p) => (
+            <button
+              key={p.value}
+              onClick={() => setPeriod(p.value)}
+              className="rounded-lg px-3 py-1.5 text-sm font-semibold"
+              style={{
+                background: period === p.value ? "var(--accent)" : "var(--surface-2)",
+                color: period === p.value ? "var(--accent-ink)" : "var(--text-muted)",
+              }}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {isLoading && (
+        <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+          Loading…
+        </p>
+      )}
+
+      {summary && (
+        <>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+            <div className="rounded-lg p-4" style={{ background: "var(--surface-2)" }}>
+              <p className="text-xs font-semibold uppercase" style={{ color: "var(--text-muted)", letterSpacing: "0.06em" }}>
+                Total Billed
+              </p>
+              <p className="font-display mt-1 text-2xl font-extrabold" style={{ color: "var(--text)" }}>
+                ${billed.toFixed(2)}
+              </p>
+            </div>
+            <div className="rounded-lg p-4" style={{ background: "var(--surface-2)" }}>
+              <p className="text-xs font-semibold uppercase" style={{ color: "var(--text-muted)", letterSpacing: "0.06em" }}>
+                Total Received
+              </p>
+              <p className="font-display mt-1 text-2xl font-extrabold" style={{ color: "var(--text)" }}>
+                ${received.toFixed(2)}
+              </p>
+            </div>
+            <div
+              className="rounded-lg p-4"
+              style={{ background: gap > 0 ? "var(--critical-bg)" : "var(--success-bg)" }}
+            >
+              <p
+                className="text-xs font-semibold uppercase"
+                style={{ color: gap > 0 ? "var(--critical)" : "var(--success)", letterSpacing: "0.06em" }}
+              >
+                {gap > 0 ? "Unreceived" : "Fully Reconciled"}
+              </p>
+              <p
+                className="font-display mt-1 text-2xl font-extrabold"
+                style={{ color: gap > 0 ? "var(--critical)" : "var(--success)" }}
+              >
+                ${gap.toFixed(2)}
+              </p>
+            </div>
+          </div>
+
+          {summary.by_driver.length > 0 && (
+            <div className="mt-5">
+              <p className="mb-2 text-xs font-semibold uppercase" style={{ color: "var(--text-muted)", letterSpacing: "0.06em" }}>
+                By Driver
+              </p>
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr>
+                    {["Driver", "Billed", "Received", "Gap"].map((h) => (
+                      <th
+                        key={h}
+                        className="px-3 py-2 text-left text-[11px] font-bold uppercase"
+                        style={{ color: "var(--text-muted)", letterSpacing: "0.06em", borderBottom: "1px solid var(--border)" }}
+                      >
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {summary.by_driver.map((row) => {
+                    const driverGap = row.billed - row.received;
+                    return (
+                      <tr key={row.driver_id} style={{ borderBottom: "1px solid var(--border)" }}>
+                        <td className="px-3 py-2" style={{ color: "var(--text)" }}>
+                          {row.driver_name}
+                        </td>
+                        <td className="px-3 py-2" style={{ fontFamily: "var(--font-mono)" }}>
+                          ${row.billed.toFixed(2)}
+                        </td>
+                        <td className="px-3 py-2" style={{ fontFamily: "var(--font-mono)" }}>
+                          ${row.received.toFixed(2)}
+                        </td>
+                        <td
+                          className="px-3 py-2 font-semibold"
+                          style={{ fontFamily: "var(--font-mono)", color: driverGap > 0 ? "var(--critical)" : "var(--success)" }}
+                        >
+                          ${driverGap.toFixed(2)}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
 
 export default function PaymentsPage() {
   const [page, setPage] = useState(1);
@@ -65,6 +206,8 @@ export default function PaymentsPage() {
         <Button onClick={openCreate}>Add Payment</Button>
       </div>
 
+      <SummarySection />
+
       <div className="overflow-x-auto rounded-xl" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
         {isLoading && (
           <p className="p-6 text-sm" style={{ color: "var(--text-muted)" }}>
@@ -80,7 +223,7 @@ export default function PaymentsPage() {
           <table className="w-full border-collapse">
             <thead>
               <tr style={{ background: "var(--surface-2)" }}>
-                {["Passenger", "Amount", "Method", "Status", "Collected By", ""].map((h) => (
+                {["Passenger", "Amount", "Method", "Status", "Paid At", "Collected By", ""].map((h) => (
                   <th
                     key={h}
                     className="px-5 py-3 text-left text-[11.5px] font-bold uppercase"
@@ -107,6 +250,9 @@ export default function PaymentsPage() {
                     </td>
                     <td className="px-5 py-3 text-sm">
                       <StatusPill bg={status.bg} fg={status.fg} label={status.label} />
+                    </td>
+                    <td className="px-5 py-3 text-sm" style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
+                      {formatDateTime(payment.paid_at)}
                     </td>
                     <td className="px-5 py-3 text-sm" style={{ color: "var(--text-muted)" }}>
                       {payment.collected_by_driver

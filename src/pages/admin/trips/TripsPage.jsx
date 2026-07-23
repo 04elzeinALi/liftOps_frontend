@@ -20,6 +20,7 @@ const STATUS_STYLE = {
   ongoing: { bg: "var(--success-bg)", fg: "var(--success)", label: "Ongoing" },
   completed: { bg: "var(--success-bg)", fg: "var(--success)", label: "Completed" },
   cancelled: { bg: "var(--critical-bg)", fg: "var(--critical)", label: "Cancelled" },
+  emergency: { bg: "var(--critical-bg)", fg: "var(--critical)", label: "Emergency" },
 };
 
 export default function TripsPage() {
@@ -95,8 +96,15 @@ export default function TripsPage() {
             <tbody>
               {data.data.map((trip) => {
                 const status = STATUS_STYLE[trip.status];
+                const isEmergency = trip.status === "emergency";
                 return (
-                  <tr key={trip.id} style={{ borderBottom: "1px solid var(--border)" }}>
+                  <tr
+                    key={trip.id}
+                    style={{
+                      borderBottom: "1px solid var(--border)",
+                      background: isEmergency ? "var(--critical-bg)" : undefined,
+                    }}
+                  >
                     <td className="px-5 py-3 text-sm" style={{ color: "var(--text)" }}>
                       {trip.schedule?.route?.route_name} — {trip.schedule?.departure_time?.slice(0, 5)}–{trip.schedule?.arrival_time?.slice(0, 5)}
                     </td>

@@ -5,6 +5,7 @@ import { parseApiError } from "@/api/errors";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const EMPTY_FORM = {
   first_name: "",
@@ -45,7 +46,10 @@ export default function Signup() {
   }
 
   return (
-    <div className="grid min-h-screen place-items-center px-4 py-8" style={{ background: "var(--bg)" }}>
+    <div className="relative grid min-h-screen place-items-center px-4 py-8" style={{ background: "var(--bg)" }}>
+      <div className="absolute right-4 top-4">
+        <ThemeToggle />
+      </div>
       <div className="w-full max-w-sm">
         <p
           className="mb-2 text-xs font-semibold uppercase"

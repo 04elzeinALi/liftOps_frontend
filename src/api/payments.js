@@ -11,6 +11,16 @@ export function useTravelCardsList() {
   });
 }
 
+export function usePaymentsSummary(period) {
+  return useQuery({
+    queryKey: ["payments-summary", period],
+    queryFn: async () => {
+      const res = await api.get(`/payments/summary?period=${period}`);
+      return res.data;
+    },
+  });
+}
+
 export function usePayments(page = 1) {
   return useQuery({
     queryKey: ["payments", page],

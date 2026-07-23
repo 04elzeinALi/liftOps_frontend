@@ -7,6 +7,7 @@ const STATUS_STYLE = {
   ongoing: { bg: "var(--success-bg)", fg: "var(--success)", label: "Ongoing" },
   completed: { bg: "var(--success-bg)", fg: "var(--success)", label: "Completed" },
   cancelled: { bg: "var(--critical-bg)", fg: "var(--critical)", label: "Cancelled" },
+  emergency: { bg: "var(--critical-bg)", fg: "var(--critical)", label: "Emergency" },
 };
 
 export default function DriverTripsPage() {

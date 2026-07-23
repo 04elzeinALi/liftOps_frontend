@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
 import { useAuth } from "@/auth/AuthContext";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function DriverLayout() {
   const { user, logout } = useAuth();
@@ -26,6 +27,7 @@ export default function DriverLayout() {
           <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>
             {user?.name}
           </span>
+          <ThemeToggle />
           <button
             onClick={logout}
             className="rounded-lg px-3 py-1.5 text-sm font-semibold"

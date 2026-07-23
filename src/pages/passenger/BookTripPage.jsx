@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTripDetail } from "@/api/passengerTrips";
 import { useMyTravelCards } from "@/api/passengerCards";
 import { useCreateReservation } from "@/api/passengerReservations";
+import { useStationsList } from "@/api/stations";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,15 +16,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+const OTHER_PICKUP = "__other__";
+
 export default function BookTripPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: trip, isLoading: tripLoading, isError: tripError } = useTripDetail(id);
   const { data: cards, isLoading: cardsLoading } = useMyTravelCards();
+  const { data: stations } = useStationsList();
   const createReservation = useCreateReservation();
 
   const [seatNumber, setSeatNumber] = useState("");
-  const [pickupLocation, setPickupLocation] = useState("");
+  const [pickupChoice, setPickupChoice] = useState("");
+  const [pickupOther, setPickupOther] = useState("");
   const [travelCardId, setTravelCardId] = useState("");
   const [error, setError] = useState("");
 
@@ -62,6 +67,8 @@ export default function BookTripPage() {
       setError("Please select a travel card.");
       return;
     }
+
+    const pickupLocation = pickupChoice === OTHER_PICKUP ? pickupOther : pickupChoice;
 
     try {
       await createReservation.mutateAsync({
@@ -130,11 +137,27 @@ export default function BookTripPage() {
           </div>
           <div>
             <Label htmlFor="pickup_location">Pickup location (optional)</Label>
-            <Input
-              id="pickup_location"
-              value={pickupLocation}
-              onChange={(e) => setPickupLocation(e.target.value)}
-            />
+            <Select value={pickupChoice} onValueChange={setPickupChoice}>
+              <SelectTrigger id="pickup_location" className="w-full">
+                <SelectValue placeholder="Select a station" />
+              </SelectTrigger>
+              <SelectContent>
+                {stations?.map((station) => (
+                  <SelectItem key={station.id} value={station.station_name}>
+                    {station.station_name}
+                  </SelectItem>
+                ))}
+                <SelectItem value={OTHER_PICKUP}>Other…</SelectItem>
+              </SelectContent>
+            </Select>
+            {pickupChoice === OTHER_PICKUP && (
+              <Input
+                className="mt-2"
+                placeholder="Describe your pickup location"
+                value={pickupOther}
+                onChange={(e) => setPickupOther(e.target.value)}
+              />
+            )}
           </div>
           {error && (
             <p className="text-sm" style={{ color: "var(--critical)" }}>
