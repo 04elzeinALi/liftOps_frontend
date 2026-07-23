@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { parseApiError } from "@/api/errors";
 import { useCreateDriver, useUpdateDriver } from "@/api/drivers";
 import { useAvailableDriverUsers } from "@/api/users";
 import { Button } from "@/components/ui/button";
@@ -103,13 +104,9 @@ export default function DriverFormDialog({ open, onOpenChange, driver }) {
       }
       onOpenChange(false);
     } catch (err) {
-      if (err.response?.status === 422 && err.response.data.errors) {
-        setErrors(err.response.data.errors);
-      } else if (err.response?.data?.message) {
-        setGeneralError(err.response.data.message);
-      } else {
-        setGeneralError("Something went wrong. Please try again.");
-      }
+      const { fieldErrors, message } = parseApiError(err);
+      setErrors(fieldErrors ?? {});
+      setGeneralError(message ?? "");
     }
   }
 

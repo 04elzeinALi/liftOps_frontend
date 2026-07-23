@@ -1,3 +1,4 @@
+import { getApiErrorMessage } from "@/api/errors";
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRoutes } from "@/api/routes";
@@ -26,16 +27,6 @@ const CARD_TERMS_PREVIEW = {
 };
 
 const PAYMENT_METHODS = ["cash", "credit_card", "bank_transfer", "wish"];
-
-function extractErrorMessage(err, fallback) {
-  if (err.response?.data?.errors) {
-    return Object.values(err.response.data.errors)[0][0];
-  }
-  if (err.response?.data?.message) {
-    return err.response.data.message;
-  }
-  return fallback;
-}
 
 export default function BuyTravelCardPage() {
   const navigate = useNavigate();
@@ -71,7 +62,7 @@ export default function BuyTravelCardPage() {
       });
       navigate("/passenger/cards");
     } catch (err) {
-      setError(extractErrorMessage(err, "Failed to buy this travel card. Please try again."));
+      setError(getApiErrorMessage(err, "Failed to buy this travel card. Please try again."));
     }
   }
 

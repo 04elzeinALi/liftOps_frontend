@@ -24,6 +24,26 @@ export function AuthProvider({ children }) {
       .finally(() => setLoading(false));
   }, [token]);
 
+  // Keep auth state in sync across browser tabs: localStorage `storage`
+  // events fire in OTHER tabs when one tab logs in/out or switches account.
+  // Without this, a second tab keeps showing a stale session (and sends the
+  // now-wrong token), which produced confusing "insufficient permissions"
+  // errors. Re-reading the token here re-triggers the /user fetch above.
+  useEffect(() => {
+    function syncToken(event) {
+      if (event.key !== "token") {
+        return;
+      }
+      const next = event.newValue;
+      setToken(next);
+      if (!next) {
+        setUser(null);
+      }
+    }
+    window.addEventListener("storage", syncToken);
+    return () => window.removeEventListener("storage", syncToken);
+  }, []);
+
   async function login(email, password) {
     const res = await api.post("/login", { email, password });
     const { token: newToken, user: loggedInUser } = res.data.data;

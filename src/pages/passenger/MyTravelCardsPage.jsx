@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import StatusPill from "@/components/StatusPill";
 import { useMyTravelCards } from "@/api/passengerCards";
 import { Button } from "@/components/ui/button";
 
@@ -72,12 +73,7 @@ export default function MyTravelCardsPage() {
                       {card.expiry_date}
                     </td>
                     <td className="px-5 py-3 text-sm">
-                      <span
-                        className="rounded-full px-2.5 py-1 text-xs font-semibold"
-                        style={{ background: status.bg, color: status.fg }}
-                      >
-                        {status.label}
-                      </span>
+                      <StatusPill bg={status.bg} fg={status.fg} label={status.label} />
                     </td>
                   </tr>
                 );

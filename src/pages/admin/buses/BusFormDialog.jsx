@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { parseApiError } from "@/api/errors";
 import { useCreateBus, useUpdateBus } from "@/api/buses";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -69,13 +70,9 @@ export default function BusFormDialog({ open, onOpenChange, bus }) {
       }
       onOpenChange(false);
     } catch (err) {
-      if (err.response?.status === 422 && err.response.data.errors) {
-        setErrors(err.response.data.errors);
-      } else if (err.response?.data?.message) {
-        setGeneralError(err.response.data.message);
-      } else {
-        setGeneralError("Something went wrong. Please try again.");
-      }
+      const { fieldErrors, message } = parseApiError(err);
+      setErrors(fieldErrors ?? {});
+      setGeneralError(message ?? "");
     }
   }
 

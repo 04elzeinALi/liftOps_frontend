@@ -1,3 +1,4 @@
+import { getApiErrorMessage } from "@/api/errors";
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTripDetail } from "@/api/passengerTrips";
@@ -13,16 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-function extractErrorMessage(err, fallback) {
-  if (err.response?.data?.errors) {
-    return Object.values(err.response.data.errors)[0][0];
-  }
-  if (err.response?.data?.message) {
-    return err.response.data.message;
-  }
-  return fallback;
-}
 
 export default function BookTripPage() {
   const { id } = useParams();
@@ -82,7 +73,7 @@ export default function BookTripPage() {
       });
       navigate("/passenger/reservations");
     } catch (err) {
-      setError(extractErrorMessage(err, "Failed to book this trip. Please try again."));
+      setError(getApiErrorMessage(err, "Failed to book this trip. Please try again."));
     }
   }
 

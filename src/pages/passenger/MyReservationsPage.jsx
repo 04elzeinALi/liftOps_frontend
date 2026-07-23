@@ -1,4 +1,5 @@
 import { useState } from "react";
+import StatusPill from "@/components/StatusPill";
 import { useCancelReservation, useMyReservations } from "@/api/passengerReservations";
 
 const STATUS_STYLE = {
@@ -83,12 +84,7 @@ export default function MyReservationsPage() {
                       {reservation.seat_number}
                     </td>
                     <td className="px-5 py-3 text-sm">
-                      <span
-                        className="rounded-full px-2.5 py-1 text-xs font-semibold"
-                        style={{ background: status.bg, color: status.fg }}
-                      >
-                        {status.label}
-                      </span>
+                      <StatusPill bg={status.bg} fg={status.fg} label={status.label} />
                     </td>
                     <td className="px-5 py-3 text-sm">
                       {reservation.status === "booked" && (

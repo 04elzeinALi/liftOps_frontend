@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { parseApiError } from "@/api/errors";
 import { useCreatePayment, useTravelCardsList, useUpdatePayment } from "@/api/payments";
 import { useDriversList } from "@/api/drivers";
 import { Button } from "@/components/ui/button";
@@ -85,13 +86,9 @@ export default function PaymentFormDialog({ open, onOpenChange, payment }) {
       }
       onOpenChange(false);
     } catch (err) {
-      if (err.response?.status === 422 && err.response.data.errors) {
-        setErrors(err.response.data.errors);
-      } else if (err.response?.data?.message) {
-        setGeneralError(err.response.data.message);
-      } else {
-        setGeneralError("Something went wrong. Please try again.");
-      }
+      const { fieldErrors, message } = parseApiError(err);
+      setErrors(fieldErrors ?? {});
+      setGeneralError(message ?? "");
     }
   }
 

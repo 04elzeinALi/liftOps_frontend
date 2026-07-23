@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/auth/AuthContext";
+import { parseApiError } from "@/api/errors";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,11 +36,9 @@ export default function Signup() {
       const user = await register(form);
       navigate(`/${user.role}`, { replace: true });
     } catch (err) {
-      if (err.response?.status === 422 && err.response.data.errors) {
-        setErrors(err.response.data.errors);
-      } else {
-        setGeneralError("Something went wrong. Please try again.");
-      }
+      const { fieldErrors, message } = parseApiError(err);
+      setErrors(fieldErrors ?? {});
+      setGeneralError(message ?? "");
     } finally {
       setSubmitting(false);
     }

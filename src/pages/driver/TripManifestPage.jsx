@@ -1,3 +1,5 @@
+import { getApiErrorMessage } from "@/api/errors";
+import StatusPill from "@/components/StatusPill";
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useMarkBoarded, useTripDetail, useTripManifest, useUpdateTripStatus } from "@/api/driverTrips";
@@ -14,13 +16,6 @@ const NEXT_STATUS = {
   ongoing: { label: "End Trip", status: "completed" },
 };
 
-function extractErrorMessage(err, fallback) {
-  if (err.response?.data?.message) {
-    return err.response.data.message;
-  }
-  return fallback;
-}
-
 export default function TripManifestPage() {
   const { id } = useParams();
   const { data: trip, isLoading: tripLoading, isError: tripError } = useTripDetail(id);
@@ -35,7 +30,7 @@ export default function TripManifestPage() {
     try {
       await updateStatus.mutateAsync({ id, status: nextStatus });
     } catch (err) {
-      setStatusError(extractErrorMessage(err, "Failed to update trip status. Please try again."));
+      setStatusError(getApiErrorMessage(err, "Failed to update trip status. Please try again."));
     }
   }
 
@@ -46,7 +41,7 @@ export default function TripManifestPage() {
     } catch (err) {
       setBoardingErrors((prev) => ({
         ...prev,
-        [reservation.id]: extractErrorMessage(err, "Failed to mark this passenger as boarded."),
+        [reservation.id]: getApiErrorMessage(err, "Failed to mark this passenger as boarded."),
       }));
     }
   }
@@ -92,12 +87,7 @@ export default function TripManifestPage() {
           </p>
         </div>
         <div className="flex flex-col items-end gap-2">
-          <span
-            className="rounded-full px-2.5 py-1 text-xs font-semibold"
-            style={{ background: status.bg, color: status.fg }}
-          >
-            {status.label}
-          </span>
+          <StatusPill bg={status.bg} fg={status.fg} label={status.label} />
           {nextAction && (
             <button
               onClick={() => handleStatusChange(nextAction.status)}

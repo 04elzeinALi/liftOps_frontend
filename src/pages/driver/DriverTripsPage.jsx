@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import StatusPill from "@/components/StatusPill";
 import { useTodaysTrips } from "@/api/driverTrips";
 
 const STATUS_STYLE = {
@@ -49,12 +50,7 @@ export default function DriverTripsPage() {
                 <span className="font-display text-lg font-bold" style={{ color: "var(--text)" }}>
                   {trip.schedule?.route?.route_name}
                 </span>
-                <span
-                  className="rounded-full px-2.5 py-1 text-xs font-semibold"
-                  style={{ background: status.bg, color: status.fg }}
-                >
-                  {status.label}
-                </span>
+                <StatusPill bg={status.bg} fg={status.fg} label={status.label} />
               </div>
               <p className="text-sm" style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>
                 {trip.schedule?.departure_time?.slice(0, 5)}–{trip.schedule?.arrival_time?.slice(0, 5)}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { parseApiError } from "@/api/errors";
 import { useCreateTrip, useUpdateTrip } from "@/api/trips";
 import { useSchedules } from "@/api/schedules";
 import { useBuses } from "@/api/buses";
@@ -92,13 +93,9 @@ export default function TripFormDialog({ open, onOpenChange, trip }) {
       }
       onOpenChange(false);
     } catch (err) {
-      if (err.response?.status === 422 && err.response.data.errors) {
-        setErrors(err.response.data.errors);
-      } else if (err.response?.data?.message) {
-        setGeneralError(err.response.data.message);
-      } else {
-        setGeneralError("Something went wrong. Please try again.");
-      }
+      const { fieldErrors, message } = parseApiError(err);
+      setErrors(fieldErrors ?? {});
+      setGeneralError(message ?? "");
     }
   }
 

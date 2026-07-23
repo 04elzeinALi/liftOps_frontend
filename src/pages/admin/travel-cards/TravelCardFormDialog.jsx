@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { parseApiError } from "@/api/errors";
 import { useCreateTravelCard, usePassengersList, useUpdateTravelCard } from "@/api/travelCards";
 import { useRoutes } from "@/api/routes";
 import { Button } from "@/components/ui/button";
@@ -78,13 +79,9 @@ export default function TravelCardFormDialog({ open, onOpenChange, travelCard })
       }
       onOpenChange(false);
     } catch (err) {
-      if (err.response?.status === 422 && err.response.data.errors) {
-        setErrors(err.response.data.errors);
-      } else if (err.response?.data?.message) {
-        setGeneralError(err.response.data.message);
-      } else {
-        setGeneralError("Something went wrong. Please try again.");
-      }
+      const { fieldErrors, message } = parseApiError(err);
+      setErrors(fieldErrors ?? {});
+      setGeneralError(message ?? "");
     }
   }
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useDeleteStation, useStations } from "@/api/stations";
 import { Button } from "@/components/ui/button";
+import Pagination from "@/components/Pagination";
 import StationFormDialog from "./StationFormDialog";
 import {
   AlertDialog,
@@ -110,31 +111,7 @@ export default function StationsPage() {
         )}
       </div>
 
-      {data && (
-        <div className="mt-4 flex items-center justify-between text-sm" style={{ color: "var(--text-muted)" }}>
-          <span>
-            Page {data.current_page} of {data.last_page}
-          </span>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setPage((p) => p - 1)}
-              disabled={data.current_page <= 1}
-              className="rounded-lg px-3 py-1.5 font-semibold disabled:opacity-40"
-              style={{ background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text)" }}
-            >
-              Prev
-            </button>
-            <button
-              onClick={() => setPage((p) => p + 1)}
-              disabled={data.current_page >= data.last_page}
-              className="rounded-lg px-3 py-1.5 font-semibold disabled:opacity-40"
-              style={{ background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text)" }}
-            >
-              Next
-            </button>
-          </div>
-        </div>
-      )}
+      <Pagination meta={data} onPageChange={setPage} />
 
       <StationFormDialog open={formOpen} onOpenChange={setFormOpen} station={editingStation} />
 
