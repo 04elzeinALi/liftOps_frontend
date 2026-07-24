@@ -13,7 +13,9 @@ import MaintenancePage from "@/pages/admin/maintenance/MaintenancePage";
 import RouteStationsPage from "@/pages/admin/route-stations/RouteStationsPage";
 import TripsPage from "@/pages/admin/trips/TripsPage";
 import DriversPage from "@/pages/admin/drivers/DriversPage";
+import DriverDetailPage from "@/pages/admin/drivers/DriverDetailPage";
 import AdminPassengersPage from "@/pages/admin/passengers/PassengersPage";
+import PassengerDetailPage from "@/pages/admin/passengers/PassengerDetailPage";
 import AdminTravelCardsPage from "@/pages/admin/travel-cards/TravelCardsPage";
 import AdminPaymentsPage from "@/pages/admin/payments/PaymentsPage";
 import DriverLayout from "@/layouts/DriverLayout";
@@ -51,12 +53,14 @@ export default function App() {
               <Route path="stations" element={<StationsPage />} />
               <Route path="routes" element={<RoutesPage />} />
               <Route path="drivers" element={<DriversPage />} />
+              <Route path="drivers/:id" element={<DriverDetailPage />} />
               <Route path="schedules" element={<SchedulesPage />} />
               <Route path="schedule-days" element={<ScheduleDaysPage />} />
               <Route path="maintenance" element={<MaintenancePage />} />
               <Route path="route-stations" element={<RouteStationsPage />} />
               <Route path="trips" element={<TripsPage />} />
               <Route path="passengers" element={<AdminPassengersPage />} />
+              <Route path="passengers/:id" element={<PassengerDetailPage />} />
               <Route path="travel-cards" element={<AdminTravelCardsPage />} />
               <Route path="payments" element={<AdminPaymentsPage />} />
             </Route>

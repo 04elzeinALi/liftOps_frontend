@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useDeleteDriver, useDrivers } from "@/api/drivers";
 import { Button } from "@/components/ui/button";
 import Pagination from "@/components/Pagination";
@@ -87,8 +88,10 @@ export default function DriversPage() {
             <tbody>
               {data.data.map((driver) => (
                 <tr key={driver.id} style={{ borderBottom: "1px solid var(--border)" }}>
-                  <td className="px-5 py-3 text-sm" style={{ color: "var(--text)" }}>
-                    {driver.first_name} {driver.last_name}
+                  <td className="px-5 py-3 text-sm">
+                    <Link to={`/admin/drivers/${driver.id}`} className="font-semibold" style={{ color: "var(--accent)" }}>
+                      {driver.first_name} {driver.last_name}
+                    </Link>
                   </td>
                   <td className="px-5 py-3 text-sm" style={{ color: "var(--text-muted)" }}>
                     {driver.user?.email}

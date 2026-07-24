@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import StatusPill from "@/components/StatusPill";
 import { useDeletePassenger, usePassengers } from "@/api/passengers";
 import { Button } from "@/components/ui/button";
@@ -96,8 +97,10 @@ export default function PassengersPage() {
                 const status = STATUS_STYLE[passenger.status];
                 return (
                   <tr key={passenger.id} style={{ borderBottom: "1px solid var(--border)" }}>
-                    <td className="px-5 py-3 text-sm" style={{ color: "var(--text)" }}>
-                      {passenger.first_name} {passenger.last_name}
+                    <td className="px-5 py-3 text-sm">
+                      <Link to={`/admin/passengers/${passenger.id}`} className="font-semibold" style={{ color: "var(--accent)" }}>
+                        {passenger.first_name} {passenger.last_name}
+                      </Link>
                     </td>
                     <td className="px-5 py-3 text-sm" style={{ color: "var(--text-muted)" }}>
                       {passenger.user?.email}
