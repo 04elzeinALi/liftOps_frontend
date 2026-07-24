@@ -43,6 +43,12 @@ export function useUpdateStation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["stations"] });
+      queryClient.invalidateQueries({ queryKey: ["stations-list"] });
+      // Routes display a linked station's live name (see Route model
+      // accessors) — a rename here needs those cached views to refetch too,
+      // or they'd keep showing the old name until an unrelated reload.
+      queryClient.invalidateQueries({ queryKey: ["routes"] });
+      queryClient.invalidateQueries({ queryKey: ["routes-list"] });
     },
   });
 }
@@ -55,6 +61,11 @@ export function useDeleteStation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["stations"] });
+      queryClient.invalidateQueries({ queryKey: ["stations-list"] });
+      // Deleting a linked station nulls the route's FK server-side,
+      // falling back to its frozen text — refresh routes to reflect that.
+      queryClient.invalidateQueries({ queryKey: ["routes"] });
+      queryClient.invalidateQueries({ queryKey: ["routes-list"] });
     },
   });
 }

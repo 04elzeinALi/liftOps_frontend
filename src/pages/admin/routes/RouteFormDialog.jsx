@@ -22,8 +22,8 @@ import {
 
 const EMPTY_FORM = {
   route_name: "",
-  origin: "",
-  destination: "",
+  origin_station_id: "",
+  destination_station_id: "",
   distance_km: "",
   estimated_duration: "",
   fare: "",
@@ -45,8 +45,8 @@ export default function RouteFormDialog({ open, onOpenChange, route }) {
         route
           ? {
               route_name: route.route_name,
-              origin: route.origin,
-              destination: route.destination,
+              origin_station_id: route.origin_station_id ?? "",
+              destination_station_id: route.destination_station_id ?? "",
               distance_km: route.distance_km,
               estimated_duration: route.estimated_duration,
               fare: route.fare,
@@ -68,8 +68,8 @@ export default function RouteFormDialog({ open, onOpenChange, route }) {
     setGeneralError("");
     const payload = {
       route_name: form.route_name,
-      origin: form.origin,
-      destination: form.destination,
+      origin_station_id: Number(form.origin_station_id),
+      destination_station_id: Number(form.destination_station_id),
       distance_km: Number(form.distance_km),
       estimated_duration: form.estimated_duration,
       fare: Number(form.fare),
@@ -110,42 +110,48 @@ export default function RouteFormDialog({ open, onOpenChange, route }) {
             )}
           </div>
           <div>
-            <Label htmlFor="origin">Origin</Label>
-            <Select value={form.origin || ""} onValueChange={(value) => handleChange("origin", value)}>
-              <SelectTrigger id="origin" className="w-full">
+            <Label htmlFor="origin_station_id">Origin</Label>
+            <Select
+              value={form.origin_station_id ? String(form.origin_station_id) : ""}
+              onValueChange={(value) => handleChange("origin_station_id", Number(value))}
+            >
+              <SelectTrigger id="origin_station_id" className="w-full">
                 <SelectValue placeholder="Select a station" />
               </SelectTrigger>
               <SelectContent>
                 {stations?.map((station) => (
-                  <SelectItem key={station.id} value={station.station_name}>
+                  <SelectItem key={station.id} value={String(station.id)}>
                     {station.station_name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            {errors.origin && (
+            {errors.origin_station_id && (
               <p className="mt-1 text-xs" style={{ color: "var(--critical)" }}>
-                {errors.origin[0]}
+                {errors.origin_station_id[0]}
               </p>
             )}
           </div>
           <div>
-            <Label htmlFor="destination">Destination</Label>
-            <Select value={form.destination || ""} onValueChange={(value) => handleChange("destination", value)}>
-              <SelectTrigger id="destination" className="w-full">
+            <Label htmlFor="destination_station_id">Destination</Label>
+            <Select
+              value={form.destination_station_id ? String(form.destination_station_id) : ""}
+              onValueChange={(value) => handleChange("destination_station_id", Number(value))}
+            >
+              <SelectTrigger id="destination_station_id" className="w-full">
                 <SelectValue placeholder="Select a station" />
               </SelectTrigger>
               <SelectContent>
                 {stations?.map((station) => (
-                  <SelectItem key={station.id} value={station.station_name}>
+                  <SelectItem key={station.id} value={String(station.id)}>
                     {station.station_name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            {errors.destination && (
+            {errors.destination_station_id && (
               <p className="mt-1 text-xs" style={{ color: "var(--critical)" }}>
-                {errors.destination[0]}
+                {errors.destination_station_id[0]}
               </p>
             )}
           </div>
