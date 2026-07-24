@@ -24,6 +24,9 @@ const STATUSES = ["active", "inactive", "suspended"];
 
 const EMPTY_FORM = {
   user_id: "",
+  email: "",
+  password: "",
+  password_confirmation: "",
   first_name: "",
   last_name: "",
   phone_number: "",
@@ -34,6 +37,7 @@ export default function PassengerFormDialog({ open, onOpenChange, passenger }) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
   const [generalError, setGeneralError] = useState("");
+  const [useExistingAccount, setUseExistingAccount] = useState(false);
   const { data: availableUsers } = useAvailablePassengerUsers();
   const createPassenger = useCreatePassenger();
   const updatePassenger = useUpdatePassenger();
@@ -55,6 +59,7 @@ export default function PassengerFormDialog({ open, onOpenChange, passenger }) {
       );
       setErrors({});
       setGeneralError("");
+      setUseExistingAccount(false);
     }
   }, [open, passenger]);
 
@@ -77,7 +82,13 @@ export default function PassengerFormDialog({ open, onOpenChange, passenger }) {
           status: form.status,
         }
       : {
-          user_id: Number(form.user_id),
+          ...(useExistingAccount
+            ? { user_id: Number(form.user_id) }
+            : {
+                email: form.email,
+                password: form.password,
+                password_confirmation: form.password_confirmation,
+              }),
           first_name: form.first_name,
           last_name: form.last_name,
           phone_number: form.phone_number,
@@ -111,7 +122,7 @@ export default function PassengerFormDialog({ open, onOpenChange, passenger }) {
               <p className="text-sm" style={{ color: "var(--text-muted)" }}>
                 {passenger.user?.name} ({passenger.user?.email})
               </p>
-            ) : (
+            ) : useExistingAccount ? (
               <>
                 <Select
                   value={form.user_id ? String(form.user_id) : ""}
@@ -133,6 +144,59 @@ export default function PassengerFormDialog({ open, onOpenChange, passenger }) {
                     {errors.user_id[0]}
                   </p>
                 )}
+                <button
+                  type="button"
+                  onClick={() => setUseExistingAccount(false)}
+                  className="mt-1 text-xs font-semibold"
+                  style={{ color: "var(--accent)" }}
+                >
+                  Create a new account instead
+                </button>
+              </>
+            ) : (
+              <>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="Email"
+                  value={form.email}
+                  onChange={(e) => handleChange("email", e.target.value)}
+                  required
+                />
+                {errors.email && (
+                  <p className="mt-1 text-xs" style={{ color: "var(--critical)" }}>
+                    {errors.email[0]}
+                  </p>
+                )}
+                <Input
+                  className="mt-2"
+                  type="password"
+                  placeholder="Password"
+                  value={form.password}
+                  onChange={(e) => handleChange("password", e.target.value)}
+                  required
+                />
+                {errors.password && (
+                  <p className="mt-1 text-xs" style={{ color: "var(--critical)" }}>
+                    {errors.password[0]}
+                  </p>
+                )}
+                <Input
+                  className="mt-2"
+                  type="password"
+                  placeholder="Confirm password"
+                  value={form.password_confirmation}
+                  onChange={(e) => handleChange("password_confirmation", e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setUseExistingAccount(true)}
+                  className="mt-1 text-xs font-semibold"
+                  style={{ color: "var(--accent)" }}
+                >
+                  Use an existing account instead
+                </button>
               </>
             )}
           </div>
