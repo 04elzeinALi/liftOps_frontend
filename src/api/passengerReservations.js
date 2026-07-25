@@ -1,13 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "@/api/client";
+import { fetchAllPages } from "@/api/fetchAll";
 
 export function useMyReservations() {
   return useQuery({
     queryKey: ["my-reservations"],
-    queryFn: async () => {
-      const res = await api.get("/reservations");
-      return res.data.data;
-    },
+    queryFn: () => fetchAllPages("/reservations"),
   });
 }
 

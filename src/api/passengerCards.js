@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "@/api/client";
+import { fetchAllPages } from "@/api/fetchAll";
 
 // GET /passengers already scopes to the caller's own record for a passenger
 // role, so this is just that one record — needed because passenger_id is a
@@ -18,10 +19,7 @@ export function useMyPassengerProfile() {
 export function useMyTravelCards() {
   return useQuery({
     queryKey: ["my-travel-cards"],
-    queryFn: async () => {
-      const res = await api.get("/travel-cards");
-      return res.data.data;
-    },
+    queryFn: () => fetchAllPages("/travel-cards"),
   });
 }
 
@@ -37,16 +35,20 @@ export function useBuyTravelCard() {
       });
       const card = cardRes.data;
 
-      await api.post("/payments", {
+      // The backend decides the payment status from the method: online
+      // methods (card/bank/wish) auto-confirm as paid, cash starts unpaid
+      // until a driver/admin confirms. We just send the method — never a
+      // status (a passenger can't self-confirm a payment).
+      const paymentRes = await api.post("/payments", {
         travel_card_id: card.id,
         payment_method,
-        payment_status: "paid",
       });
 
-      return card;
+      return { card, payment: paymentRes.data };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["my-travel-cards"] });
+      queryClient.invalidateQueries({ queryKey: ["my-payments"] });
     },
   });
 }

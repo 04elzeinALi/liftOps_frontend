@@ -26,7 +26,17 @@ const CARD_TERMS_PREVIEW = {
   monthly: { total_trips: 20, expiry_days: 30, price_multiplier: 20 * 0.8 },
 };
 
-const PAYMENT_METHODS = ["cash", "credit_card", "bank_transfer", "wish"];
+// Online methods first so the default (credit_card) confirms instantly and
+// the card is bookable right away; cash is last because it stays unpaid
+// until a driver/admin confirms receipt.
+const PAYMENT_METHODS = ["credit_card", "bank_transfer", "wish", "cash"];
+
+const PAYMENT_LABELS = {
+  credit_card: "Credit card",
+  bank_transfer: "Bank transfer",
+  wish: "Wish",
+  cash: "Cash",
+};
 
 export default function BuyTravelCardPage() {
   const navigate = useNavigate();
@@ -90,19 +100,18 @@ export default function BuyTravelCardPage() {
         </div>
         <div>
           <Label htmlFor="card_type">Card type</Label>
-          <select
-            id="card_type"
-            value={cardType}
-            onChange={(e) => setCardType(e.target.value)}
-            className="w-full rounded-md border px-3 py-2 text-sm"
-            style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--text)" }}
-          >
-            {CARD_TYPES.map((type) => (
-              <option key={type} value={type}>
-                {type.charAt(0).toUpperCase() + type.slice(1)}
-              </option>
-            ))}
-          </select>
+          <Select value={cardType} onValueChange={setCardType}>
+            <SelectTrigger id="card_type" className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {CARD_TYPES.map((type) => (
+                <SelectItem key={type} value={type}>
+                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="rounded-lg p-4 text-sm" style={{ background: "var(--surface-2)", color: "var(--text-muted)" }}>
@@ -117,19 +126,23 @@ export default function BuyTravelCardPage() {
 
         <div>
           <Label htmlFor="payment_method">Payment method</Label>
-          <select
-            id="payment_method"
-            value={paymentMethod}
-            onChange={(e) => setPaymentMethod(e.target.value)}
-            className="w-full rounded-md border px-3 py-2 text-sm"
-            style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--text)" }}
-          >
-            {PAYMENT_METHODS.map((method) => (
-              <option key={method} value={method}>
-                {method.replace("_", " ")}
-              </option>
-            ))}
-          </select>
+          <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+            <SelectTrigger id="payment_method" className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {PAYMENT_METHODS.map((method) => (
+                <SelectItem key={method} value={method}>
+                  {PAYMENT_LABELS[method]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {paymentMethod === "cash" && (
+            <p className="mt-1 text-xs" style={{ color: "var(--warning)" }}>
+              Cash isn't confirmed until a driver or admin marks it received — you won't be able to book with this card until then.
+            </p>
+          )}
         </div>
 
         {error && (

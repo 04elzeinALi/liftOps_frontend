@@ -1,13 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "@/api/client";
+import { fetchAllPages } from "@/api/fetchAll";
 
 export function useTravelCardsList() {
   return useQuery({
     queryKey: ["travel-cards-list"],
-    queryFn: async () => {
-      const res = await api.get("/travel-cards?page=1");
-      return res.data.data;
-    },
+    queryFn: () => fetchAllPages("/travel-cards"),
   });
 }
 

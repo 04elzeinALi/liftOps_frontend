@@ -1,13 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "@/api/client";
+import { fetchAllPages } from "@/api/fetchAll";
 
 export function useDriversList() {
   return useQuery({
     queryKey: ["drivers-list"],
-    queryFn: async () => {
-      const res = await api.get("/drivers?page=1");
-      return res.data.data;
-    },
+    queryFn: () => fetchAllPages("/drivers"),
   });
 }
 
