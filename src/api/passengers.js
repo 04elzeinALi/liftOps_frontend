@@ -34,6 +34,11 @@ export function useUpdatePassenger() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["passengers"] });
+      queryClient.invalidateQueries({ queryKey: ["passengers-list"] });
+      // A passenger's name is shown on Travel Cards and Payments — refresh
+      // those so a rename propagates instead of going stale.
+      queryClient.invalidateQueries({ queryKey: ["travel-cards"] });
+      queryClient.invalidateQueries({ queryKey: ["payments"] });
     },
   });
 }

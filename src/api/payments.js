@@ -40,6 +40,10 @@ export function useCreatePayment() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["payments"] });
+      // The totals box (billed/received/by-driver) and card lists derive
+      // from payments — refresh them too, or they'd show stale numbers.
+      queryClient.invalidateQueries({ queryKey: ["payments-summary"] });
+      queryClient.invalidateQueries({ queryKey: ["travel-cards"] });
     },
   });
 }
@@ -53,6 +57,10 @@ export function useUpdatePayment() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["payments"] });
+      // The totals box (billed/received/by-driver) and card lists derive
+      // from payments — refresh them too, or they'd show stale numbers.
+      queryClient.invalidateQueries({ queryKey: ["payments-summary"] });
+      queryClient.invalidateQueries({ queryKey: ["travel-cards"] });
     },
   });
 }
@@ -65,6 +73,10 @@ export function useDeletePayment() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["payments"] });
+      // The totals box (billed/received/by-driver) and card lists derive
+      // from payments — refresh them too, or they'd show stale numbers.
+      queryClient.invalidateQueries({ queryKey: ["payments-summary"] });
+      queryClient.invalidateQueries({ queryKey: ["travel-cards"] });
     },
   });
 }

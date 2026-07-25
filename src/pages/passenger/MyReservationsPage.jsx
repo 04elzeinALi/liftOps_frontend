@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { resolveStatus } from "@/lib/status";
 import StatusPill from "@/components/StatusPill";
 import { useCancelReservation, useMyReservations } from "@/api/passengerReservations";
 
@@ -71,7 +72,7 @@ export default function MyReservationsPage() {
             </thead>
             <tbody>
               {reservations.map((reservation) => {
-                const status = STATUS_STYLE[reservation.status];
+                const status = resolveStatus(STATUS_STYLE, reservation.status);
                 return (
                   <tr key={reservation.id} style={{ borderBottom: "1px solid var(--border)" }}>
                     <td className="px-5 py-3 text-sm" style={{ color: "var(--text)" }}>

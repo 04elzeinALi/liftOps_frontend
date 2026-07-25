@@ -30,6 +30,9 @@ export function useCreateTravelCard() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["travel-cards"] });
+      // Refresh the dropdown source the Add-Payment form reads, so a
+      // just-created/edited card is selectable immediately.
+      queryClient.invalidateQueries({ queryKey: ["travel-cards-list"] });
     },
   });
 }
@@ -43,6 +46,9 @@ export function useUpdateTravelCard() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["travel-cards"] });
+      // Refresh the dropdown source the Add-Payment form reads, so a
+      // just-created/edited card is selectable immediately.
+      queryClient.invalidateQueries({ queryKey: ["travel-cards-list"] });
     },
   });
 }
@@ -55,6 +61,9 @@ export function useDeleteTravelCard() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["travel-cards"] });
+      // Refresh the dropdown source the Add-Payment form reads, so a
+      // just-created/edited card is selectable immediately.
+      queryClient.invalidateQueries({ queryKey: ["travel-cards-list"] });
     },
   });
 }

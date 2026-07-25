@@ -45,6 +45,10 @@ export function useUpdateDriver() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["drivers"] });
       queryClient.invalidateQueries({ queryKey: ["drivers-list"] });
+      // A driver's name shows on Trips and the Payments "Collected By"
+      // column — refresh those so a rename propagates.
+      queryClient.invalidateQueries({ queryKey: ["trips"] });
+      queryClient.invalidateQueries({ queryKey: ["payments"] });
     },
   });
 }

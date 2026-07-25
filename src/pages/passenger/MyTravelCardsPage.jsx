@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { resolveStatus } from "@/lib/status";
 import StatusPill from "@/components/StatusPill";
 import { useMyTravelCards } from "@/api/passengerCards";
 import { Button } from "@/components/ui/button";
@@ -57,7 +58,7 @@ export default function MyTravelCardsPage() {
             </thead>
             <tbody>
               {cards.map((card) => {
-                const status = STATUS_STYLE[card.status];
+                const status = resolveStatus(STATUS_STYLE, card.status);
                 return (
                   <tr key={card.id} style={{ borderBottom: "1px solid var(--border)" }}>
                     <td className="px-5 py-3 text-sm" style={{ color: "var(--text)" }}>

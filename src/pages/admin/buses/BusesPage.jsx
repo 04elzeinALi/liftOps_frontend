@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { resolveStatus } from "@/lib/status";
 import StatusPill from "@/components/StatusPill";
 import { useBuses, useDeleteBus } from "@/api/buses";
 import { Button } from "@/components/ui/button";
@@ -93,7 +94,7 @@ export default function BusesPage() {
             </thead>
             <tbody>
               {data.data.map((bus) => {
-                const status = STATUS_STYLE[bus.status];
+                const status = resolveStatus(STATUS_STYLE, bus.status);
                 return (
                   <tr key={bus.id} style={{ borderBottom: "1px solid var(--border)" }}>
                     <td className="px-5 py-3 text-sm" style={{ fontFamily: "var(--font-mono)" }}>

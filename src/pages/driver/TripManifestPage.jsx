@@ -1,4 +1,5 @@
 import { getApiErrorMessage } from "@/api/errors";
+import { resolveStatus } from "@/lib/status";
 import StatusPill from "@/components/StatusPill";
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
@@ -91,7 +92,7 @@ export default function TripManifestPage() {
     );
   }
 
-  const status = STATUS_STYLE[trip.status];
+  const status = resolveStatus(STATUS_STYLE, trip.status);
   const nextAction = NEXT_STATUS[trip.status];
   const boardings = manifest?.boardings ?? [];
   const reservations = manifest?.reservations ?? [];

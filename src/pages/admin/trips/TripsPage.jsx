@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { resolveStatus } from "@/lib/status";
 import StatusPill from "@/components/StatusPill";
 import { useDeleteTrip, useTrips } from "@/api/trips";
 import { Button } from "@/components/ui/button";
@@ -95,7 +96,7 @@ export default function TripsPage() {
             </thead>
             <tbody>
               {data.data.map((trip) => {
-                const status = STATUS_STYLE[trip.status];
+                const status = resolveStatus(STATUS_STYLE, trip.status);
                 const isEmergency = trip.status === "emergency";
                 return (
                   <tr

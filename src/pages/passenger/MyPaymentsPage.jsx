@@ -1,4 +1,5 @@
 import StatusPill from "@/components/StatusPill";
+import { resolveStatus } from "@/lib/status";
 import { useMyPayments } from "@/api/passengerPayments";
 
 const STATUS_STYLE = {
@@ -58,7 +59,7 @@ export default function MyPaymentsPage() {
             </thead>
             <tbody>
               {payments.map((payment) => {
-                const status = STATUS_STYLE[payment.payment_status];
+                const status = resolveStatus(STATUS_STYLE, payment.payment_status);
                 return (
                   <tr key={payment.id} style={{ borderBottom: "1px solid var(--border)" }}>
                     <td className="px-5 py-3 text-sm capitalize" style={{ color: "var(--text)" }}>

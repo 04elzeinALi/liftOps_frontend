@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { resolveStatus } from "@/lib/status";
 import { Link, useParams } from "react-router-dom";
 import { usePassengerActivity } from "@/api/activity";
 import ActivityTable from "@/components/ActivityTable";
@@ -105,7 +106,7 @@ export default function PassengerDetailPage() {
             headers={["Amount", "Method", "Status", "Collected By", "Paid At"]}
             emptyText="No payments made on this day."
             rows={data.payments.map((p) => {
-              const s = PAYMENT_STATUS_STYLE[p.payment_status];
+              const s = PAYMENT_resolveStatus(STATUS_STYLE, p.payment_status);
               return [
                 `$${p.amount}`,
                 p.payment_method.replace("_", " "),

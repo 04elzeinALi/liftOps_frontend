@@ -5,6 +5,7 @@ import { useTripDetail } from "@/api/passengerTrips";
 import { useMyTravelCards } from "@/api/passengerCards";
 import { useCreateReservation } from "@/api/passengerReservations";
 import { useStationsList } from "@/api/stations";
+import { localToday } from "@/lib/dates";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -49,7 +50,7 @@ export default function BookTripPage() {
   }
 
   const routeId = trip.schedule?.route?.id;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localToday();
   const eligibleCards = (cards ?? []).filter(
     (card) =>
       card.route_id === routeId &&

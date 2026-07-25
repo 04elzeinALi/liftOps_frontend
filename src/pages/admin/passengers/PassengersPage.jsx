@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { resolveStatus } from "@/lib/status";
 import { Link } from "react-router-dom";
 import StatusPill from "@/components/StatusPill";
 import { useDeletePassenger, usePassengers } from "@/api/passengers";
@@ -94,7 +95,7 @@ export default function PassengersPage() {
             </thead>
             <tbody>
               {data.data.map((passenger) => {
-                const status = STATUS_STYLE[passenger.status];
+                const status = resolveStatus(STATUS_STYLE, passenger.status);
                 return (
                   <tr key={passenger.id} style={{ borderBottom: "1px solid var(--border)" }}>
                     <td className="px-5 py-3 text-sm">

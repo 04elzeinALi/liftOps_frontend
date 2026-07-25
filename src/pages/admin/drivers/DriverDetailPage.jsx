@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { resolveStatus } from "@/lib/status";
 import { Link, useParams } from "react-router-dom";
 import { useDriverActivity } from "@/api/activity";
 import ActivityTable from "@/components/ActivityTable";
@@ -119,7 +120,7 @@ export default function DriverDetailPage() {
             headers={["Route", "Bus", "Trip Date", "Status"]}
             emptyText="No trips driven on this day."
             rows={data.trips.map((t) => {
-              const s = TRIP_STATUS_STYLE[t.status];
+              const s = TRIP_resolveStatus(STATUS_STYLE, t.status);
               return [
                 t.schedule?.route?.route_name ?? "—",
                 t.bus?.plate_number ?? "—",
@@ -134,7 +135,7 @@ export default function DriverDetailPage() {
             headers={["Passenger", "Amount", "Method", "Status", "Paid At"]}
             emptyText="No payments collected on this day."
             rows={data.payments.map((p) => {
-              const s = PAYMENT_STATUS_STYLE[p.payment_status];
+              const s = PAYMENT_resolveStatus(STATUS_STYLE, p.payment_status);
               return [
                 p.travel_card?.passenger
                   ? `${p.travel_card.passenger.first_name} ${p.travel_card.passenger.last_name}`

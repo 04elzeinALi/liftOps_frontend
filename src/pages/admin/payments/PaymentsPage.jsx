@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { resolveStatus } from "@/lib/status";
 import StatusPill from "@/components/StatusPill";
 import { useDeletePayment, usePayments, usePaymentsSummary } from "@/api/payments";
 import { Button } from "@/components/ui/button";
@@ -236,7 +237,7 @@ export default function PaymentsPage() {
             </thead>
             <tbody>
               {data.data.map((payment) => {
-                const status = STATUS_STYLE[payment.payment_status];
+                const status = resolveStatus(STATUS_STYLE, payment.payment_status);
                 return (
                   <tr key={payment.id} style={{ borderBottom: "1px solid var(--border)" }}>
                     <td className="px-5 py-3 text-sm" style={{ color: "var(--text)" }}>

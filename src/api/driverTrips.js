@@ -1,15 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "@/api/client";
-
-function todayISODate() {
-  return new Date().toISOString().slice(0, 10);
-}
+import { localToday } from "@/lib/dates";
 
 export function useTodaysTrips() {
   return useQuery({
     queryKey: ["driver-trips", "today"],
     queryFn: async () => {
-      const res = await api.get(`/trips?trip_date=${todayISODate()}`);
+      // Local date, not UTC — a UTC date rolls to tomorrow every evening in
+      // zones behind UTC, making the driver miss today's real trips.
+      const res = await api.get(`/trips?trip_date=${localToday()}`);
       return res.data;
     },
   });

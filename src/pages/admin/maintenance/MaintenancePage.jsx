@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { resolveStatus } from "@/lib/status";
 import StatusPill from "@/components/StatusPill";
 import { useDeleteMaintenance, useMaintenance } from "@/api/maintenance";
 import { Button } from "@/components/ui/button";
@@ -100,7 +101,7 @@ export default function MaintenancePage() {
             </thead>
             <tbody>
               {data.data.map((record) => {
-                const status = STATUS_STYLE[record.maintenance_status];
+                const status = resolveStatus(STATUS_STYLE, record.maintenance_status);
                 return (
                   <tr key={record.id} style={{ borderBottom: "1px solid var(--border)" }}>
                     <td className="px-5 py-3 text-sm" style={{ fontFamily: "var(--font-mono)" }}>

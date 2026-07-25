@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { resolveStatus } from "@/lib/status";
 import StatusPill from "@/components/StatusPill";
 import { useTodaysTrips } from "@/api/driverTrips";
 
@@ -39,7 +40,7 @@ export default function DriverTripsPage() {
 
       <div className="grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))" }}>
         {trips.map((trip) => {
-          const status = STATUS_STYLE[trip.status];
+          const status = resolveStatus(STATUS_STYLE, trip.status);
           return (
             <button
               key={trip.id}
