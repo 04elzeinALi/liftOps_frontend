@@ -30,6 +30,17 @@
   --warning-bg: #FBEEDD;
   --critical: #C64A38;
   --critical-bg: #FBE7E3;
+
+  /* Passenger "physical object" tokens — the travel card, boarding pass and
+     departure board are ink-and-amber in BOTH themes so the signature stays
+     recognizable regardless of the surrounding page. The theme blocks below
+     never override these. */
+  --ink: #06232B;
+  --ink-2: #0B333E;
+  --ink-line: #22525C;
+  --ink-text: #DCEBEA;
+  --ink-muted: #6F97A0;
+  --amber: #F0A83C;
 }
 
 @media (prefers-color-scheme: dark) {

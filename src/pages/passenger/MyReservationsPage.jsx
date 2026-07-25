@@ -6,7 +6,7 @@ import { useCancelReservation, useMyReservations } from "@/api/passengerReservat
 const STATUS_STYLE = {
   booked: { bg: "var(--success-bg)", fg: "var(--success)", label: "Booked" },
   cancelled: { bg: "var(--critical-bg)", fg: "var(--critical)", label: "Cancelled" },
-  completed: { bg: "var(--success-bg)", fg: "var(--success)", label: "Completed" },
+  completed: { bg: "var(--surface-2)", fg: "var(--text-muted)", label: "Completed" },
 };
 
 export default function MyReservationsPage() {
@@ -28,9 +28,9 @@ export default function MyReservationsPage() {
   }
 
   return (
-    <div>
+    <div className="mx-auto w-full max-w-[452px]">
       <h1 className="font-display mb-5 text-3xl font-extrabold" style={{ color: "var(--text)" }}>
-        My Reservations
+        My Trips
       </h1>
 
       {isLoading && (
@@ -40,12 +40,12 @@ export default function MyReservationsPage() {
       )}
       {isError && (
         <p className="text-sm" style={{ color: "var(--critical)" }}>
-          Failed to load your reservations.
+          Failed to load your trips.
         </p>
       )}
       {reservations && reservations.length === 0 && (
         <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-          You don't have any reservations yet.
+          You don't have any trips yet.
         </p>
       )}
       {error && (
@@ -54,57 +54,43 @@ export default function MyReservationsPage() {
         </p>
       )}
 
-      <div className="overflow-x-auto rounded-xl" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
-        {reservations && reservations.length > 0 && (
-          <table className="w-full border-collapse">
-            <thead>
-              <tr style={{ background: "var(--surface-2)" }}>
-                {["Route", "Trip Date", "Seat", "Status", ""].map((h) => (
-                  <th
-                    key={h}
-                    className="px-5 py-3 text-left text-[11.5px] font-bold uppercase"
-                    style={{ color: "var(--text-muted)", letterSpacing: "0.06em", borderBottom: "1px solid var(--border)" }}
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {reservations.map((reservation) => {
-                const status = resolveStatus(STATUS_STYLE, reservation.status);
-                return (
-                  <tr key={reservation.id} style={{ borderBottom: "1px solid var(--border)" }}>
-                    <td className="px-5 py-3 text-sm" style={{ color: "var(--text)" }}>
-                      {reservation.trip?.schedule?.route?.route_name}
-                    </td>
-                    <td className="px-5 py-3 text-sm" style={{ fontFamily: "var(--font-mono)" }}>
-                      {reservation.trip?.trip_date}
-                    </td>
-                    <td className="px-5 py-3 text-sm" style={{ fontFamily: "var(--font-mono)" }}>
-                      {reservation.seat_number}
-                    </td>
-                    <td className="px-5 py-3 text-sm">
-                      <StatusPill bg={status.bg} fg={status.fg} label={status.label} />
-                    </td>
-                    <td className="px-5 py-3 text-sm">
-                      {reservation.status === "booked" && (
-                        <button
-                          onClick={() => handleCancel(reservation)}
-                          disabled={cancellingId === reservation.id}
-                          className="font-semibold"
-                          style={{ color: "var(--critical)" }}
-                        >
-                          {cancellingId === reservation.id ? "Cancelling…" : "Cancel"}
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
+      <div className="flex flex-col gap-3">
+        {reservations?.map((reservation) => {
+          const status = resolveStatus(STATUS_STYLE, reservation.status);
+          const route = reservation.trip?.schedule?.route;
+          const label = route ? `${route.origin} → ${route.destination}` : route?.route_name;
+          return (
+            <div
+              key={reservation.id}
+              className="rounded-xl p-4"
+              style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <span className="font-display text-lg font-bold leading-tight" style={{ color: "var(--text)" }}>
+                  {label}
+                </span>
+                <StatusPill bg={status.bg} fg={status.fg} label={status.label} />
+              </div>
+              <div className="mt-2 flex items-center gap-4 text-sm" style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
+                <span>{reservation.trip?.trip_date}</span>
+                <span>·</span>
+                <span>seat {reservation.seat_number}</span>
+                <span>·</span>
+                <span>{reservation.trip?.schedule?.departure_time?.slice(0, 5)}</span>
+              </div>
+              {reservation.status === "booked" && (
+                <button
+                  onClick={() => handleCancel(reservation)}
+                  disabled={cancellingId === reservation.id}
+                  className="mt-3 text-sm font-semibold"
+                  style={{ color: "var(--critical)" }}
+                >
+                  {cancellingId === reservation.id ? "Cancelling…" : "Cancel trip"}
+                </button>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

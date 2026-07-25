@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import TravelCardObject from "@/components/passenger/TravelCardObject";
 
 const CARD_TYPES = ["single", "return", "weekly", "monthly"];
 
@@ -77,10 +78,26 @@ export default function BuyTravelCardPage() {
   }
 
   return (
-    <div className="max-w-md">
+    <div className="mx-auto w-full max-w-[452px]">
       <h1 className="font-display mb-5 text-3xl font-extrabold" style={{ color: "var(--text)" }}>
         Buy a Travel Card
       </h1>
+
+      {/* live preview of the card being built */}
+      <div className="mb-5">
+        <TravelCardObject
+          routeName={
+            selectedRoute
+              ? selectedRoute.route_name ?? `${selectedRoute.origin} — ${selectedRoute.destination}`
+              : "Select a route"
+          }
+          cardType={cardType}
+          remaining={terms.total_trips}
+          total={terms.total_trips}
+          status="active"
+          note={previewPrice ? `$${previewPrice}` : undefined}
+        />
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>

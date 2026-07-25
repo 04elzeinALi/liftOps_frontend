@@ -22,6 +22,7 @@ import DriverLayout from "@/layouts/DriverLayout";
 import DriverTripsPage from "@/pages/driver/DriverTripsPage";
 import TripManifestPage from "@/pages/driver/TripManifestPage";
 import PassengerLayout from "@/layouts/PassengerLayout";
+import PassengerHomePage from "@/pages/passenger/PassengerHomePage";
 import TripsBrowsePage from "@/pages/passenger/TripsBrowsePage";
 import BookTripPage from "@/pages/passenger/BookTripPage";
 import MyTravelCardsPage from "@/pages/passenger/MyTravelCardsPage";
@@ -76,7 +77,7 @@ export default function App() {
 
           <Route element={<ProtectedRoute allowedRoles={["passenger"]} />}>
             <Route path="/passenger" element={<PassengerLayout />}>
-              <Route index element={<Navigate to="/passenger/trips" replace />} />
+              <Route index element={<PassengerHomePage />} />
               <Route path="trips" element={<TripsBrowsePage />} />
               <Route path="trips/:id/book" element={<BookTripPage />} />
               <Route path="cards" element={<MyTravelCardsPage />} />
