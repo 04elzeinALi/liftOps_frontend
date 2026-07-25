@@ -244,10 +244,10 @@ export default function PaymentsPage() {
                       {payment.travel_card?.passenger?.first_name} {payment.travel_card?.passenger?.last_name}
                     </td>
                     <td className="px-5 py-3 text-sm" style={{ fontFamily: "var(--font-mono)" }}>
-                      ${payment.amount}
+                      ${Number(payment.amount).toFixed(2)}
                     </td>
                     <td className="px-5 py-3 text-sm capitalize" style={{ color: "var(--text)" }}>
-                      {payment.payment_method.replace("_", " ")}
+                      {payment.payment_method.replaceAll("_", " ")}
                     </td>
                     <td className="px-5 py-3 text-sm">
                       <StatusPill bg={status.bg} fg={status.fg} label={status.label} />

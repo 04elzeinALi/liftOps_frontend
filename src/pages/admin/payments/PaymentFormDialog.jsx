@@ -133,7 +133,7 @@ export default function PaymentFormDialog({ open, onOpenChange, payment }) {
             >
               {PAYMENT_METHODS.map((method) => (
                 <option key={method} value={method}>
-                  {method.replace("_", " ")}
+                  {method.replaceAll("_", " ")}
                 </option>
               ))}
             </select>

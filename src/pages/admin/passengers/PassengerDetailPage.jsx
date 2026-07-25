@@ -108,8 +108,8 @@ export default function PassengerDetailPage() {
             rows={data.payments.map((p) => {
               const s = PAYMENT_resolveStatus(STATUS_STYLE, p.payment_status);
               return [
-                `$${p.amount}`,
-                p.payment_method.replace("_", " "),
+                `$${Number(p.amount).toFixed(2)}`,
+                p.payment_method.replaceAll("_", " "),
                 <StatusPill key="s" bg={s.bg} fg={s.fg} label={s.label} />,
                 p.collected_by_driver
                   ? `${p.collected_by_driver.first_name} ${p.collected_by_driver.last_name}`

@@ -140,8 +140,8 @@ export default function DriverDetailPage() {
                 p.travel_card?.passenger
                   ? `${p.travel_card.passenger.first_name} ${p.travel_card.passenger.last_name}`
                   : "—",
-                `$${p.amount}`,
-                p.payment_method.replace("_", " "),
+                `$${Number(p.amount).toFixed(2)}`,
+                p.payment_method.replaceAll("_", " "),
                 <StatusPill key="s" bg={s.bg} fg={s.fg} label={s.label} />,
                 formatDateTime(p.paid_at),
               ];
