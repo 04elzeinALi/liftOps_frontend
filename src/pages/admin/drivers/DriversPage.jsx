@@ -3,7 +3,15 @@ import { Link } from "react-router-dom";
 import { useDeleteDriver, useDrivers } from "@/api/drivers";
 import { Button } from "@/components/ui/button";
 import Pagination from "@/components/Pagination";
+import StatusPill from "@/components/StatusPill";
+import { resolveStatus } from "@/lib/status";
 import DriverFormDialog from "./DriverFormDialog";
+
+const STATUS_STYLE = {
+  active: { bg: "var(--success-bg)", fg: "var(--success)", label: "Active" },
+  inactive: { bg: "var(--warning-bg)", fg: "var(--warning)", label: "Inactive" },
+  suspended: { bg: "var(--critical-bg)", fg: "var(--critical)", label: "Suspended" },
+};
 import {
   AlertDialog,
   AlertDialogContent,
@@ -102,8 +110,11 @@ export default function DriversPage() {
                   <td className="px-5 py-3 text-sm" style={{ fontFamily: "var(--font-mono)" }}>
                     {driver.license_number}
                   </td>
-                  <td className="px-5 py-3 text-sm" style={{ color: "var(--text)" }}>
-                    {driver.status}
+                  <td className="px-5 py-3 text-sm">
+                    {(() => {
+                      const status = resolveStatus(STATUS_STYLE, driver.status);
+                      return <StatusPill bg={status.bg} fg={status.fg} label={status.label} />;
+                    })()}
                   </td>
                   <td className="px-5 py-3 text-sm">
                     <button onClick={() => openEdit(driver)} className="mr-3 font-semibold" style={{ color: "var(--accent)" }}>
@@ -117,6 +128,11 @@ export default function DriversPage() {
               ))}
             </tbody>
           </table>
+        )}
+        {data && data.data.length === 0 && (
+          <p className="p-6 text-sm" style={{ color: "var(--text-muted)" }}>
+            No records yet.
+          </p>
         )}
       </div>
 

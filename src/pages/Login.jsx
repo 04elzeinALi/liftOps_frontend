@@ -43,11 +43,8 @@ export default function Login() {
         <h1 className="font-display mb-1 text-3xl font-extrabold" style={{ color: "var(--text)" }}>
           Welcome to LiftOps
         </h1>
-        <p className="mb-1 text-sm" style={{ color: "var(--text-muted)" }}>
-          Every journey starts with a single lift.
-        </p>
         <p className="mb-7 text-sm" style={{ color: "var(--text-muted)" }}>
-          Enter your credentials to access your dashboard.
+          Your secure means of transportation — sign in to access your dashboard.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">

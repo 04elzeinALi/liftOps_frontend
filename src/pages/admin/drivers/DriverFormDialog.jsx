@@ -201,6 +201,11 @@ export default function DriverFormDialog({ open, onOpenChange, driver }) {
                   onChange={(e) => handleChange("password_confirmation", e.target.value)}
                   required
                 />
+                {errors.password_confirmation && (
+                  <p className="mt-1 text-xs" style={{ color: "var(--critical)" }}>
+                    {errors.password_confirmation[0]}
+                  </p>
+                )}
                 <button
                   type="button"
                   onClick={() => setUseExistingAccount(true)}

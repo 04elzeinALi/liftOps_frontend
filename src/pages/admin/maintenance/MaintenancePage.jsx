@@ -133,6 +133,11 @@ export default function MaintenancePage() {
             </tbody>
           </table>
         )}
+        {data && data.data.length === 0 && (
+          <p className="p-6 text-sm" style={{ color: "var(--text-muted)" }}>
+            No records yet.
+          </p>
+        )}
       </div>
 
       <Pagination meta={data} onPageChange={setPage} />

@@ -27,15 +27,13 @@ const NAV_GROUPS = [
     ],
   },
   {
-    label: "Accounts",
-    items: [
-      { to: "/admin/drivers", label: "Drivers" },
-      { to: "/admin/passengers", label: "Passengers" },
-    ],
+    label: "People",
+    items: [{ to: "/admin/drivers", label: "Drivers" }],
   },
   {
-    label: "Transactions",
+    label: "Accounts",
     items: [
+      { to: "/admin/passengers", label: "Passengers" },
       { to: "/admin/travel-cards", label: "Travel Cards" },
       { to: "/admin/payments", label: "Payments" },
     ],
