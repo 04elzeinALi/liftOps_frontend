@@ -2,10 +2,12 @@ import { useNavigate } from "react-router-dom";
 import { useMyReservations } from "@/api/passengerReservations";
 import { useMyTravelCards } from "@/api/passengerCards";
 import { useUpcomingTrips } from "@/api/passengerTrips";
+import { useStationsList } from "@/api/stations";
 import { localToday } from "@/lib/dates";
 import BoardingPass from "@/components/passenger/BoardingPass";
 import TravelCardObject from "@/components/passenger/TravelCardObject";
 import DepartureBoard from "@/components/passenger/DepartureBoard";
+import LeafletMap from "@/components/LeafletMap";
 
 const eyebrow = {
   fontSize: 11,
@@ -47,9 +49,24 @@ export default function PassengerHomePage() {
   const { data: cards } = useMyTravelCards();
   const { data: trips, isLoading: tripsLoading } = useUpcomingTrips();
 
+  const { data: stations } = useStationsList();
+
   const next = nextBookedReservation(reservations);
   const visibleCards = (cards ?? []).slice(0, 2);
   const hasMoreCards = (cards ?? []).length > 2;
+
+  // The corridor as a map: every station plotted top-to-bottom down the
+  // coast (north → south by latitude) and joined into one line. The two
+  // endpoints read as origins (amber); the stops between them are teal.
+  const linePoints = (stations ?? [])
+    .filter((s) => Number.isFinite(Number(s.latitude)) && Number.isFinite(Number(s.longitude)))
+    .sort((a, b) => Number(b.latitude) - Number(a.latitude))
+    .map((s, i, arr) => ({
+      lat: s.latitude,
+      lng: s.longitude,
+      label: s.station_name,
+      kind: i === 0 || i === arr.length - 1 ? "origin" : "stop",
+    }));
 
   return (
     <div className="mx-auto flex w-full max-w-[452px] flex-col gap-7">
@@ -71,6 +88,14 @@ export default function PassengerHomePage() {
           </div>
         )}
       </section>
+
+      {/* THE LINE */}
+      {linePoints.length >= 2 && (
+        <section aria-label="The line">
+          <Eyebrow>The line</Eyebrow>
+          <LeafletMap points={linePoints} connect height={220} />
+        </section>
+      )}
 
       {/* YOUR CARDS */}
       <section aria-label="Your travel cards">
