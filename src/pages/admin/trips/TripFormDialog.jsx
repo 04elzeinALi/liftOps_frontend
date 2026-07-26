@@ -83,8 +83,12 @@ export default function TripFormDialog({ open, onOpenChange, trip }) {
       trip_date: form.trip_date,
       actual_departure: form.actual_departure || null,
       actual_arrival: form.actual_arrival || null,
-      status: form.status,
     };
+    // A new trip is always created as 'scheduled' (the backend enforces this),
+    // so status is only editable when editing an existing trip.
+    if (isEditing) {
+      payload.status = form.status;
+    }
     try {
       if (isEditing) {
         await updateTrip.mutateAsync({ id: trip.id, payload });
@@ -218,27 +222,29 @@ export default function TripFormDialog({ open, onOpenChange, trip }) {
               </p>
             )}
           </div>
-          <div>
-            <Label htmlFor="status">Status</Label>
-            <select
-              id="status"
-              value={form.status}
-              onChange={(e) => handleChange("status", e.target.value)}
-              className="w-full rounded-md border px-3 py-2 text-sm"
-              style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--text)" }}
-            >
-              {STATUSES.map((status) => (
-                <option key={status} value={status}>
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
-                </option>
-              ))}
-            </select>
-            {errors.status && (
-              <p className="mt-1 text-xs" style={{ color: "var(--critical)" }}>
-                {errors.status[0]}
-              </p>
-            )}
-          </div>
+          {isEditing && (
+            <div>
+              <Label htmlFor="status">Status</Label>
+              <select
+                id="status"
+                value={form.status}
+                onChange={(e) => handleChange("status", e.target.value)}
+                className="w-full rounded-md border px-3 py-2 text-sm"
+                style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--text)" }}
+              >
+                {STATUSES.map((status) => (
+                  <option key={status} value={status}>
+                    {status.charAt(0).toUpperCase() + status.slice(1)}
+                  </option>
+                ))}
+              </select>
+              {errors.status && (
+                <p className="mt-1 text-xs" style={{ color: "var(--critical)" }}>
+                  {errors.status[0]}
+                </p>
+              )}
+            </div>
+          )}
           {generalError && (
             <p className="text-sm" style={{ color: "var(--critical)" }}>
               {generalError}
