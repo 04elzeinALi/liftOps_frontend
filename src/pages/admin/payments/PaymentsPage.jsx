@@ -165,8 +165,14 @@ function SummarySection() {
 
 export default function PaymentsPage() {
   const [page, setPage] = useState(1);
-  const { data, isLoading, isError } = usePayments(page);
+  const [period, setPeriod] = useState("day");
+  const { data, isLoading, isError } = usePayments(page, period);
   const deletePayment = useDeletePayment();
+
+  function changePeriod(next) {
+    setPeriod(next);
+    setPage(1); // a new window starts from its own first page
+  }
 
   const [formOpen, setFormOpen] = useState(false);
   const [editingPayment, setEditingPayment] = useState(null);
@@ -208,6 +214,22 @@ export default function PaymentsPage() {
       </div>
 
       <SummarySection />
+
+      <div className="mb-3 flex items-center gap-1">
+        {PERIODS.map((p) => (
+          <button
+            key={p.value}
+            onClick={() => changePeriod(p.value)}
+            className="rounded-lg px-3 py-1.5 text-sm font-semibold"
+            style={{
+              background: period === p.value ? "var(--accent)" : "var(--surface-2)",
+              color: period === p.value ? "var(--accent-ink)" : "var(--text-muted)",
+            }}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
 
       <div className="overflow-x-auto rounded-xl" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
         {isLoading && (
@@ -256,9 +278,11 @@ export default function PaymentsPage() {
                       {formatDateTime(payment.paid_at)}
                     </td>
                     <td className="px-5 py-3 text-sm" style={{ color: "var(--text-muted)" }}>
-                      {payment.collected_by_driver
-                        ? `${payment.collected_by_driver.first_name} ${payment.collected_by_driver.last_name}`
-                        : "—"}
+                      {payment.trip_driver_name
+                        ? payment.trip_driver_name
+                        : payment.collected_by_driver
+                          ? `${payment.collected_by_driver.first_name} ${payment.collected_by_driver.last_name}`
+                          : "—"}
                     </td>
                     <td className="px-5 py-3 text-sm">
                       <button onClick={() => openEdit(payment)} className="mr-3 font-semibold" style={{ color: "var(--accent)" }}>
@@ -276,7 +300,7 @@ export default function PaymentsPage() {
         )}
         {data && data.data.length === 0 && (
           <p className="p-6 text-sm" style={{ color: "var(--text-muted)" }}>
-            No records yet.
+            No payments {PERIODS.find((p) => p.value === period)?.label.toLowerCase() ?? "in this period"}.
           </p>
         )}
       </div>

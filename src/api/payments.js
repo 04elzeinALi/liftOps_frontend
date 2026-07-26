@@ -19,11 +19,15 @@ export function usePaymentsSummary(period) {
   });
 }
 
-export function usePayments(page = 1) {
+// `period` scopes the list to today / this week / this month (day|week|month).
+// Pass null/"" for all payments.
+export function usePayments(page = 1, period = "day") {
   return useQuery({
-    queryKey: ["payments", page],
+    queryKey: ["payments", page, period],
     queryFn: async () => {
-      const res = await api.get(`/payments?page=${page}`);
+      const params = new URLSearchParams({ page: String(page) });
+      if (period) params.set("period", period);
+      const res = await api.get(`/payments?${params.toString()}`);
       return res.data;
     },
   });
