@@ -158,3 +158,83 @@ body {
   color: var(--text);
   font-family: var(--font-sans);
 }
+
+/* ── Passenger app palette: grey + taxi-yellow ──────────────────────────
+   Scoped to the passenger layout (.passenger-theme) so the admin and driver
+   panels keep the teal system. Redefining the base tokens here recolours
+   every component in the subtree, since they all read these variables. */
+.passenger-theme {
+  --bg: #ECEEF0;
+  --surface: #FFFFFF;
+  --surface-2: #E1E4E8;
+  --border: #CFD3D9;
+  --text: #1B1D21;
+  --text-muted: #5C626C;
+  --accent: #F5B301;
+  --accent-strong: #D89E00;
+  --accent-ink: #211A00;
+
+  /* The travel card / boarding pass "physical objects" become charcoal +
+     taxi-yellow, and stay constant across light and dark like before so the
+     signature holds. */
+  --ink: #232529;
+  --ink-2: #2F3237;
+  --ink-line: #474B52;
+  --ink-text: #ECEDEF;
+  --ink-muted: #9AA0A8;
+  --amber: #F5B301;
+}
+
+@media (prefers-color-scheme: dark) {
+  .passenger-theme {
+    --bg: #161719;
+    --surface: #1E2023;
+    --surface-2: #292C30;
+    --border: #3A3E45;
+    --text: #ECEEF0;
+    --text-muted: #9BA1A9;
+    --accent: #FFC21A;
+    --accent-strong: #FFD24D;
+    --accent-ink: #1A1400;
+  }
+}
+
+:root[data-theme="dark"] .passenger-theme {
+  --bg: #161719;
+  --surface: #1E2023;
+  --surface-2: #292C30;
+  --border: #3A3E45;
+  --text: #ECEEF0;
+  --text-muted: #9BA1A9;
+  --accent: #FFC21A;
+  --accent-strong: #FFD24D;
+  --accent-ink: #1A1400;
+}
+
+:root[data-theme="light"] .passenger-theme {
+  --bg: #ECEEF0;
+  --surface: #FFFFFF;
+  --surface-2: #E1E4E8;
+  --border: #CFD3D9;
+  --text: #1B1D21;
+  --text-muted: #5C626C;
+  --accent: #F5B301;
+  --accent-strong: #D89E00;
+  --accent-ink: #211A00;
+}
+
+/* ── Animated backdrop: a bus driving down a dashed-line road ──────────── */
+@keyframes lp-road-dash {
+  to { background-position: -96px 0; }
+}
+@keyframes lp-bus-drive {
+  0%   { transform: translateX(-22vw); }
+  100% { transform: translateX(122vw); }
+}
+@keyframes lp-bus-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-2px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lp-road, .lp-bus, .lp-bus-bob { animation: none !important; }
+}

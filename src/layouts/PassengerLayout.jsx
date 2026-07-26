@@ -1,6 +1,8 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "@/auth/AuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
+import PassengerBackdrop from "@/components/passenger/PassengerBackdrop";
+import PassengerFooter from "@/components/passenger/PassengerFooter";
 
 const TABS = [
   {
@@ -38,9 +40,11 @@ export default function PassengerLayout() {
   const { user, logout } = useAuth();
 
   return (
-    <div className="flex min-h-screen flex-col" style={{ background: "var(--bg)" }}>
+    <div className="passenger-theme relative flex min-h-screen flex-col" style={{ background: "var(--bg)" }}>
+      <PassengerBackdrop />
+
       <header
-        className="flex items-center justify-between px-5 py-4"
+        className="relative z-10 flex items-center justify-between px-5 py-4"
         style={{ borderBottom: "1px solid var(--border)", background: "var(--surface)" }}
       >
         <div className="flex items-baseline gap-2">
@@ -66,8 +70,9 @@ export default function PassengerLayout() {
         </div>
       </header>
 
-      <main className="flex-1 px-4 pb-28 pt-6">
+      <main className="relative z-10 flex-1 px-4 pb-28 pt-6">
         <Outlet />
+        <PassengerFooter />
       </main>
 
       <nav
