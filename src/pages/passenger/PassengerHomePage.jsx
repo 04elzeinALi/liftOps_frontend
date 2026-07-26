@@ -55,6 +55,15 @@ export default function PassengerHomePage() {
   const visibleCards = (cards ?? []).slice(0, 2);
   const hasMoreCards = (cards ?? []).length > 2;
 
+  // Don't offer a trip the passenger has already booked — it belongs in "your
+  // trips", not in the list of things still to book.
+  const bookedTripIds = new Set(
+    (reservations ?? [])
+      .filter((r) => r.status === "booked")
+      .map((r) => r.trip?.id ?? r.trip_id)
+  );
+  const availableTrips = (trips ?? []).filter((t) => !bookedTripIds.has(t.id));
+
   // The corridor as a map: every station plotted top-to-bottom down the
   // coast (north → south by latitude) and joined into one line. The two
   // endpoints read as origins (amber); the stops between them are teal.
@@ -151,13 +160,13 @@ export default function PassengerHomePage() {
             Loading…
           </p>
         )}
-        {trips && trips.length === 0 && (
+        {trips && availableTrips.length === 0 && (
           <p className="text-sm" style={{ color: "var(--text-muted)" }}>
             No upcoming departures right now.
           </p>
         )}
-        {trips && trips.length > 0 && (
-          <DepartureBoard trips={trips} onBook={(id) => navigate(`/passenger/trips/${id}/book`)} />
+        {availableTrips.length > 0 && (
+          <DepartureBoard trips={availableTrips} onBook={(id) => navigate(`/passenger/trips/${id}/book`)} />
         )}
       </section>
     </div>
