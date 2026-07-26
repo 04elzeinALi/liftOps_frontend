@@ -11,6 +11,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import StationLocationPicker from "@/components/StationLocationPicker";
 
 const EMPTY_FORM = {
   station_name: "",
@@ -89,6 +90,16 @@ export default function StationFormDialog({ open, onOpenChange, station }) {
               <p className="mt-1 text-xs" style={{ color: "var(--critical)" }}>
                 {errors.station_name[0]}
               </p>
+            )}
+          </div>
+          <div>
+            <Label>Location</Label>
+            {open && (
+              <StationLocationPicker
+                lat={form.latitude}
+                lng={form.longitude}
+                onChange={(la, ln) => setForm((f) => ({ ...f, latitude: la, longitude: ln }))}
+              />
             )}
           </div>
           <div>

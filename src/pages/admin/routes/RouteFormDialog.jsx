@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { parseApiError } from "@/api/errors";
 import { useCreateRoute, useUpdateRoute } from "@/api/routes";
 import { useStationsList } from "@/api/stations";
+import LeafletMap from "@/components/LeafletMap";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,6 +39,8 @@ export default function RouteFormDialog({ open, onOpenChange, route }) {
   const updateRoute = useUpdateRoute();
   const isEditing = Boolean(route);
   const isSubmitting = createRoute.isPending || updateRoute.isPending;
+  const originStation = stations?.find((s) => s.id === Number(form.origin_station_id));
+  const destinationStation = stations?.find((s) => s.id === Number(form.destination_station_id));
 
   useEffect(() => {
     if (open) {
@@ -155,6 +158,16 @@ export default function RouteFormDialog({ open, onOpenChange, route }) {
               </p>
             )}
           </div>
+          {open && (
+            <LeafletMap
+              height={190}
+              connect
+              points={[
+                { lat: originStation?.latitude, lng: originStation?.longitude, label: originStation?.station_name, kind: "origin" },
+                { lat: destinationStation?.latitude, lng: destinationStation?.longitude, label: destinationStation?.station_name, kind: "destination" },
+              ]}
+            />
+          )}
           <div>
             <Label htmlFor="distance_km">Distance (km)</Label>
             <Input

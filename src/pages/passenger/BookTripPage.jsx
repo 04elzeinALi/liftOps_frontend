@@ -6,6 +6,7 @@ import { useMyTravelCards } from "@/api/passengerCards";
 import { useCreateReservation } from "@/api/passengerReservations";
 import { useStationsList } from "@/api/stations";
 import { localToday } from "@/lib/dates";
+import LeafletMap from "@/components/LeafletMap";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -94,9 +95,30 @@ export default function BookTripPage() {
       <h1 className="font-display mb-1 text-3xl font-extrabold" style={{ color: "var(--text)" }}>
         {trip.schedule?.route?.route_name}
       </h1>
-      <p className="mb-5 text-sm" style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>
+      <p className="mb-4 text-sm" style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>
         {trip.schedule?.departure_time?.slice(0, 5)}–{trip.schedule?.arrival_time?.slice(0, 5)} · Bus {trip.bus?.plate_number} · {trip.available_seats} seats left
       </p>
+
+      <div className="mb-5">
+        <LeafletMap
+          height={200}
+          connect
+          points={[
+            {
+              lat: trip.schedule?.route?.origin_station?.latitude,
+              lng: trip.schedule?.route?.origin_station?.longitude,
+              label: trip.schedule?.route?.origin,
+              kind: "boarding",
+            },
+            {
+              lat: trip.schedule?.route?.destination_station?.latitude,
+              lng: trip.schedule?.route?.destination_station?.longitude,
+              label: trip.schedule?.route?.destination,
+              kind: "destination",
+            },
+          ]}
+        />
+      </div>
 
       {eligibleCards.length === 0 ? (
         <div className="rounded-xl p-5" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
