@@ -191,7 +191,7 @@ export default function TripManifestPage() {
           <table className="w-full border-collapse">
             <thead>
               <tr style={{ background: "var(--surface-2)" }}>
-                {["Passenger", "Seat", "Pickup", ""].map((h) => (
+                {["Passenger", "Pickup", ""].map((h) => (
                   <th
                     key={h}
                     className="px-5 py-3 text-left text-[11.5px] font-bold uppercase"
@@ -209,9 +209,6 @@ export default function TripManifestPage() {
                   <tr key={reservation.id} style={{ borderBottom: "1px solid var(--border)" }}>
                     <td className="px-5 py-3 text-sm" style={{ color: "var(--text)" }}>
                       {reservation.passenger?.first_name} {reservation.passenger?.last_name}
-                    </td>
-                    <td className="px-5 py-3 text-sm" style={{ fontFamily: "var(--font-mono)" }}>
-                      {reservation.seat_number}
                     </td>
                     <td className="px-5 py-3 text-sm" style={{ color: "var(--text-muted)" }}>
                       {reservation.pickup_location ?? "—"}

@@ -74,9 +74,13 @@ export default function MyReservationsPage() {
               <div className="mt-2 flex items-center gap-4 text-sm" style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
                 <span>{reservation.trip?.trip_date}</span>
                 <span>·</span>
-                <span>seat {reservation.seat_number}</span>
-                <span>·</span>
                 <span>{reservation.trip?.schedule?.departure_time?.slice(0, 5)}</span>
+                {reservation.pickup_location && (
+                  <>
+                    <span>·</span>
+                    <span>{reservation.pickup_location}</span>
+                  </>
+                )}
               </div>
               {reservation.status === "booked" && (
                 <button

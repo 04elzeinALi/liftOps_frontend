@@ -1,6 +1,6 @@
 // The passenger's next departure, rendered as a boarding pass — the app's
 // hero object. Origin/destination in signage type, a route line with a bus
-// marker at the boarding stop, and a torn stub with departure/seat/card.
+// marker at the boarding stop, and a torn stub with departure/boarding/card.
 
 function fmtDate(dateStr) {
   if (!dateStr) return "";
@@ -14,7 +14,6 @@ export default function BoardingPass({ reservation, onShow }) {
   const origin = route?.origin ?? "—";
   const destination = route?.destination ?? "—";
   const depart = trip?.schedule?.departure_time?.slice(0, 5) ?? "--:--";
-  const seat = reservation?.seat_number ?? "—";
   const cardType = reservation?.travel_card?.card_type ?? "—";
   const boardingStop = reservation?.pickup_location || origin;
 
@@ -80,7 +79,7 @@ export default function BoardingPass({ reservation, onShow }) {
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6 }}>
           <div><div style={stubK}>Departs</div><div style={stubV}>{depart}</div></div>
-          <div style={{ textAlign: "center" }}><div style={stubK}>Seat</div><div style={stubV}>{seat}</div></div>
+          <div style={{ textAlign: "center" }}><div style={stubK}>Boarding</div><div style={{ ...stubV, fontSize: 15, color: "var(--ink-text)" }}>{boardingStop}</div></div>
           <div style={{ textAlign: "right" }}><div style={stubK}>Card</div><div style={{ ...stubV, fontSize: 15, color: "var(--ink-text)", textTransform: "capitalize" }}>{cardType}</div></div>
         </div>
 

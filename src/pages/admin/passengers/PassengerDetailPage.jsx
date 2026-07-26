@@ -66,12 +66,11 @@ export default function PassengerDetailPage() {
         <>
           <ActivityTable
             title="Reservations"
-            headers={["Route", "Trip Date", "Seat", "Status", "Booked At"]}
+            headers={["Route", "Trip Date", "Status", "Booked At"]}
             emptyText="No reservations booked on this day."
             rows={data.reservations.map((r) => [
               r.trip?.schedule?.route?.route_name ?? "—",
               r.trip?.trip_date ?? "—",
-              r.seat_number,
               r.status,
               formatDateTime(r.created_at),
             ])}

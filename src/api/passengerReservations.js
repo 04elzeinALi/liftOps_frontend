@@ -12,12 +12,11 @@ export function useMyReservations() {
 export function useCreateReservation() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ passenger_id, trip_id, travel_card_id, seat_number, pickup_location }) => {
+    mutationFn: async ({ passenger_id, trip_id, travel_card_id, pickup_location }) => {
       const res = await api.post("/reservations", {
         passenger_id,
         trip_id,
         travel_card_id,
-        seat_number,
         pickup_location: pickup_location || null,
         reservation_time: new Date().toISOString(),
         status: "booked",

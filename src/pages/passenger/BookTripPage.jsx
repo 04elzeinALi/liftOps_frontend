@@ -28,7 +28,6 @@ export default function BookTripPage() {
   const { data: stations } = useStationsList();
   const createReservation = useCreateReservation();
 
-  const [seatNumber, setSeatNumber] = useState("");
   const [pickupChoice, setPickupChoice] = useState("");
   const [pickupOther, setPickupOther] = useState("");
   const [travelCardId, setTravelCardId] = useState("");
@@ -77,7 +76,6 @@ export default function BookTripPage() {
         passenger_id: card.passenger_id,
         trip_id: Number(id),
         travel_card_id: card.id,
-        seat_number: Number(seatNumber),
         pickup_location: pickupLocation,
       });
       navigate("/passenger/reservations");
@@ -145,18 +143,6 @@ export default function BookTripPage() {
                 ))}
               </SelectContent>
             </Select>
-          </div>
-          <div>
-            <Label htmlFor="seat_number">Seat number</Label>
-            <Input
-              id="seat_number"
-              type="number"
-              min="1"
-              max={trip.bus?.capacity}
-              value={seatNumber}
-              onChange={(e) => setSeatNumber(e.target.value)}
-              required
-            />
           </div>
           <div>
             <Label htmlFor="pickup_location">Pickup location (optional)</Label>
