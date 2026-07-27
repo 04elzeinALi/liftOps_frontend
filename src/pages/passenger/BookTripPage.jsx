@@ -85,7 +85,7 @@ export default function BookTripPage() {
   }
 
   return (
-    <div className="max-w-md">
+    <div className="mx-auto w-full max-w-[452px]">
       <Link to="/passenger/trips" className="mb-4 inline-block text-sm font-semibold" style={{ color: "var(--accent)" }}>
         ← Back to trips
       </Link>
