@@ -46,7 +46,7 @@ export default function AdminLayout() {
   return (
     <div className="grid min-h-screen" style={{ gridTemplateColumns: "248px 1fr", background: "var(--bg)" }}>
       <aside
-        className="flex flex-col p-4"
+        className="sticky top-0 flex h-screen flex-col self-start overflow-y-auto p-4"
         style={{ background: "var(--surface)", borderRight: "1px solid var(--border)" }}
       >
         <div className="mb-7 flex items-center gap-2 px-1">
