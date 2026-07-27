@@ -65,8 +65,7 @@ export default function PassengerHomePage() {
   const availableTrips = (trips ?? []).filter((t) => !bookedTripIds.has(t.id));
 
   // The corridor as a map: every station plotted top-to-bottom down the
-  // coast (north → south by latitude) and joined into one line. The two
-  // endpoints read as origins (amber); the stops between them are teal.
+  // coast (north → south by latitude) and joined into one taxi-yellow line.
   const linePoints = (stations ?? [])
     .filter((s) => Number.isFinite(Number(s.latitude)) && Number.isFinite(Number(s.longitude)))
     .sort((a, b) => Number(b.latitude) - Number(a.latitude))

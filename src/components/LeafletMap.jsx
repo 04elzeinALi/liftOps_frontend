@@ -12,12 +12,17 @@ const TILES = {
 const ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
 
+// One identity: taxi-yellow station dots on a taxi-yellow route line — the
+// one brand colour that stays legible on both the light and dark basemaps
+// (charcoal would vanish on the dark tiles). Origin/destination are told
+// apart by their labels and the line's direction, not by hue.
 const KIND_COLOR = {
   origin: "var(--amber)",
   boarding: "var(--amber)",
-  destination: "var(--accent)",
-  stop: "var(--accent)",
+  destination: "var(--amber)",
+  stop: "var(--amber)",
 };
+const ROUTE_LINE = "#F5B301";
 
 function isValid(p) {
   const lat = Number(p?.lat);
@@ -90,9 +95,9 @@ export default function LeafletMap({ points = [], connect = false, height = 220,
 
     if (connect && valid.length >= 2) {
       L.polyline(valid.map((p) => [p.lat, p.lng]), {
-        color: "#1F8B84",
+        color: ROUTE_LINE,
         weight: 3,
-        opacity: 0.85,
+        opacity: 0.9,
         dashArray: "1 6",
         lineCap: "round",
       }).addTo(group);

@@ -15,15 +15,15 @@
 }
 
 :root {
-  --bg: #F3F6F5;
+  --bg: #ECEEF0;
   --surface: #FFFFFF;
-  --surface-2: #E9F0EF;
-  --border: #D3DEDC;
-  --text: #16252F;
-  --text-muted: #48606A;
-  --accent: #1F8B84;
-  --accent-strong: #17716B;
-  --accent-ink: #FFFFFF;
+  --surface-2: #E1E4E8;
+  --border: #CFD3D9;
+  --text: #1B1D21;
+  --text-muted: #5C626C;
+  --accent: #F5B301;
+  --accent-strong: #D89E00;
+  --accent-ink: #211A00;
   --success: #2F9D64;
   --success-bg: #E1F3E9;
   --warning: #B9791F;
@@ -31,29 +31,29 @@
   --critical: #C64A38;
   --critical-bg: #FBE7E3;
 
-  /* Passenger "physical object" tokens — the travel card, boarding pass and
-     departure board are ink-and-amber in BOTH themes so the signature stays
+  /* "Physical object" tokens — the travel card, boarding pass and departure
+     board are charcoal-and-taxi-yellow in BOTH themes so the signature stays
      recognizable regardless of the surrounding page. The theme blocks below
      never override these. */
-  --ink: #06232B;
-  --ink-2: #0B333E;
-  --ink-line: #22525C;
-  --ink-text: #DCEBEA;
-  --ink-muted: #6F97A0;
-  --amber: #F0A83C;
+  --ink: #232529;
+  --ink-2: #2F3237;
+  --ink-line: #474B52;
+  --ink-text: #ECEDEF;
+  --ink-muted: #9AA0A8;
+  --amber: #F5B301;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0F1B24;
-    --surface: #16252F;
-    --surface-2: #1D2E3A;
-    --border: #28404D;
-    --text: #EAF0F2;
-    --text-muted: #86A0AA;
-    --accent: #4FC7BF;
-    --accent-strong: #6FE0D8;
-    --accent-ink: #06201E;
+    --bg: #161719;
+    --surface: #1E2023;
+    --surface-2: #292C30;
+    --border: #3A3E45;
+    --text: #ECEEF0;
+    --text-muted: #9BA1A9;
+    --accent: #FFC21A;
+    --accent-strong: #FFD24D;
+    --accent-ink: #1A1400;
     --success: #4FCB8C;
     --success-bg: #163229;
     --warning: #E7B75C;
@@ -64,15 +64,15 @@
 }
 
 :root[data-theme="dark"] {
-  --bg: #0F1B24;
-  --surface: #16252F;
-  --surface-2: #1D2E3A;
-  --border: #28404D;
-  --text: #EAF0F2;
-  --text-muted: #86A0AA;
-  --accent: #4FC7BF;
-  --accent-strong: #6FE0D8;
-  --accent-ink: #06201E;
+  --bg: #161719;
+  --surface: #1E2023;
+  --surface-2: #292C30;
+  --border: #3A3E45;
+  --text: #ECEEF0;
+  --text-muted: #9BA1A9;
+  --accent: #FFC21A;
+  --accent-strong: #FFD24D;
+  --accent-ink: #1A1400;
   --success: #4FCB8C;
   --success-bg: #163229;
   --warning: #E7B75C;
@@ -82,15 +82,15 @@
 }
 
 :root[data-theme="light"] {
-  --bg: #F3F6F5;
+  --bg: #ECEEF0;
   --surface: #FFFFFF;
-  --surface-2: #E9F0EF;
-  --border: #D3DEDC;
-  --text: #16252F;
-  --text-muted: #48606A;
-  --accent: #1F8B84;
-  --accent-strong: #17716B;
-  --accent-ink: #FFFFFF;
+  --surface-2: #E1E4E8;
+  --border: #CFD3D9;
+  --text: #1B1D21;
+  --text-muted: #5C626C;
+  --accent: #F5B301;
+  --accent-strong: #D89E00;
+  --accent-ink: #211A00;
   --success: #2F9D64;
   --success-bg: #E1F3E9;
   --warning: #B9791F;
@@ -157,70 +157,6 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
-}
-
-/* ── Passenger app palette: grey + taxi-yellow ──────────────────────────
-   Scoped to the passenger layout (.passenger-theme) so the admin and driver
-   panels keep the teal system. Redefining the base tokens here recolours
-   every component in the subtree, since they all read these variables. */
-.passenger-theme {
-  --bg: #ECEEF0;
-  --surface: #FFFFFF;
-  --surface-2: #E1E4E8;
-  --border: #CFD3D9;
-  --text: #1B1D21;
-  --text-muted: #5C626C;
-  --accent: #F5B301;
-  --accent-strong: #D89E00;
-  --accent-ink: #211A00;
-
-  /* The travel card / boarding pass "physical objects" become charcoal +
-     taxi-yellow, and stay constant across light and dark like before so the
-     signature holds. */
-  --ink: #232529;
-  --ink-2: #2F3237;
-  --ink-line: #474B52;
-  --ink-text: #ECEDEF;
-  --ink-muted: #9AA0A8;
-  --amber: #F5B301;
-}
-
-@media (prefers-color-scheme: dark) {
-  .passenger-theme {
-    --bg: #161719;
-    --surface: #1E2023;
-    --surface-2: #292C30;
-    --border: #3A3E45;
-    --text: #ECEEF0;
-    --text-muted: #9BA1A9;
-    --accent: #FFC21A;
-    --accent-strong: #FFD24D;
-    --accent-ink: #1A1400;
-  }
-}
-
-:root[data-theme="dark"] .passenger-theme {
-  --bg: #161719;
-  --surface: #1E2023;
-  --surface-2: #292C30;
-  --border: #3A3E45;
-  --text: #ECEEF0;
-  --text-muted: #9BA1A9;
-  --accent: #FFC21A;
-  --accent-strong: #FFD24D;
-  --accent-ink: #1A1400;
-}
-
-:root[data-theme="light"] .passenger-theme {
-  --bg: #ECEEF0;
-  --surface: #FFFFFF;
-  --surface-2: #E1E4E8;
-  --border: #CFD3D9;
-  --text: #1B1D21;
-  --text-muted: #5C626C;
-  --accent: #F5B301;
-  --accent-strong: #D89E00;
-  --accent-ink: #211A00;
 }
 
 /* ── Animated backdrop: a bus driving down a dashed-line road ──────────── */
