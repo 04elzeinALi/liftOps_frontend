@@ -3,7 +3,6 @@ import { resolveStatus } from "@/lib/status";
 import StatusPill from "@/components/StatusPill";
 import { useDeletePayment, usePayments, usePaymentsSummary } from "@/api/payments";
 import { Button } from "@/components/ui/button";
-import Pagination from "@/components/Pagination";
 import PaymentFormDialog from "./PaymentFormDialog";
 import {
   AlertDialog,
@@ -164,15 +163,9 @@ function SummarySection() {
 }
 
 export default function PaymentsPage() {
-  const [page, setPage] = useState(1);
   const [period, setPeriod] = useState("day");
-  const { data, isLoading, isError } = usePayments(page, period);
+  const { data: payments, isLoading, isError } = usePayments(period);
   const deletePayment = useDeletePayment();
-
-  function changePeriod(next) {
-    setPeriod(next);
-    setPage(1); // a new window starts from its own first page
-  }
 
   const [formOpen, setFormOpen] = useState(false);
   const [editingPayment, setEditingPayment] = useState(null);
@@ -219,7 +212,7 @@ export default function PaymentsPage() {
         {PERIODS.map((p) => (
           <button
             key={p.value}
-            onClick={() => changePeriod(p.value)}
+            onClick={() => setPeriod(p.value)}
             className="rounded-lg px-3 py-1.5 text-sm font-semibold"
             style={{
               background: period === p.value ? "var(--accent)" : "var(--surface-2)",
@@ -242,7 +235,7 @@ export default function PaymentsPage() {
             Failed to load payments.
           </p>
         )}
-        {data && (
+        {payments && payments.length > 0 && (
           <table className="w-full border-collapse">
             <thead>
               <tr style={{ background: "var(--surface-2)" }}>
@@ -258,7 +251,7 @@ export default function PaymentsPage() {
               </tr>
             </thead>
             <tbody>
-              {data.data.map((payment) => {
+              {payments.map((payment) => {
                 const status = resolveStatus(STATUS_STYLE, payment.payment_status);
                 return (
                   <tr key={payment.id} style={{ borderBottom: "1px solid var(--border)" }}>
@@ -298,14 +291,12 @@ export default function PaymentsPage() {
             </tbody>
           </table>
         )}
-        {data && data.data.length === 0 && (
+        {payments && payments.length === 0 && (
           <p className="p-6 text-sm" style={{ color: "var(--text-muted)" }}>
             No payments {PERIODS.find((p) => p.value === period)?.label.toLowerCase() ?? "in this period"}.
           </p>
         )}
       </div>
-
-      <Pagination meta={data} onPageChange={setPage} />
 
       <PaymentFormDialog open={formOpen} onOpenChange={setFormOpen} payment={editingPayment} />
 

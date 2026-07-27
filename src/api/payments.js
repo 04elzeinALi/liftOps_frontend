@@ -19,17 +19,14 @@ export function usePaymentsSummary(period) {
   });
 }
 
-// `period` scopes the list to today / this week / this month (day|week|month).
-// Pass null/"" for all payments.
-export function usePayments(page = 1, period = "day") {
+// Returns EVERY payment for the period (day|week|month) as a flat array —
+// the admin wants them all on a single page, not paginated. Pass null/"" for
+// all payments regardless of date. Keyed under ["payments", ...] so the
+// mutation invalidations below still refresh it.
+export function usePayments(period = "day") {
   return useQuery({
-    queryKey: ["payments", page, period],
-    queryFn: async () => {
-      const params = new URLSearchParams({ page: String(page) });
-      if (period) params.set("period", period);
-      const res = await api.get(`/payments?${params.toString()}`);
-      return res.data;
-    },
+    queryKey: ["payments", "list", period],
+    queryFn: () => fetchAllPages(period ? `/payments?period=${period}` : "/payments"),
   });
 }
 
