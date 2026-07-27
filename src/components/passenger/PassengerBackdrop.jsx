@@ -36,7 +36,7 @@ export default function PassengerBackdrop() {
   return (
     <div
       aria-hidden="true"
-      style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none", overflow: "hidden" }}
+      style={{ position: "fixed", inset: 0, zIndex: 20, pointerEvents: "none", overflow: "hidden" }}
     >
       <div
         style={{

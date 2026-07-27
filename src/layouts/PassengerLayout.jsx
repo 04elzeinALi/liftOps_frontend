@@ -48,12 +48,10 @@ export default function PassengerLayout() {
         style={{ borderBottom: "1px solid var(--border)", background: "var(--surface)" }}
       >
         <div className="flex items-baseline gap-2">
-          <span className="font-display text-lg font-extrabold" style={{ color: "var(--text)" }}>
+          <span className="font-display text-2xl font-extrabold" style={{ color: "var(--accent)" }}>
             LIFTOPS
           </span>
-          <span className="text-[10.5px] font-semibold uppercase" style={{ color: "var(--accent)", letterSpacing: "0.14em" }}>
-            Passenger
-          </span>
+         
         </div>
         <div className="flex items-center gap-2">
           <span className="hidden text-sm font-semibold sm:inline" style={{ color: "var(--text)" }}>
@@ -76,7 +74,7 @@ export default function PassengerLayout() {
       </main>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-10 mx-auto grid max-w-[520px] grid-cols-4 gap-1 px-3 pb-[max(8px,env(safe-area-inset-bottom))] pt-2"
+        className="fixed inset-x-0 bottom-0 z-30 mx-auto grid max-w-[520px] grid-cols-4 gap-1 px-3 pb-[max(8px,env(safe-area-inset-bottom))] pt-2"
         style={{
           background: "color-mix(in srgb, var(--bg) 84%, transparent)",
           backdropFilter: "blur(10px)",
