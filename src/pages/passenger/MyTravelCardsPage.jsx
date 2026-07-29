@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useMyTravelCards } from "@/api/passengerCards";
 import TravelCardObject from "@/components/passenger/TravelCardObject";
+import { cardSegmentLabel } from "@/lib/cardLabel";
 
 export default function MyTravelCardsPage() {
   const { data: cards, isLoading, isError } = useMyTravelCards();
@@ -8,7 +9,7 @@ export default function MyTravelCardsPage() {
   return (
     <div className="mx-auto w-full max-w-[452px]">
       <h1 className="font-display mb-5 text-3xl font-extrabold" style={{ color: "var(--text)" }}>
-        My Travel Cards
+         Travel Cards
       </h1>
 
       {isLoading && (
@@ -31,7 +32,7 @@ export default function MyTravelCardsPage() {
         {cards?.map((card) => (
           <TravelCardObject
             key={card.id}
-            routeName={card.route?.route_name ?? `${card.route?.origin} — ${card.route?.destination}`}
+            routeName={cardSegmentLabel(card)}
             cardType={card.card_type}
             remaining={card.remaining_trips}
             total={card.total_trips}

@@ -4,6 +4,7 @@ import { useMyTravelCards } from "@/api/passengerCards";
 import { useUpcomingTrips } from "@/api/passengerTrips";
 import { useStationsList } from "@/api/stations";
 import { localToday } from "@/lib/dates";
+import { cardSegmentLabel } from "@/lib/cardLabel";
 import BoardingPass from "@/components/passenger/BoardingPass";
 import TravelCardObject from "@/components/passenger/TravelCardObject";
 import DepartureBoard from "@/components/passenger/DepartureBoard";
@@ -140,7 +141,7 @@ export default function PassengerHomePage() {
           {visibleCards.map((card) => (
             <TravelCardObject
               key={card.id}
-              routeName={card.route?.route_name ?? `${card.route?.origin} — ${card.route?.destination}`}
+              routeName={cardSegmentLabel(card)}
               cardType={card.card_type}
               remaining={card.remaining_trips}
               total={card.total_trips}

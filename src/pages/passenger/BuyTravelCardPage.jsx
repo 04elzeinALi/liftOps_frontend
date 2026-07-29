@@ -1,7 +1,8 @@
 import { getApiErrorMessage } from "@/api/errors";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useRoutes } from "@/api/routes";
+import { useRoute, useRoutes } from "@/api/routes";
+import { distanceAlongStops, fareForDistance } from "@/lib/fare";
 import { useMyPassengerProfile, useBuyTravelCard } from "@/api/passengerCards";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -47,13 +48,48 @@ export default function BuyTravelCardPage() {
   const buyCard = useBuyTravelCard();
 
   const [routeId, setRouteId] = useState(searchParams.get("route_id") ?? "");
+  const [fromStationId, setFromStationId] = useState("");
+  const [toStationId, setToStationId] = useState("");
   const [cardType, setCardType] = useState(CARD_TYPES[0]);
   const [paymentMethod, setPaymentMethod] = useState(PAYMENT_METHODS[0]);
   const [error, setError] = useState("");
 
   const selectedRoute = routes?.find((r) => r.id === Number(routeId));
+  const { data: routeDetail } = useRoute(routeId);
+
+  const stops = useMemo(
+    () =>
+      (routeDetail?.route_stations ?? []).map((rs) => ({
+        id: rs.station_id,
+        name: rs.station?.station_name ?? `Station #${rs.station_id}`,
+        lat: rs.station?.latitude,
+        lng: rs.station?.longitude,
+      })),
+    [routeDetail]
+  );
+
+  // Default to riding the whole line; the passenger narrows it from there.
+  useEffect(() => {
+    if (stops.length < 2) {
+      setFromStationId("");
+      setToStationId("");
+      return;
+    }
+    setFromStationId(String(stops[0].id));
+    setToStationId(String(stops[stops.length - 1].id));
+  }, [stops]);
+
   const terms = CARD_TERMS_PREVIEW[cardType];
-  const previewPrice = selectedRoute ? (Number(selectedRoute.fare) * terms.price_multiplier).toFixed(2) : null;
+
+  // The fare band comes from how far the chosen segment actually runs.
+  const segmentKm =
+    fromStationId && toStationId ? distanceAlongStops(stops, fromStationId, toStationId) : null;
+  const baseFare = segmentKm != null ? fareForDistance(segmentKm) : null;
+  const previewPrice = baseFare != null ? (baseFare * terms.price_multiplier).toFixed(2) : null;
+
+  const fromName = stops.find((s) => s.id === Number(fromStationId))?.name;
+  const toName = stops.find((s) => s.id === Number(toStationId))?.name;
+  const routeHasStops = stops.length >= 2;
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -68,6 +104,8 @@ export default function BuyTravelCardPage() {
       await buyCard.mutateAsync({
         passenger_id: passenger.id,
         route_id: Number(routeId),
+        from_station_id: Number(fromStationId),
+        to_station_id: Number(toStationId),
         card_type: cardType,
         payment_method: paymentMethod,
       });
@@ -87,9 +125,11 @@ export default function BuyTravelCardPage() {
       <div className="mb-5">
         <TravelCardObject
           routeName={
-            selectedRoute
-              ? selectedRoute.route_name ?? `${selectedRoute.origin} — ${selectedRoute.destination}`
-              : "Select a route"
+            fromName && toName
+              ? `${fromName} → ${toName}`
+              : selectedRoute
+                ? selectedRoute.route_name ?? `${selectedRoute.origin} — ${selectedRoute.destination}`
+                : "Select a route"
           }
           cardType={cardType}
           remaining={terms.total_trips}
@@ -115,6 +155,49 @@ export default function BuyTravelCardPage() {
             </SelectContent>
           </Select>
         </div>
+        {routeId && !routeHasStops && (
+          <p className="rounded-lg p-3 text-xs" style={{ background: "var(--warning-bg)", color: "var(--warning)" }}>
+            This route has no stops set up yet, so it can't be priced by distance.
+          </p>
+        )}
+
+        {routeHasStops && (
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="from_station_id">Boarding at</Label>
+              <Select value={fromStationId} onValueChange={setFromStationId}>
+                <SelectTrigger id="from_station_id" className="w-full">
+                  <SelectValue placeholder="From" />
+                </SelectTrigger>
+                <SelectContent>
+                  {stops.map((s) => (
+                    <SelectItem key={s.id} value={String(s.id)}>
+                      {s.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="to_station_id">Getting off at</Label>
+              <Select value={toStationId} onValueChange={setToStationId}>
+                <SelectTrigger id="to_station_id" className="w-full">
+                  <SelectValue placeholder="To" />
+                </SelectTrigger>
+                <SelectContent>
+                  {stops
+                    .filter((s) => String(s.id) !== fromStationId)
+                    .map((s) => (
+                      <SelectItem key={s.id} value={String(s.id)}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
+
         <div>
           <Label htmlFor="card_type">Card type</Label>
           <Select value={cardType} onValueChange={setCardType}>
@@ -132,12 +215,18 @@ export default function BuyTravelCardPage() {
         </div>
 
         <div className="rounded-lg p-4 text-sm" style={{ background: "var(--surface-2)", color: "var(--text-muted)" }}>
-          {terms.total_trips} trip{terms.total_trips === 1 ? "" : "s"} · valid for {terms.expiry_days} day{terms.expiry_days === 1 ? "" : "s"}
-          {previewPrice && (
-            <>
-              {" "}
-              · <span style={{ color: "var(--text)" }}>${previewPrice}</span>
-            </>
+          <div>
+            {terms.total_trips} trip{terms.total_trips === 1 ? "" : "s"} · valid for {terms.expiry_days} day{terms.expiry_days === 1 ? "" : "s"}
+          </div>
+          {segmentKm != null && (
+            <div className="mt-1.5 flex items-baseline justify-between gap-3">
+              <span style={{ fontFamily: "var(--font-mono)" }}>
+                {segmentKm.toFixed(1)} km · ${baseFare.toFixed(2)}/ride
+              </span>
+              <span className="font-display text-lg font-extrabold" style={{ color: "var(--accent)" }}>
+                ${previewPrice}
+              </span>
+            </div>
           )}
         </div>
 
@@ -168,7 +257,7 @@ export default function BuyTravelCardPage() {
           </p>
         )}
 
-        <Button type="submit" disabled={buyCard.isPending || !routeId}>
+        <Button type="submit" disabled={buyCard.isPending || !routeId || !fromStationId || !toStationId}>
           {buyCard.isPending ? "Processing…" : "Pay & Buy Card"}
         </Button>
       </form>

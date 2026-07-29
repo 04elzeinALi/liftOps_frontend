@@ -26,10 +26,12 @@ export function useMyTravelCards() {
 export function useBuyTravelCard() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ passenger_id, route_id, card_type, payment_method }) => {
+    mutationFn: async ({ passenger_id, route_id, from_station_id, to_station_id, card_type, payment_method }) => {
       const cardRes = await api.post("/travel-cards", {
         passenger_id,
         route_id,
+        from_station_id,
+        to_station_id,
         card_type,
         status: "active",
       });
