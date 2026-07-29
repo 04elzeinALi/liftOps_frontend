@@ -34,11 +34,6 @@ export default function TripsPage() {
   const [deletingTrip, setDeletingTrip] = useState(null);
   const [deleteError, setDeleteError] = useState("");
 
-  function openCreate() {
-    setEditingTrip(null);
-    setFormOpen(true);
-  }
-
   function openEdit(trip) {
     setEditingTrip(trip);
     setFormOpen(true);
@@ -61,11 +56,13 @@ export default function TripsPage() {
 
   return (
     <div>
-      <div className="mb-5 flex items-center justify-between">
+      <div className="mb-5">
         <h1 className="font-display text-3xl font-extrabold" style={{ color: "var(--text)" }}>
           Trips
         </h1>
-        <Button onClick={openCreate}>Add Trip</Button>
+        <p className="mt-1 text-sm" style={{ color: "var(--text-muted)" }}>
+          Each trip is one leg of a shift. Add a shift to create legs; edit one here to adjust it on its own.
+        </p>
       </div>
 
       <div className="overflow-x-auto rounded-xl" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
@@ -83,7 +80,7 @@ export default function TripsPage() {
           <table className="w-full border-collapse">
             <thead>
               <tr style={{ background: "var(--surface-2)" }}>
-                {["Schedule", "Bus", "Driver", "Trip Date", "Status", ""].map((h) => (
+                {["Leg", "Bus", "Driver", "Trip Date", "Status", ""].map((h) => (
                   <th
                     key={h}
                     className="px-5 py-3 text-left text-[11.5px] font-bold uppercase"
@@ -107,7 +104,12 @@ export default function TripsPage() {
                     }}
                   >
                     <td className="px-5 py-3 text-sm" style={{ color: "var(--text)" }}>
-                      {trip.schedule?.route?.route_name} — {trip.schedule?.departure_time?.slice(0, 5)}–{trip.schedule?.arrival_time?.slice(0, 5)}
+                      <div>{tripRouteName(trip)}</div>
+                      <div className="text-xs" style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
+                        {tripLegLabel(trip)}
+                        {tripLegLabel(trip) && " · "}
+                        {trip.departure_time?.slice(0, 5)}–{trip.arrival_time?.slice(0, 5)}
+                      </div>
                     </td>
                     <td className="px-5 py-3 text-sm" style={{ fontFamily: "var(--font-mono)" }}>
                       {trip.bus?.plate_number}

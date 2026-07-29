@@ -5,6 +5,7 @@ import { useDriverActivity } from "@/api/activity";
 import ActivityTable from "@/components/ActivityTable";
 import StatusPill from "@/components/StatusPill";
 import { localToday, formatDateTime } from "@/lib/dates";
+import { tripRouteName } from "@/lib/trip";
 
 const TRIP_STATUS_STYLE = {
   scheduled: { bg: "var(--warning-bg)", fg: "var(--warning)", label: "Scheduled" },
@@ -120,9 +121,9 @@ export default function DriverDetailPage() {
             headers={["Route", "Bus", "Trip Date", "Status"]}
             emptyText="No trips driven on this day."
             rows={data.trips.map((t) => {
-              const s = TRIP_resolveStatus(STATUS_STYLE, t.status);
+              const s = resolveStatus(TRIP_STATUS_STYLE, t.status);
               return [
-                t.schedule?.route?.route_name ?? "—",
+                tripRouteName(t),
                 t.bus?.plate_number ?? "—",
                 t.trip_date,
                 <StatusPill key="s" bg={s.bg} fg={s.fg} label={s.label} />,
@@ -135,7 +136,7 @@ export default function DriverDetailPage() {
             headers={["Passenger", "Amount", "Method", "Status", "Paid At"]}
             emptyText="No payments collected on this day."
             rows={data.payments.map((p) => {
-              const s = PAYMENT_resolveStatus(STATUS_STYLE, p.payment_status);
+              const s = resolveStatus(PAYMENT_STATUS_STYLE, p.payment_status);
               return [
                 p.travel_card?.passenger
                   ? `${p.travel_card.passenger.first_name} ${p.travel_card.passenger.last_name}`
@@ -153,7 +154,7 @@ export default function DriverDetailPage() {
             headers={["Route", "Check In", "Check Out", "Status"]}
             emptyText="No attendance recorded on this day."
             rows={data.attendance.map((a) => [
-              a.trip?.schedule?.route?.route_name ?? "—",
+              tripRouteName(a.trip),
               formatDateTime(a.check_in),
               formatDateTime(a.check_out),
               a.status,

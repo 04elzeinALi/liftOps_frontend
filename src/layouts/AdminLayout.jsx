@@ -19,10 +19,9 @@ const NAV_GROUPS = [
     ],
   },
   {
-    label: "Schedule",
+    label: "Operations",
     items: [
-      { to: "/admin/schedules", label: "Schedules" },
-      { to: "/admin/schedule-days", label: "Schedule Days" },
+      { to: "/admin/shifts", label: "Shifts" },
       { to: "/admin/trips", label: "Trips" },
     ],
   },

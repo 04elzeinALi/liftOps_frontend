@@ -10,6 +10,7 @@ import LeafletMap from "@/components/LeafletMap";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { tripRoute, tripRouteName, tripTimes } from "@/lib/trip";
 import {
   Select,
   SelectContent,
@@ -49,7 +50,7 @@ export default function BookTripPage() {
     );
   }
 
-  const routeId = trip.schedule?.route?.id;
+  const routeId = tripRoute(trip)?.id;
   const today = localToday();
   const eligibleCards = (cards ?? []).filter(
     (card) =>
@@ -91,10 +92,10 @@ export default function BookTripPage() {
       </Link>
 
       <h1 className="font-display mb-1 text-3xl font-extrabold" style={{ color: "var(--text)" }}>
-        {trip.schedule?.route?.route_name}
+        {tripRouteName(trip)}
       </h1>
       <p className="mb-4 text-sm" style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>
-        {trip.schedule?.departure_time?.slice(0, 5)}–{trip.schedule?.arrival_time?.slice(0, 5)} · Bus {trip.bus?.plate_number} · {trip.available_seats} seats left
+        {tripTimes(trip).departure}–{tripTimes(trip).arrival} · Bus {trip.bus?.plate_number} · {trip.available_seats} seats left
       </p>
 
       <div className="mb-5">
@@ -103,15 +104,15 @@ export default function BookTripPage() {
           connect
           points={[
             {
-              lat: trip.schedule?.route?.origin_station?.latitude,
-              lng: trip.schedule?.route?.origin_station?.longitude,
-              label: trip.schedule?.route?.origin,
+              lat: tripRoute(trip)?.origin_station?.latitude,
+              lng: tripRoute(trip)?.origin_station?.longitude,
+              label: tripRoute(trip)?.origin,
               kind: "boarding",
             },
             {
-              lat: trip.schedule?.route?.destination_station?.latitude,
-              lng: trip.schedule?.route?.destination_station?.longitude,
-              label: trip.schedule?.route?.destination,
+              lat: tripRoute(trip)?.destination_station?.latitude,
+              lng: tripRoute(trip)?.destination_station?.longitude,
+              label: tripRoute(trip)?.destination,
               kind: "destination",
             },
           ]}

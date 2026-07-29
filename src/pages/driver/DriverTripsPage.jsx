@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { resolveStatus } from "@/lib/status";
 import StatusPill from "@/components/StatusPill";
 import { useTodaysTrips } from "@/api/driverTrips";
+import { tripRouteName, tripTimes } from "@/lib/trip";
 
 const STATUS_STYLE = {
   scheduled: { bg: "var(--warning-bg)", fg: "var(--warning)", label: "Scheduled" },
@@ -50,12 +51,12 @@ export default function DriverTripsPage() {
             >
               <div className="mb-3 flex items-center justify-between">
                 <span className="font-display text-lg font-bold" style={{ color: "var(--text)" }}>
-                  {trip.schedule?.route?.route_name}
+                  {tripRouteName(trip)}
                 </span>
                 <StatusPill bg={status.bg} fg={status.fg} label={status.label} />
               </div>
               <p className="text-sm" style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>
-                {trip.schedule?.departure_time?.slice(0, 5)}–{trip.schedule?.arrival_time?.slice(0, 5)}
+                {tripTimes(trip).departure}–{tripTimes(trip).arrival}
               </p>
               <p className="mt-1 text-sm" style={{ color: "var(--text-muted)" }}>
                 Bus {trip.bus?.plate_number}

@@ -5,6 +5,7 @@ import { usePassengerActivity } from "@/api/activity";
 import ActivityTable from "@/components/ActivityTable";
 import StatusPill from "@/components/StatusPill";
 import { localToday, formatDateTime } from "@/lib/dates";
+import { tripRouteName } from "@/lib/trip";
 
 const PAYMENT_STATUS_STYLE = {
   paid: { bg: "var(--success-bg)", fg: "var(--success)", label: "Paid" },
@@ -69,7 +70,7 @@ export default function PassengerDetailPage() {
             headers={["Route", "Trip Date", "Status", "Booked At"]}
             emptyText="No reservations booked on this day."
             rows={data.reservations.map((r) => [
-              r.trip?.schedule?.route?.route_name ?? "—",
+              tripRouteName(r.trip),
               r.trip?.trip_date ?? "—",
               r.status,
               formatDateTime(r.created_at),
@@ -81,7 +82,7 @@ export default function PassengerDetailPage() {
             headers={["Route", "Trip Date", "Boarded At"]}
             emptyText="No trips boarded on this day."
             rows={data.boardings.map((b) => [
-              b.trip?.schedule?.route?.route_name ?? "—",
+              tripRouteName(b.trip),
               b.trip?.trip_date ?? "—",
               formatDateTime(b.boarded_at),
             ])}
@@ -105,7 +106,7 @@ export default function PassengerDetailPage() {
             headers={["Amount", "Method", "Status", "Collected By", "Paid At"]}
             emptyText="No payments made on this day."
             rows={data.payments.map((p) => {
-              const s = PAYMENT_resolveStatus(STATUS_STYLE, p.payment_status);
+              const s = resolveStatus(PAYMENT_STATUS_STYLE, p.payment_status);
               return [
                 `$${Number(p.amount).toFixed(2)}`,
                 p.payment_method.replaceAll("_", " "),

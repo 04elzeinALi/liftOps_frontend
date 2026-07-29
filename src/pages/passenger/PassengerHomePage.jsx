@@ -38,8 +38,8 @@ function nextBookedReservation(reservations) {
   return (reservations ?? [])
     .filter((r) => r.status === "booked" && r.trip?.trip_date && r.trip.trip_date >= today)
     .sort((a, b) => {
-      const ka = `${a.trip.trip_date} ${a.trip.schedule?.departure_time ?? ""}`;
-      const kb = `${b.trip.trip_date} ${b.trip.schedule?.departure_time ?? ""}`;
+      const ka = `${a.trip.trip_date} ${a.trip.departure_time ?? ""}`;
+      const kb = `${b.trip.trip_date} ${b.trip.departure_time ?? ""}`;
       return ka.localeCompare(kb);
     })[0];
 }

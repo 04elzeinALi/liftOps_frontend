@@ -2,6 +2,7 @@ import { useState } from "react";
 import { resolveStatus } from "@/lib/status";
 import StatusPill from "@/components/StatusPill";
 import { useCancelReservation, useMyReservations } from "@/api/passengerReservations";
+import { tripRoute, tripTimes } from "@/lib/trip";
 
 const STATUS_STYLE = {
   booked: { bg: "var(--success-bg)", fg: "var(--success)", label: "Booked" },
@@ -30,7 +31,7 @@ export default function MyReservationsPage() {
   return (
     <div className="mx-auto w-full max-w-[452px]">
       <h1 className="font-display mb-5 text-3xl font-extrabold" style={{ color: "var(--text)" }}>
-        My Trips
+         Trips
       </h1>
 
       {isLoading && (
@@ -57,7 +58,7 @@ export default function MyReservationsPage() {
       <div className="flex flex-col gap-3">
         {reservations?.map((reservation) => {
           const status = resolveStatus(STATUS_STYLE, reservation.status);
-          const route = reservation.trip?.schedule?.route;
+          const route = tripRoute(reservation.trip);
           const label = route ? `${route.origin} → ${route.destination}` : route?.route_name;
           return (
             <div
@@ -74,7 +75,7 @@ export default function MyReservationsPage() {
               <div className="mt-2 flex items-center gap-4 text-sm" style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
                 <span>{reservation.trip?.trip_date}</span>
                 <span>·</span>
-                <span>{reservation.trip?.schedule?.departure_time?.slice(0, 5)}</span>
+                <span>{tripTimes(reservation.trip).departure}</span>
                 {reservation.pickup_location && (
                   <>
                     <span>·</span>

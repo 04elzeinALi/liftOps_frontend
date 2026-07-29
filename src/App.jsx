@@ -5,10 +5,9 @@ import Login from "@/pages/Login";
 import Signup from "@/pages/Signup";
 import AdminLayout from "@/layouts/AdminLayout";
 import BusesPage from "@/pages/admin/buses/BusesPage";
-import SchedulesPage from "@/pages/admin/schedules/SchedulesPage";
+import ShiftsPage from "@/pages/admin/shifts/ShiftsPage";
 import StationsPage from "@/pages/admin/stations/StationsPage";
 import RoutesPage from "@/pages/admin/routes/RoutesPage";
-import ScheduleDaysPage from "@/pages/admin/schedule-days/ScheduleDaysPage";
 import MaintenancePage from "@/pages/admin/maintenance/MaintenancePage";
 import RouteStationsPage from "@/pages/admin/route-stations/RouteStationsPage";
 import TripsPage from "@/pages/admin/trips/TripsPage";
@@ -56,8 +55,7 @@ export default function App() {
               <Route path="routes" element={<RoutesPage />} />
               <Route path="drivers" element={<DriversPage />} />
               <Route path="drivers/:id" element={<DriverDetailPage />} />
-              <Route path="schedules" element={<SchedulesPage />} />
-              <Route path="schedule-days" element={<ScheduleDaysPage />} />
+              <Route path="shifts" element={<ShiftsPage />} />
               <Route path="maintenance" element={<MaintenancePage />} />
               <Route path="route-stations" element={<RouteStationsPage />} />
               <Route path="trips" element={<TripsPage />} />

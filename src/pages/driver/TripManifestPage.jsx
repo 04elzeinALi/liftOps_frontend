@@ -4,6 +4,7 @@ import StatusPill from "@/components/StatusPill";
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useMarkBoarded, useTripDetail, useTripManifest, useUpdateTripStatus } from "@/api/driverTrips";
+import { tripRouteName, tripTimes } from "@/lib/trip";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -107,10 +108,10 @@ export default function TripManifestPage() {
       <div className="mb-5 flex items-start justify-between">
         <div>
           <h1 className="font-display text-3xl font-extrabold" style={{ color: "var(--text)" }}>
-            {trip.schedule?.route?.route_name}
+            {tripRouteName(trip)}
           </h1>
           <p className="mt-1 text-sm" style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>
-            {trip.schedule?.departure_time?.slice(0, 5)}–{trip.schedule?.arrival_time?.slice(0, 5)} · Bus {trip.bus?.plate_number}
+            {tripTimes(trip).departure}–{tripTimes(trip).arrival} · Bus {trip.bus?.plate_number}
           </p>
           <p className="mt-1 text-sm" style={{ color: "var(--text-muted)" }}>
             {boardings.length} / {trip.bus?.capacity} boarded
