@@ -5,6 +5,7 @@ import { useDeleteTravelCard, useTravelCards } from "@/api/travelCards";
 import { Button } from "@/components/ui/button";
 import Pagination from "@/components/Pagination";
 import TravelCardFormDialog from "./TravelCardFormDialog";
+import { cardSegmentLabel } from "@/lib/cardLabel";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -81,7 +82,7 @@ export default function TravelCardsPage() {
           <table className="w-full border-collapse">
             <thead>
               <tr style={{ background: "var(--surface-2)" }}>
-                {["Passenger", "Route", "Type", "Trips Left", "Expires", "Status", ""].map((h) => (
+                {["Passenger", "Segment", "Type", "Trips Left", "Expires", "Status", ""].map((h) => (
                   <th
                     key={h}
                     className="px-5 py-3 text-left text-[11.5px] font-bold uppercase"
@@ -101,7 +102,7 @@ export default function TravelCardsPage() {
                       {card.passenger?.first_name} {card.passenger?.last_name}
                     </td>
                     <td className="px-5 py-3 text-sm" style={{ color: "var(--text)" }}>
-                      {card.route?.route_name}
+                      {cardSegmentLabel(card)}
                     </td>
                     <td className="px-5 py-3 text-sm capitalize" style={{ color: "var(--text)" }}>
                       {card.card_type}
