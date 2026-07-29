@@ -9,6 +9,19 @@ export function useRoutes() {
   });
 }
 
+// A single route with its stops already in station_order — what the route
+// diagram and the stop-sequence editor both read.
+export function useRoute(id) {
+  return useQuery({
+    queryKey: ["route", id],
+    queryFn: async () => {
+      const res = await api.get(`/routes/${id}`);
+      return res.data;
+    },
+    enabled: Boolean(id),
+  });
+}
+
 export function useRoutesPage(page = 1) {
   return useQuery({
     queryKey: ["routes", page],

@@ -100,7 +100,20 @@ export default function PassengerHomePage() {
       {/* THE LINE */}
       {linePoints.length >= 2 && (
         <section aria-label="The line">
-          <Eyebrow>The line</Eyebrow>
+          <Eyebrow
+            action={
+              <button
+                type="button"
+                onClick={() => navigate("/passenger/line")}
+                className="text-[11px] font-semibold"
+                style={{ color: "var(--accent)", letterSpacing: "0.04em" }}
+              >
+                All stops
+              </button>
+            }
+          >
+            The line
+          </Eyebrow>
           <LeafletMap points={linePoints} connect height={220} />
         </section>
       )}

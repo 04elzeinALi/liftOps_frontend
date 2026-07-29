@@ -32,6 +32,22 @@ export function useDeleteRouteStation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["route-stations"] });
+      queryClient.invalidateQueries({ queryKey: ["route"] });
+    },
+  });
+}
+
+// Replaces a route's whole stop sequence with the given order of station ids.
+export function useReorderRouteStations() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ route_id, station_ids }) => {
+      const res = await api.put("/route-stations/reorder", { route_id, station_ids });
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["route-stations"] });
+      queryClient.invalidateQueries({ queryKey: ["route"] });
     },
   });
 }
