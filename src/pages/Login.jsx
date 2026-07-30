@@ -34,12 +34,12 @@ export default function Login() {
         <ThemeToggle />
       </div>
       <div className="w-full max-w-sm">
-        <p
+        {/* <p
           className="mb-2 text-xs font-semibold uppercase"
           style={{ color: "var(--accent)", letterSpacing: "0.09em" }}
         >
           Operations console
-        </p>
+        </p> */}
         <h1 className="font-display mb-1 text-3xl font-extrabold" style={{ color: "var(--text)" }}>
           Welcome to LiftOps
         </h1>
@@ -79,7 +79,7 @@ export default function Login() {
         </form>
 
         <p className="mt-6 text-sm" style={{ color: "var(--text-muted)" }}>
-          Don't have an account?{" "}
+          Your?{" "}
           <Link to="/signup" className="font-semibold" style={{ color: "var(--accent)" }}>
             Sign up
           </Link>

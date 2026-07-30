@@ -47,13 +47,13 @@ export default function PassengerBackdrop() {
           height: 60,
         }}
       >
-        {/* asphalt */}
+        {/* asphalt — solid road, dark in both themes */}
         <div
           style={{
             position: "absolute",
             inset: 0,
-            background: "color-mix(in srgb, var(--text) 5%, transparent)",
-            borderTop: "2px solid color-mix(in srgb, var(--text) 12%, transparent)",
+            background: "#2B2E33",
+            borderTop: "3px solid #43474E",
           }}
         />
         {/* dashed centre line */}
@@ -68,7 +68,6 @@ export default function PassengerBackdrop() {
             transform: "translateY(-50%)",
             background: "repeating-linear-gradient(90deg, var(--amber) 0 30px, transparent 30px 66px)",
             backgroundSize: "96px 100%",
-            opacity: 0.5,
             animation: "lp-road-dash 1.1s linear infinite",
           }}
         />

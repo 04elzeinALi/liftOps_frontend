@@ -22,7 +22,7 @@ export default function MyPaymentsPage() {
   return (
     <div className="mx-auto w-full max-w-[452px]">
       <h1 className="font-display mb-5 text-3xl font-extrabold" style={{ color: "var(--text)" }}>
-        My Payments
+         Payments
       </h1>
 
       {isLoading && (
