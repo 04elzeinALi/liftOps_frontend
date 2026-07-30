@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { resolveStatus } from "@/lib/status";
+import { tripLegLabel, tripRouteName } from "@/lib/trip";
 import StatusPill from "@/components/StatusPill";
 import { useDeleteTrip, useTrips } from "@/api/trips";
-import { Button } from "@/components/ui/button";
 import Pagination from "@/components/Pagination";
 import TripFormDialog from "./TripFormDialog";
 import {
