@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/auth/AuthContext";
+import { getApiErrorMessage } from "@/api/errors";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,8 +22,12 @@ export default function Login() {
     try {
       const user = await login(email, password);
       navigate(`/${user.role}`, { replace: true });
-    } catch {
-      setError("Invalid email or password.");
+    } catch (err) {
+      // A wrong password gets Laravel's real message; a network/CORS/DNS
+      // failure (no response at all) falls back to a generic message instead
+      // of falsely blaming the password — those are very different problems
+      // to fix, and blaming credentials cost us real debugging time once.
+      setError(getApiErrorMessage(err, "Couldn't reach the server. Please check your connection and try again."));
     } finally {
       setSubmitting(false);
     }
