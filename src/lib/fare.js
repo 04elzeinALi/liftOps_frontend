@@ -55,3 +55,15 @@ export function distanceAlongStops(stops, fromId, toId) {
 
   return km * ROAD_FACTOR;
 }
+
+// The stops a ride actually passes through, in travel order — what a map
+// highlights for "this card covers Cola to Khalde". Direction-agnostic, like
+// distanceAlongStops. Returns null if either end isn't one of the stops.
+export function segmentBetweenStops(stops, fromId, toId) {
+  const from = stops.findIndex((s) => s.id === Number(fromId));
+  const to = stops.findIndex((s) => s.id === Number(toId));
+  if (from < 0 || to < 0) return null;
+
+  const [start, end] = from <= to ? [from, to] : [to, from];
+  return stops.slice(start, end + 1);
+}

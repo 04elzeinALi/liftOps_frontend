@@ -40,7 +40,29 @@ function markerIcon(kind) {
   });
 }
 
-export default function LeafletMap({ points = [], connect = false, height = 220, interactive = true }) {
+// Bigger, ringed marker for the two ends of a highlighted ride — drawn on top
+// of the plain station dot at the same coordinates, so it reads as "this stop
+// is special" rather than a whole separate pin.
+function highlightMarkerIcon(color) {
+  return L.divIcon({
+    className: "",
+    html: `<span style="display:block;width:20px;height:20px;border-radius:50%;background:${color};border:3px solid var(--surface);box-shadow:0 0 0 3px color-mix(in srgb, ${color} 35%, transparent),0 2px 8px rgba(0,0,0,.45)"></span>`,
+    iconSize: [20, 20],
+    iconAnchor: [10, 10],
+  });
+}
+
+export default function LeafletMap({
+  points = [],
+  connect = false,
+  height = 220,
+  interactive = true,
+  // An optional ride to pick out from the rest of the line — e.g. the
+  // segment a selected travel card covers. Drawn as a solid contrasting line
+  // over the dashed base route, with the two ends marked distinctly.
+  highlightPoints = [],
+  highlightColor = "#2F6FED",
+}) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const tileRef = useRef(null);
@@ -48,7 +70,12 @@ export default function LeafletMap({ points = [], connect = false, height = 220,
   const { theme } = useTheme();
 
   const valid = points.filter(isValid).map((p) => ({ ...p, lat: Number(p.lat), lng: Number(p.lng) }));
-  const pointsKey = JSON.stringify(valid.map((p) => [p.lat, p.lng, p.label, p.kind]));
+  const validHighlight = highlightPoints.filter(isValid).map((p) => ({ ...p, lat: Number(p.lat), lng: Number(p.lng) }));
+  const pointsKey = JSON.stringify([
+    valid.map((p) => [p.lat, p.lng, p.label, p.kind]),
+    validHighlight.map((p) => [p.lat, p.lng, p.label]),
+    highlightColor,
+  ]);
 
   // create map once
   useEffect(() => {
@@ -101,6 +128,25 @@ export default function LeafletMap({ points = [], connect = false, height = 220,
         dashArray: "1 6",
         lineCap: "round",
       }).addTo(group);
+    }
+
+    // The highlighted ride, solid and on top of the dashed base line so it
+    // reads as "this part" without losing the rest of the line for context.
+    if (validHighlight.length >= 2) {
+      L.polyline(validHighlight.map((p) => [p.lat, p.lng]), {
+        color: highlightColor,
+        weight: 5,
+        opacity: 0.95,
+        lineCap: "round",
+      }).addTo(group);
+    }
+    if (validHighlight.length >= 1) {
+      const ends = [validHighlight[0], validHighlight[validHighlight.length - 1]];
+      ends.forEach((p) => {
+        const m = L.marker([p.lat, p.lng], { icon: highlightMarkerIcon(highlightColor), keyboard: false, zIndexOffset: 500 });
+        if (p.label) m.bindTooltip(p.label, { direction: "top", offset: [0, -10] });
+        m.addTo(group);
+      });
     }
 
     if (valid.length === 1) {

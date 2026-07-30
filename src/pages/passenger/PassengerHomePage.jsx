@@ -1,10 +1,12 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMyReservations } from "@/api/passengerReservations";
 import { useMyTravelCards } from "@/api/passengerCards";
 import { useUpcomingTrips } from "@/api/passengerTrips";
-import { useStationsList } from "@/api/stations";
+import { useRoute, useRoutes } from "@/api/routes";
 import { localToday } from "@/lib/dates";
 import { cardSegmentLabel } from "@/lib/cardLabel";
+import { segmentBetweenStops } from "@/lib/fare";
 import BoardingPass from "@/components/passenger/BoardingPass";
 import TravelCardObject from "@/components/passenger/TravelCardObject";
 import DepartureBoard from "@/components/passenger/DepartureBoard";
@@ -49,12 +51,21 @@ export default function PassengerHomePage() {
   const { data: reservations } = useMyReservations();
   const { data: cards } = useMyTravelCards();
   const { data: trips, isLoading: tripsLoading } = useUpcomingTrips();
-
-  const { data: stations } = useStationsList();
+  const { data: routes } = useRoutes();
 
   const next = nextBookedReservation(reservations);
   const visibleCards = (cards ?? []).slice(0, 2);
   const hasMoreCards = (cards ?? []).length > 2;
+
+  // Tapping a card marks its own segment on the line below, in place; tapping
+  // the same one again clears it back to just the plain corridor.
+  const [highlightedCardId, setHighlightedCardId] = useState(null);
+  const highlightedCard = visibleCards.find((c) => c.id === highlightedCardId) ?? null;
+
+  // Show whichever route the highlighted card belongs to, falling back to the
+  // first route so there's still a line before any card is selected.
+  const lineRouteId = highlightedCard?.route_id ?? routes?.[0]?.id;
+  const { data: lineRoute } = useRoute(lineRouteId);
 
   // Don't offer a trip the passenger has already booked — it belongs in "your
   // trips", not in the list of things still to book.
@@ -65,17 +76,25 @@ export default function PassengerHomePage() {
   );
   const availableTrips = (trips ?? []).filter((t) => !bookedTripIds.has(t.id));
 
-  // The corridor as a map: every station plotted top-to-bottom down the
-  // coast (north → south by latitude) and joined into one taxi-yellow line.
-  const linePoints = (stations ?? [])
-    .filter((s) => Number.isFinite(Number(s.latitude)) && Number.isFinite(Number(s.longitude)))
-    .sort((a, b) => Number(b.latitude) - Number(a.latitude))
-    .map((s, i, arr) => ({
-      lat: s.latitude,
-      lng: s.longitude,
-      label: s.station_name,
-      kind: i === 0 || i === arr.length - 1 ? "origin" : "stop",
-    }));
+  // The corridor as a map: every stop on the route, in the order the bus
+  // actually calls at them, joined into one taxi-yellow line.
+  const orderedStops = (lineRoute?.route_stations ?? []).map((rs) => ({
+    id: rs.station_id,
+    lat: rs.station?.latitude,
+    lng: rs.station?.longitude,
+    label: rs.station?.station_name,
+  }));
+  const linePoints = orderedStops.map((s, i, arr) => ({
+    ...s,
+    kind: i === 0 || i === arr.length - 1 ? "origin" : "stop",
+  }));
+
+  // The specific stretch the highlighted card covers, marked in a different
+  // colour over the base line.
+  const highlightPoints =
+    highlightedCard?.from_station_id && highlightedCard?.to_station_id
+      ? segmentBetweenStops(orderedStops, highlightedCard.from_station_id, highlightedCard.to_station_id) ?? []
+      : [];
 
   return (
     <div className="mx-auto flex w-full max-w-[452px] flex-col gap-7">
@@ -115,7 +134,19 @@ export default function PassengerHomePage() {
           >
             The line
           </Eyebrow>
-          <LeafletMap points={linePoints} connect height={220} />
+          <LeafletMap points={linePoints} connect height={220} highlightPoints={highlightPoints} />
+          {highlightedCard && (
+            <p className="mt-2 text-xs" style={{ color: "var(--text-muted)" }}>
+              {highlightPoints.length >= 2 ? (
+                <>
+                  <span style={{ color: "#2F6FED", fontWeight: 600 }}>●</span> Showing{" "}
+                  {cardSegmentLabel(highlightedCard)}
+                </>
+              ) : (
+                "This card has no route segment on record."
+              )}
+            </p>
+          )}
         </section>
       )}
 
@@ -146,6 +177,9 @@ export default function PassengerHomePage() {
               remaining={card.remaining_trips}
               total={card.total_trips}
               status={card.status}
+              selectable
+              selected={card.id === highlightedCardId}
+              onSelect={() => setHighlightedCardId((id) => (id === card.id ? null : card.id))}
             />
           ))}
           {visibleCards.length === 0 && (
