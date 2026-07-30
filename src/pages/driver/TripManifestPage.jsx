@@ -5,6 +5,8 @@ import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useMarkBoarded, useTripDetail, useTripManifest, useUpdateTripStatus } from "@/api/driverTrips";
 import { tripRouteName, tripTimes } from "@/lib/trip";
+import { boardingSegmentLabel, cardSegmentLabel } from "@/lib/cardLabel";
+import WalkUpBoardingDialog from "./WalkUpBoardingDialog";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -33,6 +35,11 @@ const NEXT_STATUS = {
 // running — not once it's already completed/cancelled, and not twice.
 const CAN_FLAG_EMERGENCY = ["scheduled", "ongoing"];
 
+function formatTime(value) {
+  if (!value) return "—";
+  return new Date(value).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+}
+
 export default function TripManifestPage() {
   const { id } = useParams();
   const { data: trip, isLoading: tripLoading, isError: tripError } = useTripDetail(id);
@@ -42,6 +49,7 @@ export default function TripManifestPage() {
   const [statusError, setStatusError] = useState("");
   const [boardingErrors, setBoardingErrors] = useState({});
   const [confirmingEmergency, setConfirmingEmergency] = useState(false);
+  const [walkUpOpen, setWalkUpOpen] = useState(false);
 
   async function handleStatusChange(nextStatus) {
     setStatusError("");
@@ -97,7 +105,9 @@ export default function TripManifestPage() {
   const nextAction = NEXT_STATUS[trip.status];
   const boardings = manifest?.boardings ?? [];
   const reservations = manifest?.reservations ?? [];
-  const bookedReservations = reservations.filter((r) => r.status === "booked");
+  // Boarding a reservation marks it completed, so anything still "booked" is
+  // someone the driver is waiting on.
+  const waitingReservations = reservations.filter((r) => r.status === "booked");
 
   return (
     <div>
@@ -172,81 +182,150 @@ export default function TripManifestPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <div className="overflow-x-auto rounded-xl" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
-        {manifestLoading && (
-          <p className="p-6 text-sm" style={{ color: "var(--text-muted)" }}>
-            Loading manifest…
-          </p>
-        )}
-        {manifestError && (
-          <p className="p-6 text-sm" style={{ color: "var(--critical)" }}>
-            Failed to load the manifest.
-          </p>
-        )}
-        {manifest && bookedReservations.length === 0 && (
-          <p className="p-6 text-sm" style={{ color: "var(--text-muted)" }}>
-            No booked passengers on this trip.
-          </p>
-        )}
-        {manifest && bookedReservations.length > 0 && (
-          <table className="w-full border-collapse">
-            <thead>
-              <tr style={{ background: "var(--surface-2)" }}>
-                {["Passenger", "Pickup", ""].map((h) => (
-                  <th
-                    key={h}
-                    className="px-5 py-3 text-left text-[11.5px] font-bold uppercase"
-                    style={{ color: "var(--text-muted)", letterSpacing: "0.06em", borderBottom: "1px solid var(--border)" }}
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {bookedReservations.map((reservation) => {
-                const isBoarded = boardings.some((b) => b.reservation_id === reservation.id);
-                return (
+      {/* who is actually on the bus, in the order they got on */}
+      <section className="mb-6">
+        <div className="mb-2 flex items-center justify-between">
+          <h2 className="text-[11px] font-bold uppercase" style={{ color: "var(--text-muted)", letterSpacing: "0.09em" }}>
+            On board · {boardings.length}
+          </h2>
+          <button
+            type="button"
+            onClick={() => setWalkUpOpen(true)}
+            className="rounded-lg px-3 py-1.5 text-sm font-semibold"
+            style={{ background: "var(--accent)", color: "var(--accent-ink)" }}
+          >
+            Board a walk-up
+          </button>
+        </div>
+
+        <div className="overflow-x-auto rounded-xl" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+          {manifestLoading && (
+            <p className="p-6 text-sm" style={{ color: "var(--text-muted)" }}>Loading manifest…</p>
+          )}
+          {manifestError && (
+            <p className="p-6 text-sm" style={{ color: "var(--critical)" }}>Failed to load the manifest.</p>
+          )}
+          {manifest && boardings.length === 0 && (
+            <p className="p-6 text-sm" style={{ color: "var(--text-muted)" }}>
+              Nobody has boarded this leg yet.
+            </p>
+          )}
+          {boardings.length > 0 && (
+            <table className="w-full border-collapse">
+              <thead>
+                <tr style={{ background: "var(--surface-2)" }}>
+                  {["Boarded", "Passenger", "Phone", "Pickup", "Travelling", "Status"].map((h) => (
+                    <th
+                      key={h}
+                      className="px-5 py-3 text-left text-[11.5px] font-bold uppercase"
+                      style={{ color: "var(--text-muted)", letterSpacing: "0.06em", borderBottom: "1px solid var(--border)" }}
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {boardings.map((boarding) => {
+                  const walkUp = !boarding.reservation_id;
+                  return (
+                    <tr key={boarding.id} style={{ borderBottom: "1px solid var(--border)" }}>
+                      <td className="px-5 py-3 text-sm" style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>
+                        {formatTime(boarding.boarded_at)}
+                      </td>
+                      <td className="px-5 py-3 text-sm" style={{ color: "var(--text)" }}>
+                        {boarding.passenger?.first_name} {boarding.passenger?.last_name}
+                      </td>
+                      <td className="px-5 py-3 text-sm" style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>
+                        {boarding.passenger?.phone_number ?? "—"}
+                      </td>
+                      <td className="px-5 py-3 text-sm" style={{ color: "var(--text-muted)" }}>
+                        {boarding.reservation?.pickup_location ?? boarding.from_station?.station_name ?? "—"}
+                      </td>
+                      <td className="px-5 py-3 text-sm" style={{ color: "var(--text)" }}>
+                        {boardingSegmentLabel(boarding)}
+                      </td>
+                      <td className="px-5 py-3 text-sm">
+                        <StatusPill
+                          bg={walkUp ? "var(--warning-bg)" : "var(--success-bg)"}
+                          fg={walkUp ? "var(--warning)" : "var(--success)"}
+                          label={walkUp ? "Walk-up" : "Reserved"}
+                        />
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </section>
+
+      {/* booked but not yet on the bus */}
+      <section>
+        <h2 className="mb-2 text-[11px] font-bold uppercase" style={{ color: "var(--text-muted)", letterSpacing: "0.09em" }}>
+          Expected · {waitingReservations.length}
+        </h2>
+        <div className="overflow-x-auto rounded-xl" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+          {manifest && waitingReservations.length === 0 && (
+            <p className="p-6 text-sm" style={{ color: "var(--text-muted)" }}>
+              Everyone who booked this leg is on board.
+            </p>
+          )}
+          {waitingReservations.length > 0 && (
+            <table className="w-full border-collapse">
+              <thead>
+                <tr style={{ background: "var(--surface-2)" }}>
+                  {["Passenger", "Phone", "Pickup", "Travelling", ""].map((h) => (
+                    <th
+                      key={h}
+                      className="px-5 py-3 text-left text-[11.5px] font-bold uppercase"
+                      style={{ color: "var(--text-muted)", letterSpacing: "0.06em", borderBottom: "1px solid var(--border)" }}
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {waitingReservations.map((reservation) => (
                   <tr key={reservation.id} style={{ borderBottom: "1px solid var(--border)" }}>
                     <td className="px-5 py-3 text-sm" style={{ color: "var(--text)" }}>
                       {reservation.passenger?.first_name} {reservation.passenger?.last_name}
                     </td>
+                    <td className="px-5 py-3 text-sm" style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>
+                      {reservation.passenger?.phone_number ?? "—"}
+                    </td>
                     <td className="px-5 py-3 text-sm" style={{ color: "var(--text-muted)" }}>
                       {reservation.pickup_location ?? "—"}
                     </td>
+                    <td className="px-5 py-3 text-sm" style={{ color: "var(--text)" }}>
+                      {cardSegmentLabel(reservation.travel_card)}
+                    </td>
                     <td className="px-5 py-3 text-sm">
-                      {isBoarded ? (
-                        <span
-                          className="rounded-full px-2.5 py-1 text-xs font-semibold"
-                          style={{ background: "var(--success-bg)", color: "var(--success)" }}
-                        >
-                          Boarded
-                        </span>
-                      ) : (
-                        <>
-                          <button
-                            onClick={() => handleMarkBoarded(reservation)}
-                            disabled={markBoarded.isPending}
-                            className="font-semibold"
-                            style={{ color: "var(--accent)" }}
-                          >
-                            Mark Boarded
-                          </button>
-                          {boardingErrors[reservation.id] && (
-                            <p className="mt-1 text-xs" style={{ color: "var(--critical)" }}>
-                              {boardingErrors[reservation.id]}
-                            </p>
-                          )}
-                        </>
+                      <button
+                        onClick={() => handleMarkBoarded(reservation)}
+                        disabled={markBoarded.isPending}
+                        className="font-semibold"
+                        style={{ color: "var(--accent)" }}
+                      >
+                        Mark Boarded
+                      </button>
+                      {boardingErrors[reservation.id] && (
+                        <p className="mt-1 text-xs" style={{ color: "var(--critical)" }}>
+                          {boardingErrors[reservation.id]}
+                        </p>
                       )}
                     </td>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
-      </div>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </section>
+
+      <WalkUpBoardingDialog open={walkUpOpen} onOpenChange={setWalkUpOpen} trip={trip} />
     </div>
   );
 }
