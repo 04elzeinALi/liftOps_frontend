@@ -120,20 +120,7 @@ export default function PassengerHomePage() {
       {/* THE LINE */}
       {linePoints.length >= 2 && (
         <section aria-label="The line">
-          <Eyebrow
-            action={
-              <button
-                type="button"
-                onClick={() => navigate("/passenger/line")}
-                className="text-[11px] font-semibold"
-                style={{ color: "var(--accent)", letterSpacing: "0.04em" }}
-              >
-                All stops
-              </button>
-            }
-          >
-            The line
-          </Eyebrow>
+          <Eyebrow>The line</Eyebrow>
           <LeafletMap points={linePoints} connect height={220} highlightPoints={highlightPoints} />
           {highlightedCard && (
             <p className="mt-2 text-xs" style={{ color: "var(--text-muted)" }}>
@@ -147,6 +134,27 @@ export default function PassengerHomePage() {
               )}
             </p>
           )}
+          <button
+            type="button"
+            onClick={() => navigate("/passenger/line")}
+            className="mt-3 flex w-full items-center justify-between gap-3 rounded-2xl p-4"
+            style={{ background: "color-mix(in srgb, var(--accent) 14%, var(--surface))", border: "1px solid color-mix(in srgb, var(--accent) 35%, var(--border))" }}
+          >
+            <span className="flex items-center gap-3">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full" style={{ background: "var(--accent)", color: "var(--accent-ink)" }}>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="6" cy="6" r="2.5" /><circle cx="18" cy="18" r="2.5" /><path d="M8.2 7.2 15.8 16.8" /></svg>
+              </span>
+              <span className="text-left">
+                <span className="block text-sm font-bold" style={{ color: "var(--text)" }}>
+                  View the full route diagram
+                </span>
+                <span className="block text-xs" style={{ color: "var(--text-muted)" }}>
+                  Every stop, in order, with the fare
+                </span>
+              </span>
+            </span>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--accent)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6" /></svg>
+          </button>
         </section>
       )}
 
