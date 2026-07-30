@@ -34,22 +34,50 @@ export default function Login() {
   }
 
   return (
-    <div className="relative grid min-h-screen place-items-center px-4" style={{ background: "var(--bg)" }}>
+    <div className="relative grid min-h-screen place-items-center overflow-hidden px-4" style={{ background: "var(--bg)" }}>
+      {/* a bus, faint and yellow-washed, sitting behind the whole page */}
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 600 320"
+        className="pointer-events-none absolute select-none"
+        style={{
+          right: "-8%",
+          bottom: "-6%",
+          width: "min(880px, 110vw)",
+          height: "auto",
+          color: "var(--accent)",
+          opacity: 0.14,
+        }}
+      >
+        <rect x="30" y="70" width="500" height="170" rx="26" fill="currentColor" />
+        <path d="M30 130 L60 70 H500 a26 26 0 0 1 26 26 v34 H30 Z" fill="currentColor" />
+        <g fill="var(--bg)">
+          <rect x="80" y="90" width="70" height="55" rx="8" />
+          <rect x="170" y="90" width="70" height="55" rx="8" />
+          <rect x="260" y="90" width="70" height="55" rx="8" />
+          <rect x="350" y="90" width="70" height="55" rx="8" />
+          <rect x="440" y="90" width="60" height="55" rx="8" />
+        </g>
+        <rect x="60" y="165" width="60" height="70" rx="6" fill="var(--bg)" />
+        <circle cx="140" cy="248" r="34" fill="currentColor" />
+        <circle cx="420" cy="248" r="34" fill="currentColor" />
+        <circle cx="140" cy="248" r="13" fill="var(--bg)" />
+        <circle cx="420" cy="248" r="13" fill="var(--bg)" />
+        <rect x="505" y="150" width="16" height="10" rx="2" fill="var(--bg)" />
+      </svg>
+
       <div className="absolute right-4 top-4">
         <ThemeToggle />
       </div>
-      <div className="w-full max-w-sm">
-        {/* <p
-          className="mb-2 text-xs font-semibold uppercase"
-          style={{ color: "var(--accent)", letterSpacing: "0.09em" }}
-        >
-          Operations console
-        </p> */}
-        <h1 className="font-display mb-1 text-3xl font-extrabold" style={{ color: "var(--text)" }}>
+      <div className="relative w-full max-w-sm">
+        <h1 className="font-display mb-2 text-3xl font-extrabold" style={{ color: "var(--text)" }}>
           Welcome to LiftOps
         </h1>
+        <p className="font-display mb-1 text-xl font-bold leading-snug" style={{ color: "var(--accent)" }}>
+          Your secure means of transportation.
+        </p>
         <p className="mb-7 text-sm" style={{ color: "var(--text-muted)" }}>
-          Your secure means of transportation — sign in to access your dashboard.
+          Sign in to access your dashboard.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -84,7 +112,7 @@ export default function Login() {
         </form>
 
         <p className="mt-6 text-sm" style={{ color: "var(--text-muted)" }}>
-          Your?{" "}
+          Want a lift but don't have an account?{" "}
           <Link to="/signup" className="font-semibold" style={{ color: "var(--accent)" }}>
             Sign up
           </Link>
