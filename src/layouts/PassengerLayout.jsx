@@ -8,7 +8,7 @@ const TABS = [
   {
     to: "/passenger",
     end: true,
-    label: "Book",
+    label: "Home",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 17V6a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v11" /><path d="M17 8h2.5L21 12v5h-4" /><circle cx="7.5" cy="17.5" r="1.6" /><circle cx="16.5" cy="17.5" r="1.6" /></svg>
     ),
