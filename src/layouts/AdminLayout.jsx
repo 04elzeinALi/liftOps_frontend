@@ -26,7 +26,7 @@ const NAV_GROUPS = [
     ],
   },
   {
-    label: "People",
+    label: "Operators",
     items: [{ to: "/admin/drivers", label: "Drivers" }],
   },
   {

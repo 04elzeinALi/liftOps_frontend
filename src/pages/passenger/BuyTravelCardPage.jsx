@@ -54,7 +54,15 @@ export default function BuyTravelCardPage() {
   const [paymentMethod, setPaymentMethod] = useState(PAYMENT_METHODS[0]);
   const [error, setError] = useState("");
 
-  const selectedRoute = routes?.find((r) => r.id === Number(routeId));
+  // There's one coastal line, so "which route" isn't a real choice — the
+  // passenger's actual choice is which two stops on it. Auto-pick the route
+  // (honouring ?route_id= if one was passed in) instead of making them
+  // choose it first, which read as "you can only ride the whole line."
+  useEffect(() => {
+    if (routeId || !routes?.length) return;
+    setRouteId(String(routes[0].id));
+  }, [routeId, routes]);
+
   const { data: routeDetail } = useRoute(routeId);
 
   const stops = useMemo(
@@ -124,13 +132,7 @@ export default function BuyTravelCardPage() {
       {/* live preview of the card being built */}
       <div className="mb-5">
         <TravelCardObject
-          routeName={
-            fromName && toName
-              ? `${fromName} → ${toName}`
-              : selectedRoute
-                ? selectedRoute.route_name ?? `${selectedRoute.origin} — ${selectedRoute.destination}`
-                : "Select a route"
-          }
+          routeName={fromName && toName ? `${fromName} → ${toName}` : "Choose your stations"}
           cardType={cardType}
           remaining={terms.total_trips}
           total={terms.total_trips}
@@ -140,31 +142,16 @@ export default function BuyTravelCardPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <Label htmlFor="route_id">Route</Label>
-          <Select value={routeId ? String(routeId) : ""} onValueChange={setRouteId}>
-            <SelectTrigger id="route_id" className="w-full">
-              <SelectValue placeholder="Select a route" />
-            </SelectTrigger>
-            <SelectContent>
-              {routes?.map((route) => (
-                <SelectItem key={route.id} value={String(route.id)}>
-                  {route.origin} → {route.destination}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
         {routeId && !routeHasStops && (
           <p className="rounded-lg p-3 text-xs" style={{ background: "var(--warning-bg)", color: "var(--warning)" }}>
-            This route has no stops set up yet, so it can't be priced by distance.
+            The line has no stops set up yet, so a card can't be priced by distance.
           </p>
         )}
 
         {routeHasStops && (
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="from_station_id">Boarding at</Label>
+              <Label htmlFor="from_station_id">Starting station</Label>
               <Select value={fromStationId} onValueChange={setFromStationId}>
                 <SelectTrigger id="from_station_id" className="w-full">
                   <SelectValue placeholder="From" />
@@ -179,7 +166,7 @@ export default function BuyTravelCardPage() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="to_station_id">Getting off at</Label>
+              <Label htmlFor="to_station_id">Ending station</Label>
               <Select value={toStationId} onValueChange={setToStationId}>
                 <SelectTrigger id="to_station_id" className="w-full">
                   <SelectValue placeholder="To" />
