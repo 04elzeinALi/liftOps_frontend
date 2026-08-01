@@ -25,6 +25,8 @@ const PERIODS = [
   { value: "day", label: "Today" },
   { value: "week", label: "This Week" },
   { value: "month", label: "This Month" },
+  { value: "year", label: "This Year" },
+  { value: "all", label: "All Time" },
 ];
 
 function formatDateTime(value) {
@@ -45,11 +47,11 @@ function SummarySection() {
 
   return (
     <div className="mb-6 rounded-xl p-5" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <h2 className="font-display text-lg font-bold" style={{ color: "var(--text)" }}>
           Totals
         </h2>
-        <div className="flex gap-1">
+        <div className="flex flex-wrap gap-1">
           {PERIODS.map((p) => (
             <button
               key={p.value}
@@ -208,7 +210,7 @@ export default function PaymentsPage() {
 
       <SummarySection />
 
-      <div className="mb-3 flex items-center gap-1">
+      <div className="mb-3 flex flex-wrap items-center gap-1">
         {PERIODS.map((p) => (
           <button
             key={p.value}
@@ -293,7 +295,9 @@ export default function PaymentsPage() {
         )}
         {payments && payments.length === 0 && (
           <p className="p-6 text-sm" style={{ color: "var(--text-muted)" }}>
-            No payments {PERIODS.find((p) => p.value === period)?.label.toLowerCase() ?? "in this period"}.
+            {period === "all"
+              ? "No payments have been recorded yet."
+              : `No payments ${PERIODS.find((p) => p.value === period)?.label.toLowerCase() ?? "in this period"}.`}
           </p>
         )}
       </div>
