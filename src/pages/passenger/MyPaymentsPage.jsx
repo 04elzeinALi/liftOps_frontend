@@ -1,6 +1,7 @@
 import StatusPill from "@/components/StatusPill";
 import { resolveStatus } from "@/lib/status";
 import { useMyPayments } from "@/api/passengerPayments";
+import { cardSegmentLabel } from "@/lib/cardLabel";
 
 const STATUS_STYLE = {
   paid: { bg: "var(--success-bg)", fg: "var(--success)", label: "Paid" },
@@ -46,7 +47,7 @@ export default function MyPaymentsPage() {
           <table className="w-full border-collapse">
             <thead>
               <tr style={{ background: "var(--surface-2)" }}>
-                {["Card", "Amount", "Method", "Status", "Paid At"].map((h) => (
+                {["Card", "Route", "Amount", "Method", "Status", "Paid At"].map((h) => (
                   <th
                     key={h}
                     className="px-5 py-3 text-left text-[11.5px] font-bold uppercase"
@@ -64,6 +65,9 @@ export default function MyPaymentsPage() {
                   <tr key={payment.id} style={{ borderBottom: "1px solid var(--border)" }}>
                     <td className="px-5 py-3 text-sm capitalize" style={{ color: "var(--text)" }}>
                       {payment.travel_card?.card_type} card
+                    </td>
+                    <td className="px-5 py-3 text-sm" style={{ color: "var(--text-muted)" }}>
+                      {cardSegmentLabel(payment.travel_card)}
                     </td>
                     <td className="px-5 py-3 text-sm" style={{ fontFamily: "var(--font-mono)" }}>
                       ${Number(payment.amount).toFixed(2)}
