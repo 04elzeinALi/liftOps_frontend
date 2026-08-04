@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "@/auth/AuthContext";
-import ThemeToggle from "@/components/ThemeToggle";
+import HeaderMenu from "@/components/HeaderMenu";
 import PassengerBackdrop from "@/components/passenger/PassengerBackdrop";
 import PassengerFooter from "@/components/passenger/PassengerFooter";
 
@@ -37,7 +37,7 @@ const TABS = [
 ];
 
 export default function PassengerLayout() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   return (
     <div className="passenger-theme relative flex min-h-screen flex-col" style={{ background: "var(--bg)" }}>
@@ -47,24 +47,17 @@ export default function PassengerLayout() {
         className="relative z-10 flex items-center justify-between px-5 py-4"
         style={{ borderBottom: "1px solid var(--border)", background: "var(--surface)" }}
       >
-        <div className="flex items-baseline gap-2">
+        <div className="flex items-center gap-2">
+          <img src="/logo.png" alt="" className="h-8 w-8 rounded-lg" />
           <span className="font-display text-2xl font-extrabold" style={{ color: "var(--accent)" }}>
-            LIFTOPS
+            LIFT-OPS
           </span>
-         
         </div>
         <div className="flex items-center gap-2">
-          <span className="hidden text-sm font-semibold sm:inline" style={{ color: "var(--text)" }}>
+          <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>
             {user?.name}
           </span>
-          <ThemeToggle />
-          <button
-            onClick={logout}
-            className="rounded-lg px-3 py-1.5 text-sm font-semibold"
-            style={{ background: "var(--surface-2)", color: "var(--text)", border: "1px solid var(--border)" }}
-          >
-            Log out
-          </button>
+          <HeaderMenu />
         </div>
       </header>
 

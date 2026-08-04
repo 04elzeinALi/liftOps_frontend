@@ -24,6 +24,13 @@ export function fareForDistance(km) {
   return distance < LONG_TRIP_KM ? SHORT_TRIP_FARE : LONG_TRIP_FARE;
 }
 
+// Mirrors TravelCard::baseFare()'s override: a route with manual_fare set
+// is priced at that fixed amount regardless of distance.
+export function effectiveFare(route, km) {
+  if (route?.manual_fare != null) return Number(route.manual_fare);
+  return fareForDistance(km);
+}
+
 export function haversineKm(lat1, lng1, lat2, lng2) {
   const R = 6371;
   const rad = (d) => (d * Math.PI) / 180;

@@ -114,7 +114,7 @@ export default function TravelCardObject({
             {note ? ` · ${note}` : ""}
           </span>
           <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 13, letterSpacing: "0.04em", color: "var(--ink-muted)" }}>
-            LIFTOPS
+            LIFT-OPS
           </span>
         </div>
         {expiry && (

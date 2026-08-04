@@ -2,7 +2,7 @@ import { getApiErrorMessage } from "@/api/errors";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRoute, useRoutes } from "@/api/routes";
-import { distanceAlongStops, fareForDistance } from "@/lib/fare";
+import { distanceAlongStops, effectiveFare } from "@/lib/fare";
 import { useMyPassengerProfile, useBuyTravelCard } from "@/api/passengerCards";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -92,7 +92,7 @@ export default function BuyTravelCardPage() {
   // The fare band comes from how far the chosen segment actually runs.
   const segmentKm =
     fromStationId && toStationId ? distanceAlongStops(stops, fromStationId, toStationId) : null;
-  const baseFare = segmentKm != null ? fareForDistance(segmentKm) : null;
+  const baseFare = segmentKm != null ? effectiveFare(routeDetail, segmentKm) : null;
   const previewPrice = baseFare != null ? (baseFare * terms.price_multiplier).toFixed(2) : null;
 
   const fromName = stops.find((s) => s.id === Number(fromStationId))?.name;

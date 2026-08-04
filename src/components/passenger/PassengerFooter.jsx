@@ -44,7 +44,7 @@ export default function PassengerFooter() {
         style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
       >
         <p className="font-display text-lg font-extrabold" style={{ color: "var(--text)" }}>
-          LIFTOPS
+          LIFT-OPS
         </p>
         <p className="mt-0.5 text-xs" style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
           Beirut ⇄ Saida ⇄ Tyre
@@ -67,7 +67,7 @@ export default function PassengerFooter() {
         </div>
 
         <p className="mt-5 text-[11px]" style={{ color: "var(--text-muted)" }}>
-          © {new Date().getFullYear()} LiftOps · The coastal line
+          © {new Date().getFullYear()} Lift-Ops · The coastal line
         </p>
       </div>
     </footer>

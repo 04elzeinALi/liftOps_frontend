@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { parseApiError } from "@/api/errors";
 import { useCreateTravelCard, usePassengersList, useUpdateTravelCard } from "@/api/travelCards";
 import { useRoute, useRoutes } from "@/api/routes";
-import { CARD_TERMS, distanceAlongStops, fareForDistance } from "@/lib/fare";
+import { CARD_TERMS, distanceAlongStops, effectiveFare } from "@/lib/fare";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -82,7 +82,7 @@ export default function TravelCardFormDialog({ open, onOpenChange, travelCard })
     form.from_station_id && form.to_station_id
       ? distanceAlongStops(stops, form.from_station_id, form.to_station_id)
       : null;
-  const baseFare = segmentKm != null ? fareForDistance(segmentKm) : null;
+  const baseFare = segmentKm != null ? effectiveFare(routeDetail, segmentKm) : null;
   const price = baseFare != null ? baseFare * CARD_TERMS[form.card_type].multiplier : null;
 
   function handleChange(field, value) {

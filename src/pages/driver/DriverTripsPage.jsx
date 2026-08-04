@@ -100,7 +100,7 @@ export default function DriverTripsPage() {
     <div className="mx-auto w-full max-w-3xl">
       <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
         <h1 className="font-display text-3xl font-extrabold" style={{ color: "var(--text)" }}>
-          My Day
+          My Shifts
         </h1>
         <div className="flex items-center gap-2">
           <button

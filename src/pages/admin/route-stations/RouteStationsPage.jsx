@@ -241,16 +241,16 @@ export default function RouteStationsPage() {
 
           {/* live preview */}
           <div className="flex flex-col gap-4">
+            <LeafletMap
+              height={420}
+              connect
+              points={order.map((s) => ({ lat: s.latitude, lng: s.longitude, label: s.name, kind: "stop" }))}
+            />
             <RouteLineGraph
               routeName={route.route_name}
               origin={route.origin}
               destination={route.destination}
               stops={order.map((s) => ({ id: s.station_id, name: s.name }))}
-            />
-            <LeafletMap
-              height={240}
-              connect
-              points={order.map((s) => ({ lat: s.latitude, lng: s.longitude, label: s.name, kind: "stop" }))}
             />
           </div>
         </div>

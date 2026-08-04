@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useRoute, useRoutes } from "@/api/routes";
-import { fareForDistance } from "@/lib/fare";
+import { effectiveFare } from "@/lib/fare";
 import RouteLineGraph from "@/components/RouteLineGraph";
 import LeafletMap from "@/components/LeafletMap";
 
@@ -68,7 +68,7 @@ export default function RouteLinePage() {
             origin={route.origin}
             destination={route.destination}
             stops={stops}
-            price={fareForDistance(route.distance_km)}
+            price={effectiveFare(route, route.distance_km)}
             priceNote={`End to end · ${route.distance_km} km`}
           />
           <LeafletMap

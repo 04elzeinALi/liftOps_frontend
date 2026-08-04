@@ -48,21 +48,18 @@ export default function AdminLayout() {
         className="sticky top-0 flex h-screen flex-col self-start overflow-y-auto p-4"
         style={{ background: "var(--surface)", borderRight: "1px solid var(--border)" }}
       >
-        <div className="mb-7 flex items-center gap-2 px-1">
-          <div
-            className="h-3 w-3 rounded-full"
-            style={{ background: "var(--accent)", boxShadow: "0 0 0 4px color-mix(in srgb, var(--accent) 20%, transparent)" }}
-          />
-          <span className="font-display text-lg font-extrabold" style={{ color: "var(--text)" }}>
-            LIFTOPS
+        <div className="mb-7 flex items-center gap-2.5 px-1">
+          <img src="/logo.png" alt="" className="h-9 w-9 rounded-lg" />
+          <span className="font-display text-2xl font-black" style={{ color: "var(--text)", letterSpacing: "0.01em" }}>
+            LIFT-OPS
           </span>
         </div>
 
         {NAV_GROUPS.map((group) => (
           <div className="mb-5" key={group.label}>
             <h4
-              className="mb-2 px-2 text-[11px] font-bold uppercase"
-              style={{ color: "var(--text-muted)", letterSpacing: "0.09em" }}
+              className="mb-2 px-2 text-[13px] font-extrabold uppercase"
+              style={{ color: "var(--accent)", letterSpacing: "0.07em" }}
             >
               {group.label}
             </h4>

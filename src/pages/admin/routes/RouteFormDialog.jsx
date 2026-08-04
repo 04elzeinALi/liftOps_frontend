@@ -28,6 +28,7 @@ const EMPTY_FORM = {
   distance_km: "",
   estimated_duration: "",
   fare: "",
+  manual_fare: "",
 };
 
 export default function RouteFormDialog({ open, onOpenChange, route }) {
@@ -53,6 +54,7 @@ export default function RouteFormDialog({ open, onOpenChange, route }) {
               distance_km: route.distance_km,
               estimated_duration: route.estimated_duration,
               fare: route.fare,
+              manual_fare: route.manual_fare ?? "",
             }
           : EMPTY_FORM
       );
@@ -76,6 +78,7 @@ export default function RouteFormDialog({ open, onOpenChange, route }) {
       distance_km: Number(form.distance_km),
       estimated_duration: form.estimated_duration,
       fare: Number(form.fare),
+      manual_fare: form.manual_fare === "" ? null : Number(form.manual_fare),
     };
     try {
       if (isEditing) {
@@ -93,11 +96,21 @@ export default function RouteFormDialog({ open, onOpenChange, route }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isEditing ? "Edit Route" : "Add Route"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {open && (
+            <LeafletMap
+              height={320}
+              connect
+              points={[
+                { lat: originStation?.latitude, lng: originStation?.longitude, label: originStation?.station_name, kind: "origin" },
+                { lat: destinationStation?.latitude, lng: destinationStation?.longitude, label: destinationStation?.station_name, kind: "destination" },
+              ]}
+            />
+          )}
           <div>
             <Label htmlFor="route_name">Route name</Label>
             <Input
@@ -158,16 +171,6 @@ export default function RouteFormDialog({ open, onOpenChange, route }) {
               </p>
             )}
           </div>
-          {open && (
-            <LeafletMap
-              height={190}
-              connect
-              points={[
-                { lat: originStation?.latitude, lng: originStation?.longitude, label: originStation?.station_name, kind: "origin" },
-                { lat: destinationStation?.latitude, lng: destinationStation?.longitude, label: destinationStation?.station_name, kind: "destination" },
-              ]}
-            />
-          )}
           <div>
             <Label htmlFor="distance_km">Distance (km)</Label>
             <Input
@@ -212,6 +215,25 @@ export default function RouteFormDialog({ open, onOpenChange, route }) {
             {errors.fare && (
               <p className="mt-1 text-xs" style={{ color: "var(--critical)" }}>
                 {errors.fare[0]}
+              </p>
+            )}
+          </div>
+          <div>
+            <Label htmlFor="manual_fare">Manual price override</Label>
+            <Input
+              id="manual_fare"
+              type="number"
+              step="any"
+              placeholder="Leave blank to price by distance"
+              value={form.manual_fare}
+              onChange={(e) => handleChange("manual_fare", e.target.value)}
+            />
+            <p className="mt-1 text-xs" style={{ color: "var(--text-muted)" }}>
+              Rides on this route are normally priced automatically by how far a segment runs. Set a value here to charge this fixed price per ride instead — leave blank to keep automatic pricing.
+            </p>
+            {errors.manual_fare && (
+              <p className="mt-1 text-xs" style={{ color: "var(--critical)" }}>
+                {errors.manual_fare[0]}
               </p>
             )}
           </div>

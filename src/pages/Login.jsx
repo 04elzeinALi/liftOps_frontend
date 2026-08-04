@@ -39,8 +39,9 @@ export default function Login() {
         <ThemeToggle />
       </div>
       <div className="w-full max-w-sm">
+        <img src="/logo.png" alt="" className="mb-4 h-12 w-12 rounded-xl" />
         <h1 className="font-display mb-2 text-3xl font-extrabold" style={{ color: "var(--text)" }}>
-          Welcome to LiftOps
+          Welcome to Lift-Ops
         </h1>
         <p className="font-display mb-1 text-xl font-bold leading-snug" style={{ color: "var(--accent)" }}>
           Your secure means of transportation.
