@@ -5,18 +5,9 @@
 // passenger home and the full browse page.
 
 import { tripRoute, tripTimes } from "@/lib/trip";
-import { localToday } from "@/lib/dates";
+import { addDaysLocal, localToday } from "@/lib/dates";
 
 const LOW_SEATS = 5;
-
-// Advances a YYYY-MM-DD string by `days`, staying in local time throughout —
-// going through toISOString() here would convert to UTC and could shift the
-// date by one, the same bug localToday() exists to avoid.
-function addDaysLocal(dateStr, days) {
-  const d = new Date(`${dateStr}T00:00:00`);
-  d.setDate(d.getDate() + days);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
 
 function dayLabel(dateStr) {
   const today = localToday();

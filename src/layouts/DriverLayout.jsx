@@ -7,8 +7,10 @@ export default function DriverLayout() {
 
   return (
     <div className="min-h-screen" style={{ background: "var(--bg)" }}>
+      {/* Stacked explicitly so the header menu's dropdown stays above the page
+          instead of relying on nothing below it being positioned. */}
       <header
-        className="flex items-center justify-between px-7 py-4"
+        className="relative z-40 flex items-center justify-between px-7 py-4"
         style={{ borderBottom: "1px solid var(--border)", background: "var(--surface)" }}
       >
         <div className="flex items-center gap-2.5">

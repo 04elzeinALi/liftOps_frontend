@@ -6,7 +6,7 @@ import LeafletMap from "@/components/LeafletMap";
 import { getApiErrorMessage } from "@/api/errors";
 import { useMyShifts, useMyTripsOn, useUpdateShiftStatus } from "@/api/driverShifts";
 import { useRoute } from "@/api/routes";
-import { localToday } from "@/lib/dates";
+import { addDaysLocal, localToday } from "@/lib/dates";
 import { tripLegLabel, tripTimes } from "@/lib/trip";
 
 const STATUS_STYLE = {
@@ -91,9 +91,7 @@ export default function DriverTripsPage() {
   }
 
   function stepDay(delta) {
-    const d = new Date(`${date}T00:00:00`);
-    d.setDate(d.getDate() + delta);
-    setDate(d.toISOString().slice(0, 10));
+    setDate(addDaysLocal(date, delta));
   }
 
   return (

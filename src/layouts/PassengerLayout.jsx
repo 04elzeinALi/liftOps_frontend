@@ -43,8 +43,11 @@ export default function PassengerLayout() {
     <div className="passenger-theme relative flex min-h-screen flex-col" style={{ background: "var(--bg)" }}>
       <PassengerBackdrop />
 
+      {/* z-40 so the header menu's dropdown escapes above <main> (z-10) and the
+          backdrop (z-20) — at z-10 the header lost to <main> on DOM order and
+          the menu opened underneath the page, unclickable. */}
       <header
-        className="relative z-10 flex items-center justify-between px-5 py-4"
+        className="relative z-40 flex items-center justify-between px-5 py-4"
         style={{ borderBottom: "1px solid var(--border)", background: "var(--surface)" }}
       >
         <div className="flex items-center gap-2">
