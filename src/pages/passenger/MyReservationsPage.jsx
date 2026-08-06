@@ -3,7 +3,7 @@ import { resolveStatus } from "@/lib/status";
 import { formatDate } from "@/lib/dates";
 import StatusPill from "@/components/StatusPill";
 import { useCancelReservation, useMyReservations } from "@/api/passengerReservations";
-import { tripRoute, tripTimes } from "@/lib/trip";
+import { tripSegmentLabel, tripTimes } from "@/lib/trip";
 
 const STATUS_STYLE = {
   booked: { bg: "var(--success-bg)", fg: "var(--success)", label: "Booked" },
@@ -59,8 +59,7 @@ export default function MyReservationsPage() {
       <div className="flex flex-col gap-3">
         {reservations?.map((reservation) => {
           const status = resolveStatus(STATUS_STYLE, reservation.status);
-          const route = tripRoute(reservation.trip);
-          const label = route ? `${route.origin} → ${route.destination}` : route?.route_name;
+          const label = tripSegmentLabel(reservation.trip);
           return (
             <div
               key={reservation.id}

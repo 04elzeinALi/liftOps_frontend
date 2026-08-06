@@ -48,16 +48,16 @@ export default function RouteFormDialog({ open, onOpenChange, route }) {
   const originStation = stations?.find((s) => s.id === Number(form.origin_station_id));
   const destinationStation = stations?.find((s) => s.id === Number(form.destination_station_id));
 
-  // What this route falls back to when it has no bands of its own.
+  // Starting figures for a route that hasn't been priced yet. There's no
+  // pricing screen any more — every route carries its own — so these only
+  // seed the fields below, they're never what a saved route runs on.
   const defaultBands = pricingSettings ?? DEFAULT_PRICING_SETTINGS;
 
-  // The three band fields move together: all filled means this route prices
-  // on its own, all empty means it inherits the network default. Anything
-  // between is flagged rather than silently half-applied (the server rejects
-  // it too — see RouteController's required_with rules).
+  // The three band fields move together: a route prices on all three or none
+  // of them. Anything between is flagged rather than silently half-applied
+  // (the server rejects it too — see RouteController's required_with rules).
   const bandsFilled = [form.long_trip_km, form.short_trip_fare, form.long_trip_fare]
     .filter((v) => v !== "" && v !== null).length;
-  const usingOwnBands = bandsFilled === 3;
   const partialBands = bandsFilled > 0 && bandsFilled < 3;
 
   // Straight-line distance between the two endpoints, scaled by the same
@@ -99,6 +99,27 @@ export default function RouteFormDialog({ open, onOpenChange, route }) {
       setGeneralError("");
     }
   }, [open, route]);
+
+  // Seed the bands for a route that has none, so the admin adjusts real
+  // numbers rather than guessing what to type into three empty boxes — and
+  // so every route ends up saved with pricing of its own instead of quietly
+  // resting on a fallback there's no longer a screen for. Runs after the
+  // effect above (and again once the defaults finish loading), and only
+  // touches fields still untouched, so it can't overwrite a real value.
+  useEffect(() => {
+    if (!open || !pricingSettings) return;
+    setForm((f) => {
+      if (f.long_trip_km !== "" || f.short_trip_fare !== "" || f.long_trip_fare !== "") {
+        return f;
+      }
+      return {
+        ...f,
+        long_trip_km: pricingSettings.long_trip_km,
+        short_trip_fare: pricingSettings.short_trip_fare,
+        long_trip_fare: pricingSettings.long_trip_fare,
+      };
+    });
+  }, [open, pricingSettings]);
 
   function handleChange(field, value) {
     setForm((f) => ({ ...f, [field]: value }));
@@ -298,9 +319,8 @@ export default function RouteFormDialog({ open, onOpenChange, route }) {
               Pricing for this route
             </h3>
             <p className="mt-0.5 mb-3 text-xs" style={{ color: "var(--text-muted)" }}>
-              {usingOwnBands
-                ? "This route prices on its own distance bands, below."
-                : `Using the network default — under ${defaultBands.long_trip_km}km $${Number(defaultBands.short_trip_fare).toFixed(2)}, at or over $${Number(defaultBands.long_trip_fare).toFixed(2)}. Fill in all three fields below to give this route its own.`}
+              Rides on this route are priced by how far they run. A ride under the cutoff pays the
+              short fare; at or over it, the long fare.
             </p>
 
             <div className="grid grid-cols-3 gap-2">

@@ -4,7 +4,7 @@
 // signage route, seats-left (amber-red when low), a Book action. Used on the
 // passenger home and the full browse page.
 
-import { tripRoute, tripTimes } from "@/lib/trip";
+import { tripSegmentLabel, tripTimes } from "@/lib/trip";
 import { addDaysLocal, formatDate, localToday } from "@/lib/dates";
 
 const LOW_SEATS = 5;
@@ -59,8 +59,7 @@ export default function DepartureBoard({ trips, onBook }) {
               const seats = trip.available_seats ?? 0;
               const soldOut = seats <= 0;
               const low = !soldOut && seats <= LOW_SEATS;
-              const route = tripRoute(trip);
-              const label = route ? `${route.origin} → ${route.destination}` : route?.route_name;
+              const label = tripSegmentLabel(trip);
               return (
                 <button
                   key={trip.id}

@@ -2,7 +2,7 @@
 // hero object. Origin/destination in signage type, a route line with a bus
 // marker at the boarding stop, and a torn stub with departure/boarding/card.
 
-import { tripRoute, tripTimes } from "@/lib/trip";
+import { tripEndpoints, tripTimes } from "@/lib/trip";
 import { formatDate } from "@/lib/dates";
 
 function fmtDate(dateStr) {
@@ -12,9 +12,11 @@ function fmtDate(dateStr) {
 
 export default function BoardingPass({ reservation, onShow }) {
   const trip = reservation?.trip;
-  const route = tripRoute(trip);
-  const origin = route?.origin ?? "—";
-  const destination = route?.destination ?? "—";
+  // Which way this segment actually runs — an inbound segment departs
+  // from what the route calls its destination.
+  const { from, to } = tripEndpoints(trip);
+  const origin = from ?? "—";
+  const destination = to ?? "—";
   const depart = tripTimes(trip).departure;
   const cardType = reservation?.travel_card?.card_type ?? "—";
   const boardingStop = reservation?.pickup_location || origin;

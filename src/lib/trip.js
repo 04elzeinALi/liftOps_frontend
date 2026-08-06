@@ -21,16 +21,23 @@ export function tripRouteName(trip) {
 // The route's origin/destination accessors already resolve to the linked
 // station's current name (see Route::origin() on the backend), so this
 // reads real stop names rather than the frozen text columns.
-export function tripSegmentLabel(trip) {
+export function tripEndpoints(trip) {
   const route = tripRoute(trip);
-  if (!route) return "";
+  if (!route) return { from: null, to: null };
 
   const start = route.origin;
   const end = route.destination;
-  if (!start || !end) return "";
 
   // Trips predating shifts have no direction; they ran the line forwards.
-  return trip?.direction === "inbound" ? `${end} → ${start}` : `${start} → ${end}`;
+  return trip?.direction === "inbound"
+    ? { from: end, to: start }
+    : { from: start, to: end };
+}
+
+export function tripSegmentLabel(trip) {
+  const { from, to } = tripEndpoints(trip);
+  if (!from || !to) return "";
+  return `${from} → ${to}`;
 }
 
 // "Round 2" — which out-and-back of the shift this segment belongs to.

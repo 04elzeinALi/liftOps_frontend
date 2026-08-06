@@ -4,7 +4,7 @@ import StatusPill from "@/components/StatusPill";
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useMarkBoarded, useTripDetail, useTripManifest, useUpdateTripStatus } from "@/api/driverTrips";
-import { tripRouteName, tripTimes } from "@/lib/trip";
+import { tripSegmentLabel, tripRouteName, tripTimes } from "@/lib/trip";
 import { boardingSegmentLabel, cardSegmentLabel } from "@/lib/cardLabel";
 import WalkUpBoardingDialog from "./WalkUpBoardingDialog";
 import CashCustomerDialog from "./CashCustomerDialog";
@@ -127,7 +127,7 @@ export default function TripManifestPage() {
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="font-display text-3xl font-extrabold" style={{ color: "var(--text)" }}>
-            {tripRouteName(trip)}
+            {tripSegmentLabel(trip) || tripRouteName(trip)}
           </h1>
           <p className="mt-1 text-sm" style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>
             {tripTimes(trip).departure}–{tripTimes(trip).arrival} · Bus {trip.bus?.plate_number}

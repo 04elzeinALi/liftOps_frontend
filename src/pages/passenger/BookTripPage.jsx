@@ -10,7 +10,7 @@ import LeafletMap from "@/components/LeafletMap";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { tripRoute, tripRouteName, tripTimes } from "@/lib/trip";
+import { tripRoute, tripSegmentLabel, tripRouteName, tripTimes } from "@/lib/trip";
 import {
   Select,
   SelectContent,
@@ -92,7 +92,7 @@ export default function BookTripPage() {
       </Link>
 
       <h1 className="font-display mb-1 text-3xl font-extrabold" style={{ color: "var(--text)" }}>
-        {tripRouteName(trip)}
+        {tripSegmentLabel(trip) || tripRouteName(trip)}
       </h1>
       <p className="mb-4 text-sm" style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>
         {tripTimes(trip).departure}–{tripTimes(trip).arrival} · Bus {trip.bus?.plate_number} · {trip.available_seats} seats left
