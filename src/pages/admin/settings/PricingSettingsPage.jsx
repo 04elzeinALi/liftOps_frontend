@@ -82,12 +82,13 @@ export default function PricingSettingsPage() {
           style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
         >
           <div>
-            <Label htmlFor="long_trip_km">Distance threshold (km)</Label>
+            <Label htmlFor="long_trip_km">Distance cutoff (km)</Label>
             <Input
               id="long_trip_km"
               type="number"
               step="any"
               min="0.1"
+              className="no-spinner"
               value={form.long_trip_km}
               onChange={(e) => handleChange("long_trip_km", e.target.value)}
               required

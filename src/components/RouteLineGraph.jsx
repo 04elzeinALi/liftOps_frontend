@@ -1,5 +1,5 @@
-// The route drawn as a transit line diagram: the outbound leg runs down the
-// left rail, turns at the terminus, and the return leg runs back up the right
+// The route drawn as a transit line diagram: the outbound segment runs down the
+// left rail, turns at the terminus, and the return segment runs back up the right
 // rail — so every stop reads twice, once per direction, the way a printed bus
 // map shows it. Stops come from route_stations in station_order.
 

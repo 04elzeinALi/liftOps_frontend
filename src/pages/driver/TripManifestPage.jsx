@@ -231,7 +231,7 @@ export default function TripManifestPage() {
           )}
           {manifest && boardings.length === 0 && (
             <p className="p-6 text-sm" style={{ color: "var(--text-muted)" }}>
-              Nobody has boarded this leg yet.
+              Nobody has boarded this segment yet.
             </p>
           )}
           {boardings.length > 0 && (
@@ -336,7 +336,7 @@ export default function TripManifestPage() {
         <div className="overflow-x-auto rounded-xl" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
           {manifest && waitingReservations.length === 0 && (
             <p className="p-6 text-sm" style={{ color: "var(--text-muted)" }}>
-              Everyone who booked this leg is on board.
+              Everyone who booked this segment is on board.
             </p>
           )}
           {waitingReservations.length > 0 && (

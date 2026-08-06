@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "@/api/client";
 
-// Anything that changes a shift also regenerates its legs, so trips have to
+// Anything that changes a shift also regenerates its segments, so trips have to
 // be refetched alongside it.
 function invalidateShifts(queryClient) {
   queryClient.invalidateQueries({ queryKey: ["shifts"] });

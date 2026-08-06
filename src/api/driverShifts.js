@@ -12,7 +12,7 @@ export function useMyShifts(date) {
   });
 }
 
-// Every leg the driver runs on a day, in departure order.
+// Every segment the driver runs on a day, in departure order.
 export function useMyTripsOn(date) {
   return useQuery({
     queryKey: ["driver-trips", date],

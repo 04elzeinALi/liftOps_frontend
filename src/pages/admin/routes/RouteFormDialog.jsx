@@ -305,12 +305,13 @@ export default function RouteFormDialog({ open, onOpenChange, route }) {
 
             <div className="grid grid-cols-3 gap-2">
               <div>
-                <Label htmlFor="long_trip_km">Threshold (km)</Label>
+                <Label htmlFor="long_trip_km">Distance cutoff (km)</Label>
                 <Input
                   id="long_trip_km"
                   type="number"
                   step="any"
                   min="0.1"
+                  className="no-spinner"
                   placeholder={String(defaultBands.long_trip_km)}
                   value={form.long_trip_km}
                   onChange={(e) => handleChange("long_trip_km", e.target.value)}
@@ -343,7 +344,7 @@ export default function RouteFormDialog({ open, onOpenChange, route }) {
             </div>
             {partialBands && (
               <p className="mt-2 text-xs" style={{ color: "var(--critical)" }}>
-                Fill in all three, or clear all three — a route can't mix its own threshold with the network's fares.
+                Fill in all three, or clear all three — a route can't mix its own distance cutoff with the network's fares.
               </p>
             )}
             {["long_trip_km", "short_trip_fare", "long_trip_fare"].map(

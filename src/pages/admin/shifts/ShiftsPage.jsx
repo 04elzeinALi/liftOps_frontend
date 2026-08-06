@@ -83,7 +83,7 @@ export default function ShiftsPage() {
             Shifts
           </h1>
           <p className="mt-1 text-sm" style={{ color: "var(--text-muted)" }}>
-            A driver's working day on a route. Each shift generates its own legs — out and back, once per round.
+            A driver's working day on a route. Each shift generates its own segments — out and back, once per round.
           </p>
         </div>
         <Button onClick={openCreate}>Add Shift</Button>
@@ -151,7 +151,7 @@ export default function ShiftsPage() {
           <table className="w-full border-collapse">
             <thead>
               <tr style={{ background: "var(--surface-2)" }}>
-                {["Date", "Driver", "Route", "Bus", "Hours", "Rounds", "Legs", "Status", ""].map((h) => (
+                {["Date", "Driver", "Route", "Bus", "Hours", "Rounds", "Segments", "Status", ""].map((h) => (
                   <th
                     key={h}
                     className="px-5 py-3 text-left text-[11.5px] font-bold uppercase"
@@ -229,7 +229,7 @@ export default function ShiftsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete this shift?</AlertDialogTitle>
             <AlertDialogDescription>
-              This deletes the shift and every leg it generated. If anything is booked on those legs, cancel the shift instead.
+              This deletes the shift and every segment it generated. If anything is booked on those segments, cancel the shift instead.
             </AlertDialogDescription>
             {deleteError && (
               <p className="mt-2 text-sm" style={{ color: "var(--critical)" }}>

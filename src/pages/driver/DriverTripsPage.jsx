@@ -7,7 +7,7 @@ import { getApiErrorMessage } from "@/api/errors";
 import { useMyShifts, useMyTripsOn, useUpdateShiftStatus } from "@/api/driverShifts";
 import { useRoute } from "@/api/routes";
 import { addDaysLocal, localToday } from "@/lib/dates";
-import { tripLegLabel, tripTimes } from "@/lib/trip";
+import { tripSegmentLabel, tripTimes } from "@/lib/trip";
 
 const STATUS_STYLE = {
   scheduled: { bg: "var(--warning-bg)", fg: "var(--warning)", label: "Scheduled" },
@@ -177,12 +177,12 @@ export default function DriverTripsPage() {
 
           <section>
             <h3 className="mb-2 text-[11px] font-bold uppercase" style={{ color: "var(--text-muted)", letterSpacing: "0.09em" }}>
-              Legs
+              Segments
             </h3>
             <div className="overflow-hidden rounded-xl" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
               {(trips ?? []).length === 0 && (
                 <p className="p-5 text-sm" style={{ color: "var(--text-muted)" }}>
-                  This shift has no legs yet.
+                  This shift has no segments yet.
                 </p>
               )}
               {(trips ?? []).map((trip, i) => {
@@ -206,7 +206,7 @@ export default function DriverTripsPage() {
                         </span>
                       </div>
                       <p className="mt-0.5 text-xs" style={{ color: "var(--text-muted)" }}>
-                        {tripLegLabel(trip) || "Leg"}
+                        {tripSegmentLabel(trip) || "Segment"}
                         {" · "}
                         {trip.boardings_count ?? 0} boarded
                         {trip.available_seats != null && ` · ${trip.available_seats} seats free`}

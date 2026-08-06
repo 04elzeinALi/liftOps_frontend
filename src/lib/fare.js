@@ -38,7 +38,7 @@ export function fareForDistance(km, settings = DEFAULT_PRICING_SETTINGS) {
 // True when a route carries a complete set of its own bands. Mirrors
 // Route::hasOwnPricing() — the three are treated as one unit, so a
 // half-filled route falls back to the network defaults rather than mixing
-// its own threshold with the network's fares.
+// its own distance cutoff with the network's fares.
 export function hasOwnPricing(route) {
   return (
     route?.long_trip_km != null &&

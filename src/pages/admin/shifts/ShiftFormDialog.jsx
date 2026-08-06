@@ -35,9 +35,9 @@ const EMPTY_FORM = {
   status: STATUSES[0],
 };
 
-// Mirrors Shift::legPlan() so the admin sees the legs a shift will generate
+// Mirrors Shift::legPlan() so the admin sees the segments a shift will generate
 // before saving it. The server generates the real ones.
-function previewLegs({ start_time, end_time, rounds }) {
+function previewSegments({ start_time, end_time, rounds }) {
   if (!start_time || !end_time) return [];
   const toMinutes = (t) => {
     const [h, m] = t.split(":").map(Number);
@@ -47,10 +47,10 @@ function previewLegs({ start_time, end_time, rounds }) {
   let endM = toMinutes(end_time);
   if (endM <= startM) endM += 24 * 60; // runs past midnight
 
-  const legs = Math.max(1, Number(rounds) || 1) * 2;
-  const per = (endM - startM) / legs;
+  const segments = Math.max(1, Number(rounds) || 1) * 2;
+  const per = (endM - startM) / segments;
 
-  return Array.from({ length: legs }, (_, i) => {
+  return Array.from({ length: segments }, (_, i) => {
     const fmt = (mins) => {
       const t = Math.round(mins) % (24 * 60);
       return `${String(Math.floor(t / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`;
@@ -132,7 +132,7 @@ export default function ShiftFormDialog({ open, onOpenChange, shift }) {
     }
   }
 
-  const legs = previewLegs(form);
+  const segments = previewSegments(form);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -288,32 +288,32 @@ export default function ShiftFormDialog({ open, onOpenChange, shift }) {
           )}
 
           {/* what this shift will actually run */}
-          {legs.length > 0 && (
+          {segments.length > 0 && (
             <div className="rounded-lg p-3" style={{ background: "var(--surface-2)" }}>
               <p className="mb-2 text-[11px] font-bold uppercase" style={{ color: "var(--text-muted)", letterSpacing: "0.07em" }}>
-                {legs.length} legs · {form.rounds} round{Number(form.rounds) === 1 ? "" : "s"}
+                {segments.length} segments · {form.rounds} round{Number(form.rounds) === 1 ? "" : "s"}
               </p>
               <ul className="space-y-1">
-                {legs.map((leg, i) => (
+                {segments.map((segment, i) => (
                   <li key={i} className="flex items-center gap-2 text-xs" style={{ color: "var(--text-muted)" }}>
                     <span
                       className="grid h-4 w-4 shrink-0 place-items-center rounded-full text-[9px] font-bold"
                       style={{ background: "var(--surface)", color: "var(--text-muted)" }}
                     >
-                      {leg.round}
+                      {segment.round}
                     </span>
                     <span style={{ color: "var(--text)" }}>
-                      {leg.direction === "outbound" ? "→" : "←"}
+                      {segment.direction === "outbound" ? "→" : "←"}
                     </span>
                     <span style={{ fontFamily: "var(--font-mono)" }}>
-                      {leg.from} – {leg.to}
+                      {segment.from} – {segment.to}
                     </span>
                   </li>
                 ))}
               </ul>
               {isEditing && (
                 <p className="mt-2 text-[11px]" style={{ color: "var(--text-muted)" }}>
-                  Saving updates these legs in place; anything already booked on them stays booked.
+                  Saving updates these segments in place; anything already booked on them stays booked.
                 </p>
               )}
             </div>
