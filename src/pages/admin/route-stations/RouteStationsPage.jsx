@@ -244,6 +244,7 @@ export default function RouteStationsPage() {
             <LeafletMap
               height={420}
               connect
+              maximizable
               points={order.map((s) => ({ lat: s.latitude, lng: s.longitude, label: s.name, kind: "stop" }))}
             />
             <RouteLineGraph

@@ -2,20 +2,13 @@ import StatusPill from "@/components/StatusPill";
 import { resolveStatus } from "@/lib/status";
 import { useMyPayments } from "@/api/passengerPayments";
 import { cardSegmentLabel } from "@/lib/cardLabel";
+import { formatDateTime } from "@/lib/dates";
 
 const STATUS_STYLE = {
   paid: { bg: "var(--success-bg)", fg: "var(--success)", label: "Paid" },
   unpaid: { bg: "var(--warning-bg)", fg: "var(--warning)", label: "Unpaid" },
   failed: { bg: "var(--critical-bg)", fg: "var(--critical)", label: "Failed" },
 };
-
-function formatDateTime(value) {
-  if (!value) return "—";
-  return new Date(value).toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
-}
 
 export default function MyPaymentsPage() {
   const { data: payments, isLoading, isError } = useMyPayments();

@@ -3,11 +3,11 @@
 // marker at the boarding stop, and a torn stub with departure/boarding/card.
 
 import { tripRoute, tripTimes } from "@/lib/trip";
+import { formatDate } from "@/lib/dates";
 
 function fmtDate(dateStr) {
   if (!dateStr) return "";
-  const d = new Date(dateStr + "T00:00:00");
-  return d.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
+  return formatDate(dateStr);
 }
 
 export default function BoardingPass({ reservation, onShow }) {

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useRoute, useRoutes } from "@/api/routes";
 import { effectiveFare } from "@/lib/fare";
+import { usePricingSettings } from "@/api/pricingSettings";
 import RouteLineGraph from "@/components/RouteLineGraph";
 import LeafletMap from "@/components/LeafletMap";
 
@@ -9,6 +10,7 @@ export default function RouteLinePage() {
   const { data: routes } = useRoutes();
   const [routeId, setRouteId] = useState("");
   const { data: route, isLoading, isError } = useRoute(routeId);
+  const { data: pricingSettings } = usePricingSettings();
 
   useEffect(() => {
     if (!routeId && routes?.length) setRouteId(String(routes[0].id));
@@ -68,7 +70,7 @@ export default function RouteLinePage() {
             origin={route.origin}
             destination={route.destination}
             stops={stops}
-            price={effectiveFare(route, route.distance_km)}
+            price={effectiveFare(route, route.distance_km, pricingSettings)}
             priceNote={`End to end · ${route.distance_km} km`}
           />
           <LeafletMap

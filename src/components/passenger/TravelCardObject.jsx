@@ -3,6 +3,8 @@
 // remaining trips shown as punch dots (filled = left, hollow = used).
 // Reused on My Cards, the Buy-a-Card live preview, and the Book picker.
 
+import { formatDate } from "@/lib/dates";
+
 const wrap = {
   position: "relative",
   borderRadius: 18,
@@ -119,7 +121,7 @@ export default function TravelCardObject({
         </div>
         {expiry && (
           <div style={{ marginTop: 6, fontSize: 11, color: "var(--ink-muted)", fontFamily: "var(--font-mono)" }}>
-            Expires {expiry}
+            Expires {formatDate(expiry)}
           </div>
         )}
       </div>

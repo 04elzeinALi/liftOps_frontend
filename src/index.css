@@ -14,22 +14,28 @@
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 }
 
+/* Light theme. Muted text, borders and the status colours are all pulled
+   darker than a naive tint would give: on a white surface the earlier
+   values sat around 3:1, which reads as washed out and fails WCAG AA for
+   body text. These clear 4.5:1 on --surface so secondary text is properly
+   readable rather than merely visible. The dark theme below is unchanged —
+   it was already carrying enough contrast. */
 :root {
-  --bg: #ECEEF0;
+  --bg: #E8EAED;
   --surface: #FFFFFF;
-  --surface-2: #E1E4E8;
-  --border: #CFD3D9;
-  --text: #1B1D21;
-  --text-muted: #5C626C;
+  --surface-2: #DADDE2;
+  --border: #B3B9C2;
+  --text: #101215;
+  --text-muted: #4A505A;
   --accent: #F5B301;
-  --accent-strong: #D89E00;
+  --accent-strong: #A87B00;
   --accent-ink: #211A00;
-  --success: #2F9D64;
-  --success-bg: #E1F3E9;
-  --warning: #B9791F;
-  --warning-bg: #FBEEDD;
-  --critical: #C64A38;
-  --critical-bg: #FBE7E3;
+  --success: #1B7044;
+  --success-bg: #D3EDDF;
+  --warning: #8F5A0F;
+  --warning-bg: #F8E4C8;
+  --critical: #A93520;
+  --critical-bg: #F9DAD4;
 
   /* "Physical object" tokens — the travel card, boarding pass and departure
      board are charcoal-and-taxi-yellow in BOTH themes so the signature stays
@@ -81,22 +87,24 @@
   --critical-bg: #3A211D;
 }
 
+/* Must stay in step with the :root light values above — this block is what
+   wins when the user explicitly picks light while their OS is set to dark. */
 :root[data-theme="light"] {
-  --bg: #ECEEF0;
+  --bg: #E8EAED;
   --surface: #FFFFFF;
-  --surface-2: #E1E4E8;
-  --border: #CFD3D9;
-  --text: #1B1D21;
-  --text-muted: #5C626C;
+  --surface-2: #DADDE2;
+  --border: #B3B9C2;
+  --text: #101215;
+  --text-muted: #4A505A;
   --accent: #F5B301;
-  --accent-strong: #D89E00;
+  --accent-strong: #A87B00;
   --accent-ink: #211A00;
-  --success: #2F9D64;
-  --success-bg: #E1F3E9;
-  --warning: #B9791F;
-  --warning-bg: #FBEEDD;
-  --critical: #C64A38;
-  --critical-bg: #FBE7E3;
+  --success: #1B7044;
+  --success-bg: #D3EDDF;
+  --warning: #8F5A0F;
+  --warning-bg: #F8E4C8;
+  --critical: #A93520;
+  --critical-bg: #F9DAD4;
 }
 
 /* Map shadcn's expected tokens onto our design system so shadcn/ui

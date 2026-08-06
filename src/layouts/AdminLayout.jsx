@@ -37,6 +37,10 @@ const NAV_GROUPS = [
       { to: "/admin/payments", label: "Payments" },
     ],
   },
+  {
+    label: "Settings",
+    items: [{ to: "/admin/settings/pricing", label: "Pricing" }],
+  },
 ];
 
 export default function AdminLayout() {

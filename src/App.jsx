@@ -17,6 +17,7 @@ import AdminPassengersPage from "@/pages/admin/passengers/PassengersPage";
 import PassengerDetailPage from "@/pages/admin/passengers/PassengerDetailPage";
 import AdminTravelCardsPage from "@/pages/admin/travel-cards/TravelCardsPage";
 import AdminPaymentsPage from "@/pages/admin/payments/PaymentsPage";
+import PricingSettingsPage from "@/pages/admin/settings/PricingSettingsPage";
 import DriverLayout from "@/layouts/DriverLayout";
 import DriverTripsPage from "@/pages/driver/DriverTripsPage";
 import TripManifestPage from "@/pages/driver/TripManifestPage";
@@ -63,6 +64,7 @@ export default function App() {
               <Route path="passengers/:id" element={<PassengerDetailPage />} />
               <Route path="travel-cards" element={<AdminTravelCardsPage />} />
               <Route path="payments" element={<AdminPaymentsPage />} />
+              <Route path="settings/pricing" element={<PricingSettingsPage />} />
             </Route>
           </Route>
 

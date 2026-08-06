@@ -5,7 +5,7 @@ import { useTripDetail } from "@/api/passengerTrips";
 import { useMyTravelCards } from "@/api/passengerCards";
 import { useCreateReservation } from "@/api/passengerReservations";
 import { useStationsList } from "@/api/stations";
-import { localToday } from "@/lib/dates";
+import { formatDate, localToday } from "@/lib/dates";
 import LeafletMap from "@/components/LeafletMap";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -139,7 +139,7 @@ export default function BookTripPage() {
               <SelectContent>
                 {eligibleCards.map((card) => (
                   <SelectItem key={card.id} value={String(card.id)}>
-                    {card.card_type} — {card.remaining_trips} trip{card.remaining_trips === 1 ? "" : "s"} left (expires {card.expiry_date})
+                    {card.card_type} — {card.remaining_trips} trip{card.remaining_trips === 1 ? "" : "s"} left (expires {formatDate(card.expiry_date)})
                   </SelectItem>
                 ))}
               </SelectContent>

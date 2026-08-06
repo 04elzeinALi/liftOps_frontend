@@ -3,6 +3,7 @@ import { parseApiError } from "@/api/errors";
 import { useCreateTravelCard, usePassengersList, useUpdateTravelCard } from "@/api/travelCards";
 import { useRoute, useRoutes } from "@/api/routes";
 import { CARD_TERMS, distanceAlongStops, effectiveFare } from "@/lib/fare";
+import { usePricingSettings } from "@/api/pricingSettings";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -38,6 +39,7 @@ export default function TravelCardFormDialog({ open, onOpenChange, travelCard })
   const [generalError, setGeneralError] = useState("");
   const { data: passengers } = usePassengersList();
   const { data: routes } = useRoutes();
+  const { data: pricingSettings } = usePricingSettings();
   const createTravelCard = useCreateTravelCard();
   const updateTravelCard = useUpdateTravelCard();
   const isEditing = Boolean(travelCard);
@@ -82,7 +84,7 @@ export default function TravelCardFormDialog({ open, onOpenChange, travelCard })
     form.from_station_id && form.to_station_id
       ? distanceAlongStops(stops, form.from_station_id, form.to_station_id)
       : null;
-  const baseFare = segmentKm != null ? effectiveFare(routeDetail, segmentKm) : null;
+  const baseFare = segmentKm != null ? effectiveFare(routeDetail, segmentKm, pricingSettings) : null;
   const price = baseFare != null ? baseFare * CARD_TERMS[form.card_type].multiplier : null;
 
   function handleChange(field, value) {

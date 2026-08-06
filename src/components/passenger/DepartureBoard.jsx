@@ -5,20 +5,19 @@
 // passenger home and the full browse page.
 
 import { tripRoute, tripTimes } from "@/lib/trip";
-import { addDaysLocal, localToday } from "@/lib/dates";
+import { addDaysLocal, formatDate, localToday } from "@/lib/dates";
 
 const LOW_SEATS = 5;
 
+// Today/Tomorrow stay as words — they tell a passenger how far out they're
+// looking faster than any number can. Everything beyond that is the app's
+// standard dd/mm/yyyy.
 function dayLabel(dateStr) {
   const today = localToday();
   if (dateStr === today) return "Today";
   if (dateStr === addDaysLocal(today, 1)) return "Tomorrow";
 
-  return new Date(`${dateStr}T00:00:00`).toLocaleDateString(undefined, {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-  });
+  return formatDate(dateStr);
 }
 
 // Stable ordering regardless of what the API returned in, then bucketed by

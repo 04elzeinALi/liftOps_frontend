@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useTheme } from "@/theme/ThemeContext";
@@ -62,12 +62,26 @@ export default function LeafletMap({
   // over the dashed base route, with the two ends marked distinctly.
   highlightPoints = [],
   highlightColor = "#2F6FED",
+  // Adds a hover-revealed control that blows the map up to fill the window.
+  maximizable = false,
+  // Makes every marker clickable, calling back with that point's own data
+  // (whatever was passed in `points`/`highlightPoints`, so pass an `id`
+  // through if the caller needs to know which one). Used for picking a
+  // route's endpoints by clicking stations directly, instead of only via
+  // the dropdowns.
+  onMarkerClick,
 }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const tileRef = useRef(null);
   const layerRef = useRef(null);
   const { theme } = useTheme();
+  const [expanded, setExpanded] = useState(false);
+  // Ref so the draw effect (which only wants to re-run when the POINTS
+  // change) doesn't have to list the callback as a dependency — callers
+  // routinely pass a fresh function every render.
+  const onMarkerClickRef = useRef(onMarkerClick);
+  onMarkerClickRef.current = onMarkerClick;
 
   const valid = points.filter(isValid).map((p) => ({ ...p, lat: Number(p.lat), lng: Number(p.lng) }));
   const validHighlight = highlightPoints.filter(isValid).map((p) => ({ ...p, lat: Number(p.lat), lng: Number(p.lng) }));
@@ -117,6 +131,13 @@ export default function LeafletMap({
     valid.forEach((p) => {
       const m = L.marker([p.lat, p.lng], { icon: markerIcon(p.kind), keyboard: false });
       if (p.label) m.bindTooltip(p.label, { direction: "top", offset: [0, -8] });
+      if (onMarkerClickRef.current) {
+        m.on("click", () => onMarkerClickRef.current(p));
+        m.on("add", () => {
+          const el = m.getElement();
+          if (el) el.style.cursor = "pointer";
+        });
+      }
       m.addTo(group);
     });
 
@@ -145,6 +166,17 @@ export default function LeafletMap({
       ends.forEach((p) => {
         const m = L.marker([p.lat, p.lng], { icon: highlightMarkerIcon(highlightColor), keyboard: false, zIndexOffset: 500 });
         if (p.label) m.bindTooltip(p.label, { direction: "top", offset: [0, -10] });
+        // This marker sits on top of the plain one at the same spot (higher
+        // zIndexOffset), so it's the one that actually receives the click —
+        // without this, re-clicking an already-selected endpoint would do
+        // nothing.
+        if (onMarkerClickRef.current) {
+          m.on("click", () => onMarkerClickRef.current(p));
+          m.on("add", () => {
+            const el = m.getElement();
+            if (el) el.style.cursor = "pointer";
+          });
+        }
         m.addTo(group);
       });
     }
@@ -159,15 +191,94 @@ export default function LeafletMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pointsKey, connect]);
 
+  // Maximising resizes the container, and Leaflet keeps using the old
+  // dimensions until it's told to re-measure — so the tiles would sit in the
+  // corner of the bigger box. Re-fit too, since the new shape wants a
+  // different zoom. The delay lets the layout settle first.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+      if (valid.length === 1) {
+        map.setView([valid[0].lat, valid[0].lng], 14);
+      } else if (valid.length > 1) {
+        map.fitBounds(valid.map((p) => [p.lat, p.lng]), { padding: [30, 30], maxZoom: 14 });
+      }
+    }, 60);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [expanded]);
+
+  // Escape restores, the way every other fullscreen surface behaves.
+  useEffect(() => {
+    if (!expanded) return;
+    function onKey(event) {
+      if (event.key === "Escape") setExpanded(false);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [expanded]);
+
   // The container must always mount so the map is created once and survives
   // points arriving later (e.g. stations picked after the dialog opens). The
   // empty-state message is an overlay, not a replacement for the container.
   return (
-    <div style={{ position: "relative", height }}>
+    <div
+      className="group"
+      style={
+        expanded
+          ? {
+              position: "fixed",
+              inset: 0,
+              zIndex: 1000,
+              padding: 16,
+              background: "color-mix(in srgb, var(--bg) 94%, transparent)",
+            }
+          : { position: "relative", height }
+      }
+    >
       <div
         ref={containerRef}
-        style={{ height, borderRadius: 12, overflow: "hidden", border: "1px solid var(--border)", zIndex: 0 }}
+        style={{
+          height: expanded ? "100%" : height,
+          borderRadius: 12,
+          overflow: "hidden",
+          border: "1px solid var(--border)",
+          zIndex: 0,
+        }}
       />
+
+      {maximizable && (
+        <button
+          type="button"
+          onClick={() => setExpanded((e) => !e)}
+          aria-label={expanded ? "Restore map size" : "Maximise map"}
+          title={expanded ? "Restore (Esc)" : "Maximise"}
+          // Hidden until the map is hovered so it doesn't clutter the page,
+          // but always visible while maximised (there'd be no other way back)
+          // and on keyboard focus (hover isn't reachable by keyboard).
+          className={`absolute grid h-8 w-8 place-items-center rounded-lg transition-opacity focus:opacity-100 ${
+            expanded ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+          }`}
+          style={{
+            top: expanded ? 26 : 10,
+            right: expanded ? 26 : 10,
+            zIndex: 500,
+            background: "var(--surface)",
+            border: "1px solid var(--border)",
+            color: "var(--text)",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
+          }}
+        >
+          {expanded ? (
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 3v6H3M15 21v-6h6M3 15h6v6M21 9h-6V3" /></svg>
+          ) : (
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" /></svg>
+          )}
+        </button>
+      )}
+
       {valid.length === 0 && (
         <div
           className="absolute inset-0 grid place-items-center rounded-xl text-center text-sm"

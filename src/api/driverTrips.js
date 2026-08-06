@@ -63,13 +63,37 @@ export function useTripManifest(tripId) {
   return useQuery({
     queryKey: ["driver-trip-manifest", tripId],
     queryFn: async () => {
-      const [reservations, boardings] = await Promise.all([
+      const [reservations, boardings, cashBoardings] = await Promise.all([
         fetchAllPages(`/reservations?trip_id=${tripId}`),
         fetchAllPages(`/boardings?trip_id=${tripId}`),
+        fetchAllPages(`/cash-boardings?trip_id=${tripId}`),
       ]);
-      return { reservations, boardings };
+      return { reservations, boardings, cashBoardings };
     },
     enabled: Boolean(tripId),
+  });
+}
+
+// A cash customer: no account, no travel card, boards once and pays the
+// driver directly. See CashBoardingController's docblock for why this is
+// its own endpoint rather than another /boardings row.
+export function useCreateCashBoarding() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ trip_id, customer_name, from_station_id, to_station_id, amount }) => {
+      const res = await api.post("/cash-boardings", {
+        trip_id,
+        customer_name,
+        from_station_id,
+        to_station_id,
+        amount,
+        boarded_at: new Date().toISOString(),
+      });
+      return res.data;
+    },
+    onSuccess: (_data, { trip_id }) => {
+      queryClient.invalidateQueries({ queryKey: ["driver-trip-manifest", trip_id] });
+    },
   });
 }
 

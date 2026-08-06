@@ -7,6 +7,7 @@ import { useMarkBoarded, useTripDetail, useTripManifest, useUpdateTripStatus } f
 import { tripRouteName, tripTimes } from "@/lib/trip";
 import { boardingSegmentLabel, cardSegmentLabel } from "@/lib/cardLabel";
 import WalkUpBoardingDialog from "./WalkUpBoardingDialog";
+import CashCustomerDialog from "./CashCustomerDialog";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -50,6 +51,7 @@ export default function TripManifestPage() {
   const [boardingErrors, setBoardingErrors] = useState({});
   const [confirmingEmergency, setConfirmingEmergency] = useState(false);
   const [walkUpOpen, setWalkUpOpen] = useState(false);
+  const [cashCustomerOpen, setCashCustomerOpen] = useState(false);
 
   async function handleStatusChange(nextStatus) {
     setStatusError("");
@@ -105,6 +107,7 @@ export default function TripManifestPage() {
   const nextAction = NEXT_STATUS[trip.status];
   const boardings = manifest?.boardings ?? [];
   const reservations = manifest?.reservations ?? [];
+  const cashBoardings = manifest?.cashBoardings ?? [];
   // Boarding a reservation marks it completed, so anything still "booked" is
   // someone the driver is waiting on.
   const waitingReservations = reservations.filter((r) => r.status === "booked");
@@ -115,7 +118,13 @@ export default function TripManifestPage() {
         ← Back to today's trips
       </Link>
 
-      <div className="mb-5 flex items-start justify-between">
+      {/* Header: the trip's identity on the left, its state and the one
+          primary action on the right — status and Start/End Trip sit side by
+          side because they're the same thought ("where is this trip, move it
+          on"). Everything secondary is grouped in the action bar below, so
+          the driver isn't picking a destructive button out of a vertical
+          stack of unrelated ones. */}
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="font-display text-3xl font-extrabold" style={{ color: "var(--text)" }}>
             {tripRouteName(trip)}
@@ -127,29 +136,54 @@ export default function TripManifestPage() {
             {boardings.length} / {trip.bus?.capacity} boarded
           </p>
         </div>
-        <div className="flex flex-col items-end gap-2">
+        <div className="flex items-center gap-2.5">
           <StatusPill bg={status.bg} fg={status.fg} label={status.label} />
           {nextAction && (
             <button
               onClick={() => handleStatusChange(nextAction.status)}
               disabled={updateStatus.isPending}
-              className="rounded-lg px-3 py-1.5 text-sm font-semibold"
+              className="rounded-lg px-4 py-2 text-sm font-bold disabled:opacity-60"
               style={{ background: "var(--accent)", color: "var(--accent-ink)" }}
             >
               {updateStatus.isPending ? "Saving…" : nextAction.label}
             </button>
           )}
-          {CAN_FLAG_EMERGENCY.includes(trip.status) && (
-            <button
-              onClick={() => setConfirmingEmergency(true)}
-              disabled={updateStatus.isPending}
-              className="rounded-lg px-3 py-1.5 text-sm font-semibold"
-              style={{ background: "var(--critical-bg)", color: "var(--critical)", border: "1px solid var(--critical)" }}
-            >
-              Flag Emergency
-            </button>
-          )}
         </div>
+      </div>
+
+      {/* Secondary actions, ordered by how often a driver reaches for them:
+          the two boarding actions first, the emergency flag pushed to the
+          far end so it can't be hit by accident. */}
+      <div
+        className="mb-5 flex flex-wrap items-center gap-2 rounded-xl p-2.5"
+        style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
+      >
+        <button
+          type="button"
+          onClick={() => setWalkUpOpen(true)}
+          className="rounded-lg px-3 py-1.5 text-sm font-semibold"
+          style={{ background: "var(--accent)", color: "var(--accent-ink)" }}
+        >
+          Board a walk-up
+        </button>
+        <button
+          type="button"
+          onClick={() => setCashCustomerOpen(true)}
+          className="rounded-lg px-3 py-1.5 text-sm font-semibold"
+          style={{ background: "var(--surface-2)", color: "var(--text)", border: "1px solid var(--border)" }}
+        >
+          Add cash customer
+        </button>
+        {CAN_FLAG_EMERGENCY.includes(trip.status) && (
+          <button
+            onClick={() => setConfirmingEmergency(true)}
+            disabled={updateStatus.isPending}
+            className="ml-auto rounded-lg px-3 py-1.5 text-sm font-semibold"
+            style={{ background: "var(--critical-bg)", color: "var(--critical)", border: "1px solid var(--critical)" }}
+          >
+            Flag Emergency
+          </button>
+        )}
       </div>
 
       {trip.status === "emergency" && (
@@ -184,19 +218,9 @@ export default function TripManifestPage() {
 
       {/* who is actually on the bus, in the order they got on */}
       <section className="mb-6">
-        <div className="mb-2 flex items-center justify-between">
-          <h2 className="text-[11px] font-bold uppercase" style={{ color: "var(--text-muted)", letterSpacing: "0.09em" }}>
-            On board · {boardings.length}
-          </h2>
-          <button
-            type="button"
-            onClick={() => setWalkUpOpen(true)}
-            className="rounded-lg px-3 py-1.5 text-sm font-semibold"
-            style={{ background: "var(--accent)", color: "var(--accent-ink)" }}
-          >
-            Board a walk-up
-          </button>
-        </div>
+        <h2 className="mb-2 text-[11px] font-bold uppercase" style={{ color: "var(--text-muted)", letterSpacing: "0.09em" }}>
+          On board · {boardings.length}
+        </h2>
 
         <div className="overflow-x-auto rounded-xl" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
           {manifestLoading && (
@@ -260,6 +284,49 @@ export default function TripManifestPage() {
           )}
         </div>
       </section>
+
+      {cashBoardings.length > 0 && (
+        <section className="mb-6">
+          <h2 className="mb-2 text-[11px] font-bold uppercase" style={{ color: "var(--text-muted)", letterSpacing: "0.09em" }}>
+            Cash customers · {cashBoardings.length}
+          </h2>
+          <div className="overflow-x-auto rounded-xl" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+            <table className="w-full border-collapse">
+              <thead>
+                <tr style={{ background: "var(--surface-2)" }}>
+                  {["Boarded", "Name", "Travelling", "Amount"].map((h) => (
+                    <th
+                      key={h}
+                      className="px-5 py-3 text-left text-[11.5px] font-bold uppercase"
+                      style={{ color: "var(--text-muted)", letterSpacing: "0.06em", borderBottom: "1px solid var(--border)" }}
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {cashBoardings.map((cb) => (
+                  <tr key={cb.id} style={{ borderBottom: "1px solid var(--border)" }}>
+                    <td className="px-5 py-3 text-sm" style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>
+                      {formatTime(cb.boarded_at)}
+                    </td>
+                    <td className="px-5 py-3 text-sm" style={{ color: "var(--text)" }}>
+                      {cb.customer_name}
+                    </td>
+                    <td className="px-5 py-3 text-sm" style={{ color: "var(--text)" }}>
+                      {boardingSegmentLabel(cb)}
+                    </td>
+                    <td className="px-5 py-3 text-sm" style={{ fontFamily: "var(--font-mono)", color: "var(--text)" }}>
+                      ${Number(cb.amount).toFixed(2)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
 
       {/* booked but not yet on the bus */}
       <section>
@@ -326,6 +393,7 @@ export default function TripManifestPage() {
       </section>
 
       <WalkUpBoardingDialog open={walkUpOpen} onOpenChange={setWalkUpOpen} trip={trip} />
+      <CashCustomerDialog open={cashCustomerOpen} onOpenChange={setCashCustomerOpen} trip={trip} />
     </div>
   );
 }

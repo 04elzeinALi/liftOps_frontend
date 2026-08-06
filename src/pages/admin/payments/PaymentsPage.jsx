@@ -2,6 +2,7 @@ import { useState } from "react";
 import { resolveStatus } from "@/lib/status";
 import StatusPill from "@/components/StatusPill";
 import { useDeletePayment, usePayments, usePaymentsSummary } from "@/api/payments";
+import { formatDateTime } from "@/lib/dates";
 import { Button } from "@/components/ui/button";
 import PaymentFormDialog from "./PaymentFormDialog";
 import {
@@ -28,14 +29,6 @@ const PERIODS = [
   { value: "year", label: "This Year" },
   { value: "all", label: "All Time" },
 ];
-
-function formatDateTime(value) {
-  if (!value) return "—";
-  return new Date(value).toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
-}
 
 function SummarySection() {
   const [period, setPeriod] = useState("day");

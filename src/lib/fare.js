@@ -1,11 +1,16 @@
 // Distance-based fare, mirrored from the backend (Route::ROAD_FACTOR,
-// Route::fareBetweenStations, TravelCard::calculatePrice) so the price a
-// passenger is quoted matches the one they get charged. The server stays
-// authoritative — everything here is preview only.
+// Route::fareForKm, TravelCard::calculatePrice) so the price a passenger is
+// quoted matches the one they get charged. The server stays authoritative —
+// everything here is preview only.
 
-export const LONG_TRIP_KM = 40;
-export const SHORT_TRIP_FARE = 2;
-export const LONG_TRIP_FARE = 3;
+// Used only as a fallback while the real settings (usePricingSettings, from
+// /pricing-settings) are still loading — the admin can change the distance
+// band and both fares at runtime, so these are not the source of truth.
+export const DEFAULT_PRICING_SETTINGS = {
+  long_trip_km: 40,
+  short_trip_fare: 2,
+  long_trip_fare: 3,
+};
 
 // Roads bend between stops, so summed straight lines undershoot the distance
 // actually driven. Must stay in step with Route::ROAD_FACTOR.
@@ -18,17 +23,38 @@ export const CARD_TERMS = {
   monthly: { total_trips: 20, expiry_days: 30, multiplier: 20 * 0.8 },
 };
 
-export function fareForDistance(km) {
+// `settings` mirrors PricingSetting (long_trip_km / short_trip_fare /
+// long_trip_fare) — pass the result of usePricingSettings().data, or omit it
+// to fall back to DEFAULT_PRICING_SETTINGS before that's loaded.
+export function fareForDistance(km, settings = DEFAULT_PRICING_SETTINGS) {
   const distance = Number(km);
   if (!Number.isFinite(distance)) return null;
-  return distance < LONG_TRIP_KM ? SHORT_TRIP_FARE : LONG_TRIP_FARE;
+  const bands = settings ?? DEFAULT_PRICING_SETTINGS;
+  return distance < Number(bands.long_trip_km)
+    ? Number(bands.short_trip_fare)
+    : Number(bands.long_trip_fare);
 }
 
-// Mirrors TravelCard::baseFare()'s override: a route with manual_fare set
-// is priced at that fixed amount regardless of distance.
-export function effectiveFare(route, km) {
+// True when a route carries a complete set of its own bands. Mirrors
+// Route::hasOwnPricing() — the three are treated as one unit, so a
+// half-filled route falls back to the network defaults rather than mixing
+// its own threshold with the network's fares.
+export function hasOwnPricing(route) {
+  return (
+    route?.long_trip_km != null &&
+    route?.short_trip_fare != null &&
+    route?.long_trip_fare != null
+  );
+}
+
+// Mirrors TravelCard::baseFare() and Route::fareForKm(), most specific first:
+//   1. the route's manual_fare — a flat price, distance ignored entirely
+//   2. the route's own distance bands, if it has a full set
+//   3. the network-wide defaults from /pricing-settings
+export function effectiveFare(route, km, settings = DEFAULT_PRICING_SETTINGS) {
   if (route?.manual_fare != null) return Number(route.manual_fare);
-  return fareForDistance(km);
+  if (hasOwnPricing(route)) return fareForDistance(km, route);
+  return fareForDistance(km, settings);
 }
 
 export function haversineKm(lat1, lng1, lat2, lng2) {

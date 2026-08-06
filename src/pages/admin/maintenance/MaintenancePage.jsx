@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { resolveStatus } from "@/lib/status";
+import { formatDate } from "@/lib/dates";
 import StatusPill from "@/components/StatusPill";
 import { useDeleteMaintenance, useMaintenance } from "@/api/maintenance";
 import { Button } from "@/components/ui/button";
@@ -114,7 +115,7 @@ export default function MaintenancePage() {
                       <StatusPill bg={status.bg} fg={status.fg} label={status.label} />
                     </td>
                     <td className="px-5 py-3 text-sm" style={{ fontFamily: "var(--font-mono)" }}>
-                      {record.scheduled_at}
+                      {formatDate(record.scheduled_at)}
                     </td>
                     <td className="px-5 py-3 text-sm" style={{ fontFamily: "var(--font-mono)" }}>
                       {record.cost ?? "—"}

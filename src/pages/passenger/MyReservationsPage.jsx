@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { resolveStatus } from "@/lib/status";
+import { formatDate } from "@/lib/dates";
 import StatusPill from "@/components/StatusPill";
 import { useCancelReservation, useMyReservations } from "@/api/passengerReservations";
 import { tripRoute, tripTimes } from "@/lib/trip";
@@ -73,7 +74,7 @@ export default function MyReservationsPage() {
                 <StatusPill bg={status.bg} fg={status.fg} label={status.label} />
               </div>
               <div className="mt-2 flex items-center gap-4 text-sm" style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
-                <span>{reservation.trip?.trip_date}</span>
+                <span>{formatDate(reservation.trip?.trip_date)}</span>
                 <span>·</span>
                 <span>{tripTimes(reservation.trip).departure}</span>
                 {reservation.pickup_location && (

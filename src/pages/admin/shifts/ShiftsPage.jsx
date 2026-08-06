@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { resolveStatus } from "@/lib/status";
+import { formatDate } from "@/lib/dates";
 import StatusPill from "@/components/StatusPill";
 import { useDeleteShift, useShifts } from "@/api/shifts";
 import { useDriversList } from "@/api/drivers";
@@ -167,7 +168,7 @@ export default function ShiftsPage() {
                 return (
                   <tr key={shift.id} style={{ borderBottom: "1px solid var(--border)" }}>
                     <td className="px-5 py-3 text-sm" style={{ fontFamily: "var(--font-mono)", color: "var(--text)" }}>
-                      {shift.shift_date?.slice(0, 10)}
+                      {formatDate(shift.shift_date?.slice(0, 10))}
                     </td>
                     <td className="px-5 py-3 text-sm" style={{ color: "var(--text)" }}>
                       {shift.driver?.first_name} {shift.driver?.last_name}

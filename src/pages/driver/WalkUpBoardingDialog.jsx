@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRoute } from "@/api/routes";
 import { useCreateWalkUpPassenger, usePassengerLookup } from "@/api/driverShifts";
 import { distanceAlongStops, effectiveFare } from "@/lib/fare";
+import { usePricingSettings } from "@/api/pricingSettings";
 import { tripRoute } from "@/lib/trip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,6 +40,7 @@ export default function WalkUpBoardingDialog({ open, onOpenChange, trip }) {
   const queryClient = useQueryClient();
   const route = tripRoute(trip);
   const { data: routeDetail } = useRoute(route?.id);
+  const { data: pricingSettings } = usePricingSettings();
   const createPassenger = useCreateWalkUpPassenger();
 
   const [mode, setMode] = useState("find"); // find | new
@@ -82,7 +84,7 @@ export default function WalkUpBoardingDialog({ open, onOpenChange, trip }) {
 
   const segmentKm =
     fromStationId && toStationId ? distanceAlongStops(stops, fromStationId, toStationId) : null;
-  const fare = segmentKm != null ? effectiveFare(routeDetail, segmentKm) : null;
+  const fare = segmentKm != null ? effectiveFare(routeDetail, segmentKm, pricingSettings) : null;
 
   async function handleSubmit(e) {
     e.preventDefault();

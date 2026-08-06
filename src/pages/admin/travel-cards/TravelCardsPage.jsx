@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { resolveStatus } from "@/lib/status";
+import { formatDate } from "@/lib/dates";
 import StatusPill from "@/components/StatusPill";
 import { useDeleteTravelCard, useTravelCards } from "@/api/travelCards";
 import { Button } from "@/components/ui/button";
@@ -111,7 +112,7 @@ export default function TravelCardsPage() {
                       {card.remaining_trips}
                     </td>
                     <td className="px-5 py-3 text-sm" style={{ fontFamily: "var(--font-mono)" }}>
-                      {card.expiry_date}
+                      {formatDate(card.expiry_date)}
                     </td>
                     <td className="px-5 py-3 text-sm">
                       <StatusPill bg={status.bg} fg={status.fg} label={status.label} />

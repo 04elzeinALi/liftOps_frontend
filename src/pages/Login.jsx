@@ -38,7 +38,10 @@ export default function Login() {
       <div className="absolute right-4 top-4">
         <ThemeToggle />
       </div>
-      <div className="w-full max-w-sm">
+      <div
+        className="w-full max-w-sm rounded-2xl p-7"
+        style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
+      >
         <img src="/logo.png" alt="" className="mb-4 h-12 w-12 rounded-xl" />
         <h1 className="font-display mb-2 text-3xl font-extrabold" style={{ color: "var(--text)" }}>
           Welcome to Lift-Ops

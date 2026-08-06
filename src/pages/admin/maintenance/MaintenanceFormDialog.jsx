@@ -28,6 +28,10 @@ const MAINTENANCE_TYPES = [
   "transmission_service",
   "electrical_system_check",
   "suspension_inspection",
+  // What a bus record starts as when marking a bus as under maintenance
+  // creates this record automatically — the reason isn't known yet, so it
+  // starts here until narrowed down (see BusController::update).
+  "other",
 ];
 const MAINTENANCE_STATUSES = ["scheduled", "in_progress", "completed"];
 

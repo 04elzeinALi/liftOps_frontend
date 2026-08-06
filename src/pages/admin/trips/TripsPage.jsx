@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { resolveStatus } from "@/lib/status";
+import { formatDate } from "@/lib/dates";
 import { tripLegLabel, tripRouteName } from "@/lib/trip";
 import StatusPill from "@/components/StatusPill";
 import { useDeleteTrip, useTrips } from "@/api/trips";
@@ -118,7 +119,7 @@ export default function TripsPage() {
                       {trip.driver?.first_name} {trip.driver?.last_name}
                     </td>
                     <td className="px-5 py-3 text-sm" style={{ fontFamily: "var(--font-mono)" }}>
-                      {trip.trip_date}
+                      {formatDate(trip.trip_date)}
                     </td>
                     <td className="px-5 py-3 text-sm">
                       <StatusPill bg={status.bg} fg={status.fg} label={status.label} />

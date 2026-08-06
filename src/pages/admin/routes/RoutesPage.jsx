@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useDeleteRoute, useRoutesPage } from "@/api/routes";
+import { hasOwnPricing } from "@/lib/fare";
 import { Button } from "@/components/ui/button";
 import Pagination from "@/components/Pagination";
 import RouteFormDialog from "./RouteFormDialog";
@@ -73,7 +74,7 @@ export default function RoutesPage() {
           <table className="w-full border-collapse">
             <thead>
               <tr style={{ background: "var(--surface-2)" }}>
-                {["Name", "Origin", "Destination", "Distance", "Duration", "Fare", ""].map((h) => (
+                {["Name", "Origin", "Destination", "Distance", "Duration", "Pricing", ""].map((h) => (
                   <th
                     key={h}
                     className="px-5 py-3 text-left text-[11.5px] font-bold uppercase"
@@ -103,7 +104,17 @@ export default function RoutesPage() {
                     {route.estimated_duration}
                   </td>
                   <td className="px-5 py-3 text-sm" style={{ fontFamily: "var(--font-mono)" }}>
-                    {route.fare}
+                    {route.manual_fare != null ? (
+                      <span title="Flat price — distance ignored">${Number(route.manual_fare).toFixed(2)} flat</span>
+                    ) : hasOwnPricing(route) ? (
+                      <span title="This route's own distance bands">
+                        &lt;{Number(route.long_trip_km)}km ${Number(route.short_trip_fare).toFixed(2)} · ${Number(route.long_trip_fare).toFixed(2)}
+                      </span>
+                    ) : (
+                      <span style={{ color: "var(--text-muted)" }} title="Uses the network default from Settings → Pricing">
+                        Default
+                      </span>
+                    )}
                   </td>
                   <td className="px-5 py-3 text-sm">
                     <button onClick={() => openEdit(route)} className="mr-3 font-semibold" style={{ color: "var(--accent)" }}>
