@@ -9,13 +9,21 @@ export function useStationsList() {
   });
 }
 
-export function useStations(page = 1) {
+// `search` filters server-side, so matches on later pages are found too —
+// filtering the fetched page in the browser would only ever search the 15
+// rows already on screen.
+export function useStations(page = 1, search = "") {
   return useQuery({
-    queryKey: ["stations", page],
+    queryKey: ["stations", page, search],
     queryFn: async () => {
-      const res = await api.get(`/stations?page=${page}`);
+      const params = new URLSearchParams({ page });
+      if (search) params.set("search", search);
+      const res = await api.get(`/stations?${params}`);
       return res.data;
     },
+    // Keeps the current rows on screen while a new search is in flight,
+    // so the table doesn't blank out on every keystroke.
+    placeholderData: (previous) => previous,
   });
 }
 

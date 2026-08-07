@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDeleteStation, useStations } from "@/api/stations";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import Pagination from "@/components/Pagination";
 import StationFormDialog from "./StationFormDialog";
 import {
@@ -16,8 +17,23 @@ import {
 
 export default function StationsPage() {
   const [page, setPage] = useState(1);
-  const { data, isLoading, isError } = useStations(page);
+  // What's typed vs what's actually queried: the input updates on every
+  // keystroke, but the query waits until typing pauses, so searching a name
+  // doesn't fire a request per letter.
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
+  const { data, isLoading, isError } = useStations(page, search);
   const deleteStation = useDeleteStation();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearch(searchInput);
+      // A new search starts at page 1 — staying on page 3 of the old results
+      // would land on an empty page for most terms.
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   const [formOpen, setFormOpen] = useState(false);
   const [editingStation, setEditingStation] = useState(null);
@@ -51,11 +67,38 @@ export default function StationsPage() {
 
   return (
     <div>
-      <div className="mb-5 flex items-center justify-between">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-display text-3xl font-extrabold" style={{ color: "var(--text)" }}>
           Stations
         </h1>
-        <Button onClick={openCreate}>Add Station</Button>
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <Input
+              type="search"
+              placeholder="Search stations…"
+              aria-label="Search stations"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              className="w-56 pl-8"
+            />
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              width="15"
+              height="15"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2"
+              style={{ color: "var(--text-muted)" }}
+            >
+              <circle cx="11" cy="11" r="7" />
+              <path d="M20 20l-3.5-3.5" />
+            </svg>
+          </div>
+          <Button onClick={openCreate}>Add Station</Button>
+        </div>
       </div>
 
       <div className="overflow-x-auto rounded-xl" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
@@ -111,7 +154,7 @@ export default function StationsPage() {
         )}
         {data && data.data.length === 0 && (
           <p className="p-6 text-sm" style={{ color: "var(--text-muted)" }}>
-            No records yet.
+            {search ? `No stations match "${search}".` : "No records yet."}
           </p>
         )}
       </div>
