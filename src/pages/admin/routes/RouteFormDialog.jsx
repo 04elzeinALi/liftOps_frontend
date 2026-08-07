@@ -5,6 +5,7 @@ import { useStationsList } from "@/api/stations";
 import { DEFAULT_PRICING_SETTINGS, ROAD_FACTOR, haversineKm } from "@/lib/fare";
 import { usePricingSettings } from "@/api/pricingSettings";
 import LeafletMap from "@/components/LeafletMap";
+import SearchableSelect from "@/components/SearchableSelect";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,13 +16,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 const EMPTY_FORM = {
   route_name: "",
@@ -44,6 +38,11 @@ export default function RouteFormDialog({ open, onOpenChange, route }) {
   const updateRoute = useUpdateRoute();
   const isEditing = Boolean(route);
   const isSubmitting = createRoute.isPending || updateRoute.isPending;
+  const stationOptions = useMemo(
+    () => (stations ?? []).map((s) => ({ value: String(s.id), label: s.station_name })),
+    [stations]
+  );
+
   const originStation = stations?.find((s) => s.id === Number(form.origin_station_id));
   const destinationStation = stations?.find((s) => s.id === Number(form.destination_station_id));
 
@@ -219,21 +218,15 @@ export default function RouteFormDialog({ open, onOpenChange, route }) {
           </div>
           <div>
             <Label htmlFor="origin_station_id">Origin</Label>
-            <Select
+            <SearchableSelect
+              id="origin_station_id"
               value={form.origin_station_id ? String(form.origin_station_id) : ""}
               onValueChange={(value) => handleChange("origin_station_id", Number(value))}
-            >
-              <SelectTrigger id="origin_station_id" className="w-full">
-                <SelectValue placeholder="Select a station" />
-              </SelectTrigger>
-              <SelectContent>
-                {stations?.map((station) => (
-                  <SelectItem key={station.id} value={String(station.id)}>
-                    {station.station_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              options={stationOptions}
+              placeholder="Select a station"
+              searchPlaceholder="Search stations…"
+              emptyMessage="No stations match."
+            />
             {errors.origin_station_id && (
               <p className="mt-1 text-xs" style={{ color: "var(--critical)" }}>
                 {errors.origin_station_id[0]}
@@ -242,21 +235,15 @@ export default function RouteFormDialog({ open, onOpenChange, route }) {
           </div>
           <div>
             <Label htmlFor="destination_station_id">Destination</Label>
-            <Select
+            <SearchableSelect
+              id="destination_station_id"
               value={form.destination_station_id ? String(form.destination_station_id) : ""}
               onValueChange={(value) => handleChange("destination_station_id", Number(value))}
-            >
-              <SelectTrigger id="destination_station_id" className="w-full">
-                <SelectValue placeholder="Select a station" />
-              </SelectTrigger>
-              <SelectContent>
-                {stations?.map((station) => (
-                  <SelectItem key={station.id} value={String(station.id)}>
-                    {station.station_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              options={stationOptions}
+              placeholder="Select a station"
+              searchPlaceholder="Search stations…"
+              emptyMessage="No stations match."
+            />
             {errors.destination_station_id && (
               <p className="mt-1 text-xs" style={{ color: "var(--critical)" }}>
                 {errors.destination_station_id[0]}

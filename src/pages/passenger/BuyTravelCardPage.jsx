@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import SearchableSelect from "@/components/SearchableSelect";
 import TravelCardObject from "@/components/passenger/TravelCardObject";
 
 const CARD_TYPES = ["single", "return", "weekly", "monthly"];
@@ -76,6 +77,17 @@ export default function BuyTravelCardPage() {
         lng: rs.station?.longitude,
       })),
     [routeDetail]
+  );
+
+  const fromStationOptions = useMemo(
+    () => stops.map((s) => ({ value: String(s.id), label: s.name })),
+    [stops]
+  );
+  // A card can't start and end at the same stop, so "To" leaves out
+  // whichever one is currently picked as "From".
+  const toStationOptions = useMemo(
+    () => stops.filter((s) => String(s.id) !== fromStationId).map((s) => ({ value: String(s.id), label: s.name })),
+    [stops, fromStationId]
   );
 
   // Default to riding the whole line; the passenger narrows it from there.
@@ -154,35 +166,27 @@ export default function BuyTravelCardPage() {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label htmlFor="from_station_id">Starting station</Label>
-              <Select value={fromStationId} onValueChange={setFromStationId}>
-                <SelectTrigger id="from_station_id" className="w-full">
-                  <SelectValue placeholder="From" />
-                </SelectTrigger>
-                <SelectContent>
-                  {stops.map((s) => (
-                    <SelectItem key={s.id} value={String(s.id)}>
-                      {s.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <SearchableSelect
+                id="from_station_id"
+                value={fromStationId}
+                onValueChange={setFromStationId}
+                options={fromStationOptions}
+                placeholder="From"
+                searchPlaceholder="Search stations…"
+                emptyMessage="No stations match."
+              />
             </div>
             <div>
               <Label htmlFor="to_station_id">Ending station</Label>
-              <Select value={toStationId} onValueChange={setToStationId}>
-                <SelectTrigger id="to_station_id" className="w-full">
-                  <SelectValue placeholder="To" />
-                </SelectTrigger>
-                <SelectContent>
-                  {stops
-                    .filter((s) => String(s.id) !== fromStationId)
-                    .map((s) => (
-                      <SelectItem key={s.id} value={String(s.id)}>
-                        {s.name}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
+              <SearchableSelect
+                id="to_station_id"
+                value={toStationId}
+                onValueChange={setToStationId}
+                options={toStationOptions}
+                placeholder="To"
+                searchPlaceholder="Search stations…"
+                emptyMessage="No stations match."
+              />
             </div>
           </div>
         )}
