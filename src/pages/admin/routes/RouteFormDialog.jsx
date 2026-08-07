@@ -28,7 +28,6 @@ const EMPTY_FORM = {
   origin_station_id: "",
   destination_station_id: "",
   estimated_duration: "",
-  fare: "",
   manual_fare: "",
   long_trip_km: "",
   short_trip_fare: "",
@@ -87,7 +86,6 @@ export default function RouteFormDialog({ open, onOpenChange, route }) {
               origin_station_id: route.origin_station_id ?? "",
               destination_station_id: route.destination_station_id ?? "",
               estimated_duration: route.estimated_duration,
-              fare: route.fare,
               manual_fare: route.manual_fare ?? "",
               long_trip_km: route.long_trip_km ?? "",
               short_trip_fare: route.short_trip_fare ?? "",
@@ -158,7 +156,6 @@ export default function RouteFormDialog({ open, onOpenChange, route }) {
       destination_station_id: Number(form.destination_station_id),
       distance_km: computedDistanceKm,
       estimated_duration: form.estimated_duration,
-      fare: Number(form.fare),
       manual_fare: form.manual_fare === "" ? null : Number(form.manual_fare),
       long_trip_km: form.long_trip_km === "" ? null : Number(form.long_trip_km),
       short_trip_fare: form.short_trip_fare === "" ? null : Number(form.short_trip_fare),
@@ -295,22 +292,6 @@ export default function RouteFormDialog({ open, onOpenChange, route }) {
             {errors.estimated_duration && (
               <p className="mt-1 text-xs" style={{ color: "var(--critical)" }}>
                 {errors.estimated_duration[0]}
-              </p>
-            )}
-          </div>
-          <div>
-            <Label htmlFor="fare">Fare</Label>
-            <Input
-              id="fare"
-              type="number"
-              step="any"
-              value={form.fare}
-              onChange={(e) => handleChange("fare", e.target.value)}
-              required
-            />
-            {errors.fare && (
-              <p className="mt-1 text-xs" style={{ color: "var(--critical)" }}>
-                {errors.fare[0]}
               </p>
             )}
           </div>
