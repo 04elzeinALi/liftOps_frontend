@@ -171,7 +171,7 @@ export default function DriverTripsPage() {
               <h3 className="mb-2 text-[11px] font-bold uppercase" style={{ color: "var(--text-muted)", letterSpacing: "0.09em" }}>
                 The route you're driving
               </h3>
-              <LeafletMap points={stops} connect height={260} />
+              <LeafletMap points={stops} connect height={260} maximizable />
             </section>
           )}
 
