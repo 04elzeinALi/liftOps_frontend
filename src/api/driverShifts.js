@@ -52,17 +52,3 @@ export function usePassengerLookup(term) {
     enabled: (term ?? "").trim().length >= 3,
   });
 }
-
-// Opens an account for a walk-up rider who doesn't have one.
-export function useCreateWalkUpPassenger() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (payload) => {
-      const res = await api.post("/passengers", { ...payload, status: "active" });
-      return res.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["driver-passenger-lookup"] });
-    },
-  });
-}

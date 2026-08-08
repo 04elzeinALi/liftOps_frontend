@@ -3,13 +3,15 @@ import { getApiErrorMessage } from "@/api/errors";
 import api from "@/api/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRoute } from "@/api/routes";
-import { useCreateWalkUpPassenger, usePassengerLookup } from "@/api/driverShifts";
+import { usePassengerLookup } from "@/api/driverShifts";
 import { distanceAlongStops, effectiveFare } from "@/lib/fare";
 import { usePricingSettings } from "@/api/pricingSettings";
+import { deferSelectSet } from "@/lib/deferSelectSet";
 import { tripRoute } from "@/lib/trip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import SearchableSelect from "@/components/SearchableSelect";
 import {
   Dialog,
   DialogContent,
@@ -17,36 +19,26 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-const EMPTY_NEW = { first_name: "", last_name: "", phone_number: "", email: "", password: "" };
 
 /**
- * Boards a rider who turned up without a booking.
+ * Boards a rider who has an account but turned up without a booking.
  *
- * Three things have to happen and all of them are the driver's problem: the
- * rider needs an account (find theirs, or open one), a single-trip card for the
- * segment they're riding (which is what sets the fare), and the boarding
- * itself. The driver takes cash, so the payment is recorded as cash — left
- * unpaid until confirmed, exactly like the passenger-side flow.
+ * Opening a new account isn't done here — a rider with no account is a cash
+ * customer instead (see CashCustomerDialog), which needs neither an account
+ * nor a password read aloud on a moving bus. Two things happen for an
+ * existing rider: a single-trip card for the segment they're riding (which
+ * is what sets the fare), and the boarding itself. The driver takes cash, so
+ * the payment is recorded as cash — left unpaid until confirmed, exactly
+ * like the passenger-side flow.
  */
 export default function WalkUpBoardingDialog({ open, onOpenChange, trip }) {
   const queryClient = useQueryClient();
   const route = tripRoute(trip);
   const { data: routeDetail } = useRoute(route?.id);
   const { data: pricingSettings } = usePricingSettings();
-  const createPassenger = useCreateWalkUpPassenger();
 
-  const [mode, setMode] = useState("find"); // find | new
   const [search, setSearch] = useState("");
   const [passengerId, setPassengerId] = useState("");
-  const [newPassenger, setNewPassenger] = useState(EMPTY_NEW);
   const [fromStationId, setFromStationId] = useState("");
   const [toStationId, setToStationId] = useState("");
   const [busy, setBusy] = useState(false);
@@ -65,21 +57,38 @@ export default function WalkUpBoardingDialog({ open, onOpenChange, trip }) {
     [routeDetail]
   );
 
+  const fromStationOptions = useMemo(
+    () => stops.map((s) => ({ value: String(s.id), label: s.name })),
+    [stops]
+  );
+  // A rider can't board and alight at the same stop, so "Getting off at"
+  // leaves out whichever one is currently picked as "Boarding at".
+  const toStationOptions = useMemo(
+    () => stops.filter((s) => String(s.id) !== fromStationId).map((s) => ({ value: String(s.id), label: s.name })),
+    [stops, fromStationId]
+  );
+
   useEffect(() => {
     if (!open) return;
-    setMode("find");
     setSearch("");
     setPassengerId("");
-    setNewPassenger(EMPTY_NEW);
     setError("");
     setBusy(false);
   }, [open]);
 
   // Default to the rest of the line from its start; the driver narrows it.
+  // Deferred — see deferSelectSet — because this Select is inside a <form>:
+  // setting its value in the same commit as this effect gets silently reset
+  // back to "" by Radix's own mount-time state sync, which would make
+  // "Boarding at"/"Getting off at" show their placeholder forever and the
+  // fare never appear, even though a real station was "selected" the whole
+  // time.
   useEffect(() => {
     if (stops.length < 2) return;
-    setFromStationId(String(stops[0].id));
-    setToStationId(String(stops[stops.length - 1].id));
+    deferSelectSet(() => {
+      setFromStationId(String(stops[0].id));
+      setToStationId(String(stops[stops.length - 1].id));
+    });
   }, [stops]);
 
   const segmentKm =
@@ -89,34 +98,19 @@ export default function WalkUpBoardingDialog({ open, onOpenChange, trip }) {
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
+
+    if (!passengerId) {
+      setError("Find and pick the rider.");
+      return;
+    }
+
     setBusy(true);
 
     try {
-      // 1. Whose ride is this?
-      let riderId = Number(passengerId);
-
-      if (mode === "new") {
-        const created = await createPassenger.mutateAsync({
-          first_name: newPassenger.first_name,
-          last_name: newPassenger.last_name,
-          phone_number: newPassenger.phone_number,
-          email: newPassenger.email,
-          password: newPassenger.password,
-          password_confirmation: newPassenger.password,
-        });
-        riderId = created.id;
-      }
-
-      if (!riderId) {
-        setError("Pick the passenger, or open an account for them.");
-        setBusy(false);
-        return;
-      }
-
-      // 2. A single-trip card for the segment they're riding — this is what
+      // 1. A single-trip card for the segment they're riding — this is what
       //    prices the ride.
       const cardRes = await api.post("/travel-cards", {
-        passenger_id: riderId,
+        passenger_id: Number(passengerId),
         route_id: route.id,
         from_station_id: Number(fromStationId),
         to_station_id: Number(toStationId),
@@ -125,17 +119,17 @@ export default function WalkUpBoardingDialog({ open, onOpenChange, trip }) {
       });
       const card = cardRes.data;
 
-      // 3. Cash taken on the bus. It stays unpaid until confirmed, so the
+      // 2. Cash taken on the bus. It stays unpaid until confirmed, so the
       //    money is still reconcilable against the driver later.
       await api.post("/payments", {
         travel_card_id: card.id,
         payment_method: "cash",
       });
 
-      // 4. And onto the bus.
+      // 3. And onto the bus.
       await api.post("/boardings", {
         trip_id: trip.id,
-        passenger_id: riderId,
+        passenger_id: Number(passengerId),
         travel_card_id: card.id,
         from_station_id: Number(fromStationId),
         to_station_id: Number(toStationId),
@@ -153,12 +147,7 @@ export default function WalkUpBoardingDialog({ open, onOpenChange, trip }) {
     }
   }
 
-  const canSubmit =
-    fromStationId &&
-    toStationId &&
-    (mode === "find"
-      ? Boolean(passengerId)
-      : newPassenger.first_name && newPassenger.last_name && newPassenger.phone_number && newPassenger.email && newPassenger.password.length >= 8);
+  const canSubmit = fromStationId && toStationId && Boolean(passengerId);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -174,149 +163,72 @@ export default function WalkUpBoardingDialog({ open, onOpenChange, trip }) {
             </p>
           )}
 
-          <div className="flex gap-1.5">
-            {[
-              ["find", "Existing rider"],
-              ["new", "New account"],
-            ].map(([value, label]) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => setMode(value)}
-                className="rounded-lg px-3 py-1.5 text-sm font-semibold"
-                style={{
-                  background: mode === value ? "var(--accent)" : "var(--surface-2)",
-                  color: mode === value ? "var(--accent-ink)" : "var(--text-muted)",
-                }}
-              >
-                {label}
-              </button>
-            ))}
+          <div>
+            <Label htmlFor="search">Find by name or phone</Label>
+            <Input
+              id="search"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPassengerId("");
+              }}
+              placeholder="At least 3 characters"
+              autoComplete="off"
+            />
+            {search.trim().length >= 3 && (
+              <div className="mt-2 overflow-hidden rounded-lg" style={{ border: "1px solid var(--border)" }}>
+                {searching && (
+                  <p className="px-3 py-2 text-xs" style={{ color: "var(--text-muted)" }}>Searching…</p>
+                )}
+                {!searching && (matches ?? []).length === 0 && (
+                  <p className="px-3 py-2 text-xs" style={{ color: "var(--text-muted)" }}>
+                    No match. If they don't have an account, add them as a cash customer instead.
+                  </p>
+                )}
+                {(matches ?? []).map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => setPassengerId(String(p.id))}
+                    className="flex w-full items-center justify-between px-3 py-2 text-left text-sm"
+                    style={{
+                      background: String(p.id) === passengerId ? "color-mix(in srgb, var(--accent) 16%, transparent)" : "transparent",
+                      color: "var(--text)",
+                    }}
+                  >
+                    <span>{p.first_name} {p.last_name}</span>
+                    <span style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>{p.phone_number}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
-
-          {mode === "find" ? (
-            <div>
-              <Label htmlFor="search">Find by name or phone</Label>
-              <Input
-                id="search"
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setPassengerId("");
-                }}
-                placeholder="At least 3 characters"
-                autoComplete="off"
-              />
-              {search.trim().length >= 3 && (
-                <div className="mt-2 overflow-hidden rounded-lg" style={{ border: "1px solid var(--border)" }}>
-                  {searching && (
-                    <p className="px-3 py-2 text-xs" style={{ color: "var(--text-muted)" }}>Searching…</p>
-                  )}
-                  {!searching && (matches ?? []).length === 0 && (
-                    <p className="px-3 py-2 text-xs" style={{ color: "var(--text-muted)" }}>
-                      No match. Open an account for them instead.
-                    </p>
-                  )}
-                  {(matches ?? []).map((p) => (
-                    <button
-                      key={p.id}
-                      type="button"
-                      onClick={() => setPassengerId(String(p.id))}
-                      className="flex w-full items-center justify-between px-3 py-2 text-left text-sm"
-                      style={{
-                        background: String(p.id) === passengerId ? "color-mix(in srgb, var(--accent) 16%, transparent)" : "transparent",
-                        color: "var(--text)",
-                      }}
-                    >
-                      <span>{p.first_name} {p.last_name}</span>
-                      <span style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>{p.phone_number}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label htmlFor="first_name">First name</Label>
-                  <Input
-                    id="first_name"
-                    value={newPassenger.first_name}
-                    onChange={(e) => setNewPassenger((f) => ({ ...f, first_name: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="last_name">Last name</Label>
-                  <Input
-                    id="last_name"
-                    value={newPassenger.last_name}
-                    onChange={(e) => setNewPassenger((f) => ({ ...f, last_name: e.target.value }))}
-                  />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="phone_number">Phone</Label>
-                <Input
-                  id="phone_number"
-                  value={newPassenger.phone_number}
-                  onChange={(e) => setNewPassenger((f) => ({ ...f, phone_number: e.target.value }))}
-                />
-              </div>
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={newPassenger.email}
-                  onChange={(e) => setNewPassenger((f) => ({ ...f, email: e.target.value }))}
-                />
-              </div>
-              <div>
-                <Label htmlFor="password">Password they'll log in with</Label>
-                <Input
-                  id="password"
-                  type="text"
-                  value={newPassenger.password}
-                  onChange={(e) => setNewPassenger((f) => ({ ...f, password: e.target.value }))}
-                  placeholder="At least 8 characters"
-                />
-                <p className="mt-1 text-xs" style={{ color: "var(--text-muted)" }}>
-                  Read this out to them — they'll need it to sign in later.
-                </p>
-              </div>
-            </div>
-          )}
 
           {stops.length >= 2 && (
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label htmlFor="from_station_id">Boarding at</Label>
-                <Select value={fromStationId} onValueChange={setFromStationId}>
-                  <SelectTrigger id="from_station_id" className="w-full">
-                    <SelectValue placeholder="From" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {stops.map((s) => (
-                      <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <SearchableSelect
+                  id="from_station_id"
+                  value={fromStationId}
+                  onValueChange={setFromStationId}
+                  options={fromStationOptions}
+                  placeholder="From"
+                  searchPlaceholder="Search stations…"
+                  emptyMessage="No stations match."
+                />
               </div>
               <div>
                 <Label htmlFor="to_station_id">Getting off at</Label>
-                <Select value={toStationId} onValueChange={setToStationId}>
-                  <SelectTrigger id="to_station_id" className="w-full">
-                    <SelectValue placeholder="To" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {stops
-                      .filter((s) => String(s.id) !== fromStationId)
-                      .map((s) => (
-                        <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
+                <SearchableSelect
+                  id="to_station_id"
+                  value={toStationId}
+                  onValueChange={setToStationId}
+                  options={toStationOptions}
+                  placeholder="To"
+                  searchPlaceholder="Search stations…"
+                  emptyMessage="No stations match."
+                />
               </div>
             </div>
           )}

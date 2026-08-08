@@ -3,6 +3,7 @@ import { parseApiError } from "@/api/errors";
 import { useCreateRoute, useUpdateRoute } from "@/api/routes";
 import { useStationsList } from "@/api/stations";
 import { DEFAULT_PRICING_SETTINGS, ROAD_FACTOR, haversineKm } from "@/lib/fare";
+import { deferSelectSet } from "@/lib/deferSelectSet";
 import { usePricingSettings } from "@/api/pricingSettings";
 import LeafletMap from "@/components/LeafletMap";
 import SearchableSelect from "@/components/SearchableSelect";
@@ -77,24 +78,37 @@ export default function RouteFormDialog({ open, onOpenChange, route }) {
   }, [originStation, destinationStation]);
 
   useEffect(() => {
-    if (open) {
-      setForm(
-        route
-          ? {
-              route_name: route.route_name,
-              origin_station_id: route.origin_station_id ?? "",
-              destination_station_id: route.destination_station_id ?? "",
-              estimated_duration: route.estimated_duration,
-              manual_fare: route.manual_fare ?? "",
-              long_trip_km: route.long_trip_km ?? "",
-              short_trip_fare: route.short_trip_fare ?? "",
-              long_trip_fare: route.long_trip_fare ?? "",
-            }
-          : EMPTY_FORM
-      );
-      setErrors({});
-      setGeneralError("");
+    if (!open) return;
+
+    if (route) {
+      // origin/destination start blank and are filled in a moment later —
+      // see deferSelectSet. Setting a SearchableSelect's value in the same
+      // commit as this effect gets silently reset back to "" by Radix's own
+      // mount-time state sync (it's inside a <form>), which would make the
+      // origin/destination pickers show their placeholder on every edit even
+      // though a real station was "selected" the whole time.
+      setForm({
+        route_name: route.route_name,
+        origin_station_id: "",
+        destination_station_id: "",
+        estimated_duration: route.estimated_duration,
+        manual_fare: route.manual_fare ?? "",
+        long_trip_km: route.long_trip_km ?? "",
+        short_trip_fare: route.short_trip_fare ?? "",
+        long_trip_fare: route.long_trip_fare ?? "",
+      });
+      deferSelectSet(() => {
+        setForm((f) => ({
+          ...f,
+          origin_station_id: route.origin_station_id ?? "",
+          destination_station_id: route.destination_station_id ?? "",
+        }));
+      });
+    } else {
+      setForm(EMPTY_FORM);
     }
+    setErrors({});
+    setGeneralError("");
   }, [open, route]);
 
   // Seed the bands for a route that has none, so the admin adjusts real

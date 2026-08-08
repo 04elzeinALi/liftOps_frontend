@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRoute, useRoutes } from "@/api/routes";
 import { distanceAlongStops, effectiveFare } from "@/lib/fare";
+import { deferSelectSet } from "@/lib/deferSelectSet";
 import { usePricingSettings } from "@/api/pricingSettings";
 import { useMyPassengerProfile, useBuyTravelCard } from "@/api/passengerCards";
 import { Button } from "@/components/ui/button";
@@ -91,14 +92,22 @@ export default function BuyTravelCardPage() {
   );
 
   // Default to riding the whole line; the passenger narrows it from there.
+  // The set is deferred — see deferSelectSet — because Select is inside a
+  // <form> here, and setting its value in the same commit as this effect
+  // gets silently overwritten back to "" by Radix's own mount-time state
+  // sync. Without the defer, the from/to pickers show their placeholder
+  // forever and the fare preview never appears, even though a real station
+  // was "selected" the whole time.
   useEffect(() => {
     if (stops.length < 2) {
       setFromStationId("");
       setToStationId("");
       return;
     }
-    setFromStationId(String(stops[0].id));
-    setToStationId(String(stops[stops.length - 1].id));
+    deferSelectSet(() => {
+      setFromStationId(String(stops[0].id));
+      setToStationId(String(stops[stops.length - 1].id));
+    });
   }, [stops]);
 
   const terms = CARD_TERMS_PREVIEW[cardType];
