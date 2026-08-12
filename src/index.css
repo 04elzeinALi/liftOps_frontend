@@ -181,6 +181,94 @@ body {
   appearance: textfield;
 }
 
+/* ── Printing a report sheet ───────────────────────────────────────────────
+   The admin panel is a two-column app shell, which is wrong on paper: the
+   sidebar, header and range controls are navigation, not content, and a
+   printed sheet has to be the report alone.
+
+   Colours are forced to plain black-on-white rather than inherited from the
+   theme — the dark palette prints as a solid ink-soaked block, and the light
+   one's greys turn to mud on a monochrome printer. Tables get repeating
+   headers and are kept from splitting a row across a page break. */
+@media print {
+  @page {
+    margin: 14mm;
+  }
+
+  /* Every theme selector is repeated here on purpose. The palette is also
+     defined under :root[data-theme="light"] / ["dark"], which outrank a bare
+     :root — overriding only :root would leave the page its screen colour and
+     print a full sheet of grey (or, in dark mode, solid ink). */
+  :root,
+  :root[data-theme="light"],
+  :root[data-theme="dark"] {
+    --bg: #FFFFFF;
+    --surface: #FFFFFF;
+    --surface-2: #FFFFFF;
+    --border: #999999;
+    --text: #000000;
+    --text-muted: #444444;
+    --accent: #000000;
+    --accent-strong: #000000;
+    --success: #000000;
+    --warning: #000000;
+    --critical: #000000;
+  }
+
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+
+  /* The app shell: sidebar, header, tab bars, and anything opted out. */
+  aside,
+  header,
+  nav,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Undo the shell's grid so the report gets the full width of the page. */
+  body *:has(> aside) {
+    display: block !important;
+  }
+
+  main {
+    padding: 0 !important;
+  }
+
+  .report-sheet {
+    color: #000000;
+  }
+
+  .report-sheet table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .report-sheet thead {
+    display: table-header-group; /* repeat headings on every page */
+  }
+
+  .report-sheet tr,
+  .report-sheet section {
+    break-inside: avoid;
+  }
+
+  .report-sheet th,
+  .report-sheet td {
+    border: 1px solid #999999 !important;
+    padding: 6px 8px !important;
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+
+  /* Stat tiles read as boxed figures rather than filled cards. */
+  .report-sheet [style*="border-radius"] {
+    box-shadow: none !important;
+  }
+}
+
 /* ── Animated backdrop: a bus driving down a dashed-line road ──────────── */
 @keyframes lp-road-dash {
   to { background-position: -96px 0; }

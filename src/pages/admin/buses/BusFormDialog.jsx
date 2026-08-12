@@ -62,6 +62,14 @@ export default function BusFormDialog({ open, onOpenChange, bus }) {
       production_year: Number(form.production_year),
       capacity: Number(form.capacity),
     };
+
+    // A bus under maintenance keeps that status while its record is open, and
+    // the API refuses to be told 'maintenance' from here at all — so editing
+    // the plate or capacity of such a bus simply leaves the status alone
+    // rather than sending back a value the server would reject.
+    if (payload.status === "maintenance" || payload.status === "") {
+      delete payload.status;
+    }
     try {
       if (isEditing) {
         await updateBus.mutateAsync({ id: bus.id, payload });
@@ -157,17 +165,30 @@ export default function BusFormDialog({ open, onOpenChange, bus }) {
           </div>
           <div>
             <Label htmlFor="status">Status</Label>
+            {/* "Maintenance" is deliberately not offered here. A bus is put
+                into and taken out of maintenance by its maintenance records,
+                so that the two can't disagree — see the Maintenance page. */}
             <select
               id="status"
-              value={form.status}
+              value={form.status === "maintenance" ? "" : form.status}
+              disabled={form.status === "maintenance"}
               onChange={(e) => handleChange("status", e.target.value)}
-              className="w-full rounded-md border px-3 py-2 text-sm"
+              className="w-full rounded-md border px-3 py-2 text-sm disabled:opacity-60"
               style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--text)" }}
             >
+              {form.status === "maintenance" && <option value="">Under maintenance</option>}
               <option value="in_service">In service</option>
-              <option value="maintenance">Maintenance</option>
               <option value="out_of_service">Out of service</option>
             </select>
+            {form.status === "maintenance" ? (
+              <p className="mt-1 text-xs" style={{ color: "var(--text-muted)" }}>
+                This bus is under maintenance. Close its open maintenance record to put it back in service.
+              </p>
+            ) : (
+              <p className="mt-1 text-xs" style={{ color: "var(--text-muted)" }}>
+                Maintenance is set from the Maintenance page, not here.
+              </p>
+            )}
             {errors.status && (
               <p className="mt-1 text-xs" style={{ color: "var(--critical)" }}>
                 {errors.status[0]}

@@ -2,19 +2,19 @@ import { Outlet, NavLink } from "react-router-dom";
 import { useAuth } from "@/auth/AuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
 
+// Ordered the way the network is actually built up: first the places and the
+// lines between them, then the work run on those lines, then who runs it and
+// what they run it in. Accounts last — it's the customer side, not operations.
+//
+// Within Network the order is the same build-up: a station exists on its own,
+// a route joins two of them, and route stations sequence the stops in between,
+// so each page depends on the one above it.
 const NAV_GROUPS = [
-  {
-    label: "Fleet",
-    items: [
-      { to: "/admin/buses", label: "Buses" },
-      { to: "/admin/maintenance", label: "Maintenance" },
-    ],
-  },
   {
     label: "Network",
     items: [
-      { to: "/admin/routes", label: "Routes" },
       { to: "/admin/stations", label: "Stations" },
+      { to: "/admin/routes", label: "Routes" },
       { to: "/admin/route-stations", label: "Route Stations" },
     ],
   },
@@ -30,11 +30,27 @@ const NAV_GROUPS = [
     items: [{ to: "/admin/drivers", label: "Drivers" }],
   },
   {
+    label: "Vehicles",
+    items: [
+      { to: "/admin/buses", label: "Buses" },
+      { to: "/admin/maintenance", label: "Maintenance" },
+    ],
+  },
+  {
     label: "Accounts",
     items: [
       { to: "/admin/passengers", label: "Passengers" },
       { to: "/admin/travel-cards", label: "Travel Cards" },
       { to: "/admin/payments", label: "Payments" },
+    ],
+  },
+  {
+    label: "Reports",
+    items: [
+      { to: "/admin/reports/revenue", label: "Revenue" },
+      { to: "/admin/reports/driver-cash", label: "Driver Cash" },
+      { to: "/admin/reports/ridership", label: "Ridership" },
+      { to: "/admin/reports/fleet", label: "Fleet & Maintenance" },
     ],
   },
 ];

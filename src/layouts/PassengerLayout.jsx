@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "@/auth/AuthContext";
 import HeaderMenu from "@/components/HeaderMenu";
+import NotificationBell from "@/components/NotificationBell";
 import PassengerBackdrop from "@/components/passenger/PassengerBackdrop";
 import PassengerFooter from "@/components/passenger/PassengerFooter";
 
@@ -60,6 +61,7 @@ export default function PassengerLayout() {
           <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>
             {user?.name}
           </span>
+          <NotificationBell />
           <HeaderMenu />
         </div>
       </header>

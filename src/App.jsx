@@ -17,6 +17,10 @@ import AdminPassengersPage from "@/pages/admin/passengers/PassengersPage";
 import PassengerDetailPage from "@/pages/admin/passengers/PassengerDetailPage";
 import AdminTravelCardsPage from "@/pages/admin/travel-cards/TravelCardsPage";
 import AdminPaymentsPage from "@/pages/admin/payments/PaymentsPage";
+import RevenueReportPage from "@/pages/admin/reports/RevenueReportPage";
+import DriverCashReportPage from "@/pages/admin/reports/DriverCashReportPage";
+import RidershipReportPage from "@/pages/admin/reports/RidershipReportPage";
+import FleetReportPage from "@/pages/admin/reports/FleetReportPage";
 import DriverLayout from "@/layouts/DriverLayout";
 import DriverTripsPage from "@/pages/driver/DriverTripsPage";
 import TripManifestPage from "@/pages/driver/TripManifestPage";
@@ -63,6 +67,10 @@ export default function App() {
               <Route path="passengers/:id" element={<PassengerDetailPage />} />
               <Route path="travel-cards" element={<AdminTravelCardsPage />} />
               <Route path="payments" element={<AdminPaymentsPage />} />
+              <Route path="reports/revenue" element={<RevenueReportPage />} />
+              <Route path="reports/driver-cash" element={<DriverCashReportPage />} />
+              <Route path="reports/ridership" element={<RidershipReportPage />} />
+              <Route path="reports/fleet" element={<FleetReportPage />} />
             </Route>
           </Route>
 

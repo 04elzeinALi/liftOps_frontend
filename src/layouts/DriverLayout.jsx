@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { useAuth } from "@/auth/AuthContext";
 import HeaderMenu from "@/components/HeaderMenu";
+import NotificationBell from "@/components/NotificationBell";
 
 export default function DriverLayout() {
   const { user } = useAuth();
@@ -28,6 +29,7 @@ export default function DriverLayout() {
           <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>
             {user?.name}
           </span>
+          <NotificationBell />
           <HeaderMenu />
         </div>
       </header>
