@@ -28,17 +28,13 @@ const MAINTENANCE_TYPES = [
   "transmission_service",
   "electrical_system_check",
   "suspension_inspection",
-  // What a bus record starts as when marking a bus as under maintenance
-  // creates this record automatically — the reason isn't known yet, so it
-  // starts here until narrowed down (see BusController::update).
+  // For work that doesn't fit the list above.
   "other",
 ];
-const MAINTENANCE_STATUSES = ["scheduled", "in_progress", "completed"];
 
 const EMPTY_FORM = {
   bus_id: "",
   maintenance_type: MAINTENANCE_TYPES[0],
-  maintenance_status: MAINTENANCE_STATUSES[0],
   description: "",
   cost: "",
   scheduled_at: "",
@@ -70,7 +66,6 @@ export default function MaintenanceFormDialog({ open, onOpenChange, record }) {
           ? {
               bus_id: record.bus_id,
               maintenance_type: record.maintenance_type,
-              maintenance_status: record.maintenance_status,
               description: record.description ?? "",
               cost: record.cost ?? "",
               scheduled_at: record.scheduled_at?.slice(0, 10) ?? "",
@@ -83,6 +78,13 @@ export default function MaintenanceFormDialog({ open, onOpenChange, record }) {
     }
   }, [open, record]);
 
+  // "Now" as the datetime-local input wants it (YYYY-MM-DDTHH:mm), built from
+  // local clock fields — toISOString() would hand back UTC and let a future
+  // local time through anywhere east of Greenwich.
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  const maxCompletedAt = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
   function handleChange(field, value) {
     setForm((f) => ({ ...f, [field]: value }));
   }
@@ -94,7 +96,6 @@ export default function MaintenanceFormDialog({ open, onOpenChange, record }) {
     const payload = {
       bus_id: Number(form.bus_id),
       maintenance_type: form.maintenance_type,
-      maintenance_status: form.maintenance_status,
       description: form.description || null,
       cost: form.cost ? Number(form.cost) : null,
       scheduled_at: form.scheduled_at,
@@ -166,27 +167,6 @@ export default function MaintenanceFormDialog({ open, onOpenChange, record }) {
             )}
           </div>
           <div>
-            <Label htmlFor="maintenance_status">Status</Label>
-            <select
-              id="maintenance_status"
-              value={form.maintenance_status}
-              onChange={(e) => handleChange("maintenance_status", e.target.value)}
-              className="w-full rounded-md border px-3 py-2 text-sm"
-              style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--text)" }}
-            >
-              {MAINTENANCE_STATUSES.map((status) => (
-                <option key={status} value={status}>
-                  {labelFor(status)}
-                </option>
-              ))}
-            </select>
-            {errors.maintenance_status && (
-              <p className="mt-1 text-xs" style={{ color: "var(--critical)" }}>
-                {errors.maintenance_status[0]}
-              </p>
-            )}
-          </div>
-          <div>
             <Label htmlFor="description">Description</Label>
             <Input
               id="description"
@@ -234,9 +214,18 @@ export default function MaintenanceFormDialog({ open, onOpenChange, record }) {
             <Input
               id="completed_at"
               type="datetime-local"
+              // Can't finish a job at a time that hasn't happened yet. The
+              // browser stops the obvious case; the server enforces it for
+              // real (a max attribute is trivially bypassed).
+              max={maxCompletedAt}
               value={form.completed_at}
               onChange={(e) => handleChange("completed_at", e.target.value)}
             />
+            <p className="mt-1 text-xs" style={{ color: "var(--text-muted)" }}>
+              {form.completed_at
+                ? "This job counts as done, and its bus goes back into service once no other work is open on it."
+                : "Leave empty while the work is outstanding — filling this in is what closes the job and frees the bus."}
+            </p>
             {errors.completed_at && (
               <p className="mt-1 text-xs" style={{ color: "var(--critical)" }}>
                 {errors.completed_at[0]}
