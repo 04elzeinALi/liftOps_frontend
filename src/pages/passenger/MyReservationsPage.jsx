@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { resolveStatus } from "@/lib/status";
 import { formatDate } from "@/lib/dates";
 import StatusPill from "@/components/StatusPill";
 import { useCancelReservation, useMyReservations } from "@/api/passengerReservations";
 import { tripSegmentLabel, tripTimes } from "@/lib/trip";
+import { Input } from "@/components/ui/input";
 
 const STATUS_STYLE = {
   booked: { bg: "var(--success-bg)", fg: "var(--success)", label: "Booked" },
@@ -16,6 +17,27 @@ export default function MyReservationsPage() {
   const cancelReservation = useCancelReservation();
   const [cancellingId, setCancellingId] = useState(null);
   const [error, setError] = useState("");
+
+  // Everything's already fetched (useMyReservations pages through the whole
+  // list up front), so this filters in the browser rather than re-querying —
+  // there's no page 2 of results a search term could miss.
+  const [search, setSearch] = useState("");
+  const filteredReservations = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    if (!term) return reservations ?? [];
+    return (reservations ?? []).filter((r) => {
+      const haystack = [
+        tripSegmentLabel(r.trip),
+        r.status,
+        r.pickup_location,
+        formatDate(r.trip?.trip_date),
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(term);
+    });
+  }, [reservations, search]);
 
   async function handleCancel(reservation) {
     setError("");
@@ -35,6 +57,19 @@ export default function MyReservationsPage() {
          Trips
       </h1>
 
+      {/* Only worth showing once there's something to search through — a
+          search box above one or two trips is more clutter than help. */}
+      {reservations && reservations.length > 3 && (
+        <Input
+          type="search"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search your trips…"
+          aria-label="Search your trips"
+          className="mb-4"
+        />
+      )}
+
       {isLoading && (
         <p className="text-sm" style={{ color: "var(--text-muted)" }}>
           Loading…
@@ -43,6 +78,11 @@ export default function MyReservationsPage() {
       {isError && (
         <p className="text-sm" style={{ color: "var(--critical)" }}>
           Failed to load your trips.
+        </p>
+      )}
+      {reservations && reservations.length > 0 && filteredReservations.length === 0 && (
+        <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+          No trips match "{search}".
         </p>
       )}
       {reservations && reservations.length === 0 && (
@@ -57,7 +97,7 @@ export default function MyReservationsPage() {
       )}
 
       <div className="flex flex-col gap-3">
-        {reservations?.map((reservation) => {
+        {filteredReservations.map((reservation) => {
           const status = resolveStatus(STATUS_STYLE, reservation.status);
           const label = tripSegmentLabel(reservation.trip);
           return (

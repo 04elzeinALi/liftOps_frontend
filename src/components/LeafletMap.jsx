@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useTheme } from "@/theme/ThemeContext";
@@ -52,46 +53,19 @@ function highlightMarkerIcon(color) {
   });
 }
 
-export default function LeafletMap({
-  points = [],
-  connect = false,
-  height = 220,
-  interactive = true,
-  // An optional ride to pick out from the rest of the line — e.g. the
-  // segment a selected travel card covers. Drawn as a solid contrasting line
-  // over the dashed base route, with the two ends marked distinctly.
-  highlightPoints = [],
-  highlightColor = "#2F6FED",
-  // Adds a hover-revealed control that blows the map up to fill the window.
-  maximizable = false,
-  // Makes every marker clickable, calling back with that point's own data
-  // (whatever was passed in `points`/`highlightPoints`, so pass an `id`
-  // through if the caller needs to know which one). Used for picking a
-  // route's endpoints by clicking stations directly, instead of only via
-  // the dropdowns.
-  onMarkerClick,
-}) {
+// The actual Leaflet mount + drawing logic, factored out so it can be
+// instantiated twice: once inline (always mounted) and once more inside the
+// fullscreen portal while expanded. Each copy owns its own map instance —
+// simpler and far more robust than trying to move one Leaflet instance's DOM
+// node between the two locations, which React does not reliably support (see
+// the note above the portal below).
+function MapCanvas({ valid, validHighlight, highlightColor, connect, interactive, onMarkerClickRef, pointsKey, style }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const tileRef = useRef(null);
   const layerRef = useRef(null);
   const { theme } = useTheme();
-  const [expanded, setExpanded] = useState(false);
-  // Ref so the draw effect (which only wants to re-run when the POINTS
-  // change) doesn't have to list the callback as a dependency — callers
-  // routinely pass a fresh function every render.
-  const onMarkerClickRef = useRef(onMarkerClick);
-  onMarkerClickRef.current = onMarkerClick;
 
-  const valid = points.filter(isValid).map((p) => ({ ...p, lat: Number(p.lat), lng: Number(p.lng) }));
-  const validHighlight = highlightPoints.filter(isValid).map((p) => ({ ...p, lat: Number(p.lat), lng: Number(p.lng) }));
-  const pointsKey = JSON.stringify([
-    valid.map((p) => [p.lat, p.lng, p.label, p.kind]),
-    validHighlight.map((p) => [p.lat, p.lng, p.label]),
-    highlightColor,
-  ]);
-
-  // create map once
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
     const map = L.map(containerRef.current, {
@@ -191,24 +165,42 @@ export default function LeafletMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pointsKey, connect]);
 
-  // Maximising resizes the container, and Leaflet keeps using the old
-  // dimensions until it's told to re-measure — so the tiles would sit in the
-  // corner of the bigger box. Re-fit too, since the new shape wants a
-  // different zoom. The delay lets the layout settle first.
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-    const timer = setTimeout(() => {
-      map.invalidateSize();
-      if (valid.length === 1) {
-        map.setView([valid[0].lat, valid[0].lng], 14);
-      } else if (valid.length > 1) {
-        map.fitBounds(valid.map((p) => [p.lat, p.lng]), { padding: [30, 30], maxZoom: 14 });
-      }
-    }, 60);
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expanded]);
+  return <div ref={containerRef} style={style} />;
+}
+
+export default function LeafletMap({
+  points = [],
+  connect = false,
+  height = 220,
+  interactive = true,
+  // An optional ride to pick out from the rest of the line — e.g. the
+  // segment a selected travel card covers. Drawn as a solid contrasting line
+  // over the dashed base route, with the two ends marked distinctly.
+  highlightPoints = [],
+  highlightColor = "#2F6FED",
+  // Adds a hover-revealed control that blows the map up to fill the window.
+  maximizable = false,
+  // Makes every marker clickable, calling back with that point's own data
+  // (whatever was passed in `points`/`highlightPoints`, so pass an `id`
+  // through if the caller needs to know which one). Used for picking a
+  // route's endpoints by clicking stations directly, instead of only via
+  // the dropdowns.
+  onMarkerClick,
+}) {
+  const [expanded, setExpanded] = useState(false);
+  // Ref so the draw effect (which only wants to re-run when the POINTS
+  // change) doesn't have to list the callback as a dependency — callers
+  // routinely pass a fresh function every render.
+  const onMarkerClickRef = useRef(onMarkerClick);
+  onMarkerClickRef.current = onMarkerClick;
+
+  const valid = points.filter(isValid).map((p) => ({ ...p, lat: Number(p.lat), lng: Number(p.lng) }));
+  const validHighlight = highlightPoints.filter(isValid).map((p) => ({ ...p, lat: Number(p.lat), lng: Number(p.lng) }));
+  const pointsKey = JSON.stringify([
+    valid.map((p) => [p.lat, p.lng, p.label, p.kind]),
+    validHighlight.map((p) => [p.lat, p.lng, p.label]),
+    highlightColor,
+  ]);
 
   // Escape restores, the way every other fullscreen surface behaves.
   useEffect(() => {
@@ -220,73 +212,102 @@ export default function LeafletMap({
     return () => window.removeEventListener("keydown", onKey);
   }, [expanded]);
 
-  // The container must always mount so the map is created once and survives
-  // points arriving later (e.g. stations picked after the dialog opens). The
-  // empty-state message is an overlay, not a replacement for the container.
-  return (
-    <div
-      className="group"
-      style={
+  const canvasProps = { valid, validHighlight, highlightColor, connect, interactive, onMarkerClickRef, pointsKey };
+
+  const maximizeButton = (
+    <button
+      type="button"
+      onClick={() => setExpanded((e) => !e)}
+      aria-label={expanded ? "Restore map size" : "Maximise map"}
+      title={expanded ? "Restore (Esc)" : "Maximise"}
+      // Hidden until the map is hovered so it doesn't clutter the page — but
+      // only on devices that actually have a hover state. Touch devices have
+      // no way to trigger `:hover` at all, so there the button just stays
+      // visible (matches always-visible while maximised, and on keyboard
+      // focus, since neither reaches hover).
+      className={`absolute grid h-8 w-8 place-items-center rounded-lg transition-opacity focus:opacity-100 ${
         expanded
-          ? {
+          ? "opacity-100"
+          : "opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100"
+      }`}
+      style={{
+        top: expanded ? 26 : 10,
+        right: expanded ? 26 : 10,
+        zIndex: 500,
+        background: "var(--surface)",
+        border: "1px solid var(--border)",
+        color: "var(--text)",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
+      }}
+    >
+      {expanded ? (
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 3v6H3M15 21v-6h6M3 15h6v6M21 9h-6V3" /></svg>
+      ) : (
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" /></svg>
+      )}
+    </button>
+  );
+
+  const emptyState = valid.length === 0 && (
+    <div
+      className="absolute inset-0 grid place-items-center rounded-xl text-center text-sm"
+      style={{ background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text-muted)" }}
+    >
+      <span className="px-6">No location set for these stations yet.</span>
+    </div>
+  );
+
+  return (
+    <div className="group" style={{ position: "relative", height }}>
+      {/* Hidden (not unmounted, so its Leaflet instance survives) rather than
+          replaced by the fullscreen copy below — visibility:hidden also
+          drops it from hit-testing, so it can't steal taps meant for the
+          portal's button, which shares the same aria-label while expanded. */}
+      <MapCanvas
+        {...canvasProps}
+        style={{
+          height,
+          borderRadius: 12,
+          overflow: "hidden",
+          border: "1px solid var(--border)",
+          zIndex: 0,
+          visibility: expanded ? "hidden" : "visible",
+        }}
+      />
+      {maximizable && !expanded && maximizeButton}
+      {!expanded && emptyState}
+
+      {/* A nested z-index can never escape its ancestor's own stacking
+          context — PassengerLayout's <header> sits at z-40 while <main> (and
+          everything inside it, including this map) is capped at z-10, so no
+          z-index set in place here could ever paint or receive clicks above
+          the header. Portaling a SEPARATE, freshly-mounted map straight to
+          <body> escapes that entirely. (An earlier version tried to move the
+          single Leaflet instance between an inline slot and <body> by
+          changing one portal's target — React does not reliably preserve the
+          DOM/Leaflet state across that move, so this mounts an independent
+          instance instead, which is a normal, fully supported mount/unmount.) */}
+      {expanded &&
+        createPortal(
+          <div
+            className="group"
+            style={{
               position: "fixed",
               inset: 0,
               zIndex: 1000,
               padding: 16,
               background: "color-mix(in srgb, var(--bg) 94%, transparent)",
-            }
-          : { position: "relative", height }
-      }
-    >
-      <div
-        ref={containerRef}
-        style={{
-          height: expanded ? "100%" : height,
-          borderRadius: 12,
-          overflow: "hidden",
-          border: "1px solid var(--border)",
-          zIndex: 0,
-        }}
-      />
-
-      {maximizable && (
-        <button
-          type="button"
-          onClick={() => setExpanded((e) => !e)}
-          aria-label={expanded ? "Restore map size" : "Maximise map"}
-          title={expanded ? "Restore (Esc)" : "Maximise"}
-          // Hidden until the map is hovered so it doesn't clutter the page,
-          // but always visible while maximised (there'd be no other way back)
-          // and on keyboard focus (hover isn't reachable by keyboard).
-          className={`absolute grid h-8 w-8 place-items-center rounded-lg transition-opacity focus:opacity-100 ${
-            expanded ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-          }`}
-          style={{
-            top: expanded ? 26 : 10,
-            right: expanded ? 26 : 10,
-            zIndex: 500,
-            background: "var(--surface)",
-            border: "1px solid var(--border)",
-            color: "var(--text)",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
-          }}
-        >
-          {expanded ? (
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 3v6H3M15 21v-6h6M3 15h6v6M21 9h-6V3" /></svg>
-          ) : (
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" /></svg>
-          )}
-        </button>
-      )}
-
-      {valid.length === 0 && (
-        <div
-          className="absolute inset-0 grid place-items-center rounded-xl text-center text-sm"
-          style={{ background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text-muted)" }}
-        >
-          <span className="px-6">No location set for these stations yet.</span>
-        </div>
-      )}
+            }}
+          >
+            <MapCanvas
+              {...canvasProps}
+              style={{ height: "100%", borderRadius: 12, overflow: "hidden", border: "1px solid var(--border)", zIndex: 0 }}
+            />
+            {maximizeButton}
+            {emptyState}
+          </div>,
+          document.body
+        )}
     </div>
   );
 }
