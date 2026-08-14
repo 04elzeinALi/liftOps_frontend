@@ -20,5 +20,4 @@ function useReport(name, params) {
 
 export const useRevenueReport = (params) => useReport("revenue", params);
 export const useDriverCashReport = (params) => useReport("driver-cash", params);
-export const useRidershipReport = (params) => useReport("ridership", params);
 export const useFleetReport = (params) => useReport("fleet", params);

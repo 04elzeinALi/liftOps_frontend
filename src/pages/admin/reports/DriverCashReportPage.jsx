@@ -15,7 +15,7 @@ export default function DriverCashReportPage() {
 
   return (
     <ReportShell
-      title="Driver Cash"
+      title="Driver Cash Report"
       subtitle="What each driver took in, counting both travel cards they sold and cash customers they boarded."
       range={range}
       window={data?.window}

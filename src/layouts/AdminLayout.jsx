@@ -34,23 +34,19 @@ const NAV_GROUPS = [
     items: [
       { to: "/admin/buses", label: "Buses" },
       { to: "/admin/maintenance", label: "Maintenance" },
+      { to: "/admin/reports/fleet", label: "Maintenance Report" },
     ],
   },
   {
-    label: "Accounts",
+    // Was "Accounts" — renamed once the revenue/driver-cash reports moved in,
+    // since "Accounts" on its own reads as passenger accounts, not money.
+    label: "Accounting",
     items: [
       { to: "/admin/passengers", label: "Passengers" },
       { to: "/admin/travel-cards", label: "Travel Cards" },
       { to: "/admin/payments", label: "Payments" },
-    ],
-  },
-  {
-    label: "Reports",
-    items: [
-      { to: "/admin/reports/revenue", label: "Revenue" },
-      { to: "/admin/reports/driver-cash", label: "Driver Cash" },
-      { to: "/admin/reports/ridership", label: "Ridership" },
-      { to: "/admin/reports/fleet", label: "Fleet & Maintenance" },
+      { to: "/admin/reports/revenue", label: "Revenue Report" },
+      { to: "/admin/reports/driver-cash", label: "Driver Cash Report" },
     ],
   },
 ];

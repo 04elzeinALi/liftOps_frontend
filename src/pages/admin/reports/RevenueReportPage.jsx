@@ -16,7 +16,7 @@ export default function RevenueReportPage() {
 
   return (
     <ReportShell
-      title="Revenue"
+      title="Revenue Report"
       subtitle="Money billed and actually received, including cash customers who never had a travel card."
       range={range}
       window={data?.window}

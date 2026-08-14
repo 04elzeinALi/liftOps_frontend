@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useMyTravelCards } from "@/api/passengerCards";
 import { useRoute, useRoutes } from "@/api/routes";
 import TravelCardObject from "@/components/passenger/TravelCardObject";
 import LeafletMap from "@/components/LeafletMap";
+import { Input } from "@/components/ui/input";
 import { cardSegmentLabel } from "@/lib/cardLabel";
 import { segmentBetweenStops } from "@/lib/fare";
 
@@ -23,6 +24,21 @@ const eyebrowRule = { content: '""', height: 1, flex: 1, background: "var(--bord
 export default function MyTravelCardsPage() {
   const { data: cards, isLoading, isError } = useMyTravelCards();
   const { data: routes } = useRoutes();
+
+  // Everything's already fetched (useMyTravelCards pages through the whole
+  // list up front), so this filters in the browser rather than re-querying —
+  // there's no page 2 of results for a search term to miss.
+  const [search, setSearch] = useState("");
+  const filteredCards = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    if (!term) return cards ?? [];
+    return (cards ?? []).filter((card) => {
+      const haystack = [cardSegmentLabel(card), card.card_type, card.status]
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(term);
+    });
+  }, [cards, search]);
 
   // Tapping a card marks its own segment on the map above, in place; tapping
   // the same one again clears it back to just the plain corridor.
@@ -81,6 +97,19 @@ export default function MyTravelCardsPage() {
         </div>
       )}
 
+      {/* Only worth showing once there's something to search through — a
+          search box above one or two cards is more clutter than help. */}
+      {cards && cards.length > 3 && (
+        <Input
+          type="search"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search your cards…"
+          aria-label="Search your travel cards"
+          className="mb-4"
+        />
+      )}
+
       {isLoading && (
         <p className="text-sm" style={{ color: "var(--text-muted)" }}>
           Loading…
@@ -91,6 +120,11 @@ export default function MyTravelCardsPage() {
           Failed to load your travel cards.
         </p>
       )}
+      {cards && cards.length > 0 && filteredCards.length === 0 && (
+        <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+          No cards match "{search}".
+        </p>
+      )}
       {cards && cards.length === 0 && (
         <p className="text-sm" style={{ color: "var(--text-muted)" }}>
           You don't have any travel cards yet.
@@ -98,7 +132,7 @@ export default function MyTravelCardsPage() {
       )}
 
       <div className="flex flex-col gap-3.5">
-        {cards?.map((card) => (
+        {filteredCards.map((card) => (
           <TravelCardObject
             key={card.id}
             routeName={cardSegmentLabel(card)}

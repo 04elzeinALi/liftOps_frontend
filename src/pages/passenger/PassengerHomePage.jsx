@@ -95,7 +95,7 @@ export default function PassengerHomePage() {
       {linePoints.length >= 2 && (
         <section aria-label="The line">
           <Eyebrow>The line</Eyebrow>
-          <LeafletMap points={linePoints} connect height={220} />
+          <LeafletMap points={linePoints} connect height={220} maximizable />
           <button
             type="button"
             onClick={() => navigate("/passenger/line")}

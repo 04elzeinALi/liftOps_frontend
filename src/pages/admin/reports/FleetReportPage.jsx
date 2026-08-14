@@ -16,7 +16,7 @@ export default function FleetReportPage() {
 
   return (
     <ReportShell
-      title="Fleet & Maintenance"
+      title="Maintenance Report"
       subtitle="What the fleet cost to keep running, by bus and by kind of work."
       range={range}
       window={data?.window}
