@@ -238,6 +238,7 @@ export default function RouteFormDialog({ open, onOpenChange, route }) {
               onValueChange={(value) => handleChange("origin_station_id", Number(value))}
               options={stationOptions}
               placeholder="Select a station"
+              title="Origin"
               searchPlaceholder="Search stations…"
               emptyMessage="No stations match."
             />
@@ -255,6 +256,7 @@ export default function RouteFormDialog({ open, onOpenChange, route }) {
               onValueChange={(value) => handleChange("destination_station_id", Number(value))}
               options={stationOptions}
               placeholder="Select a station"
+              title="Destination"
               searchPlaceholder="Search stations…"
               emptyMessage="No stations match."
             />

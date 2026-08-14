@@ -214,6 +214,7 @@ export default function WalkUpBoardingDialog({ open, onOpenChange, trip }) {
                   onValueChange={setFromStationId}
                   options={fromStationOptions}
                   placeholder="From"
+                  title="Boarding at"
                   searchPlaceholder="Search stations…"
                   emptyMessage="No stations match."
                 />
@@ -226,6 +227,7 @@ export default function WalkUpBoardingDialog({ open, onOpenChange, trip }) {
                   onValueChange={setToStationId}
                   options={toStationOptions}
                   placeholder="To"
+                  title="Getting off at"
                   searchPlaceholder="Search stations…"
                   emptyMessage="No stations match."
                 />

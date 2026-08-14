@@ -181,6 +181,7 @@ export default function BuyTravelCardPage() {
                 onValueChange={setFromStationId}
                 options={fromStationOptions}
                 placeholder="From"
+                title="Starting station"
                 searchPlaceholder="Search stations…"
                 emptyMessage="No stations match."
               />
@@ -193,6 +194,7 @@ export default function BuyTravelCardPage() {
                 onValueChange={setToStationId}
                 options={toStationOptions}
                 placeholder="To"
+                title="Ending station"
                 searchPlaceholder="Search stations…"
                 emptyMessage="No stations match."
               />

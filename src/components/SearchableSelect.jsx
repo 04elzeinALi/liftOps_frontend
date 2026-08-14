@@ -1,25 +1,32 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { ChevronDownIcon } from "lucide-react";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { filterStationOptions } from "@/lib/filterOptions";
 
 /**
- * A Select with a filter box pinned to the top of its dropdown, for pickers
- * long enough that scrolling is worse than typing (the station lists run to
- * ~40 entries).
+ * A picker with a search box, for lists long enough that scrolling is worse
+ * than typing (the station lists run to ~40 entries).
  *
- * `options` is [{ value, label }] with string values, matching what Radix
- * Select expects.
+ * `options` is [{ value, label }] with string values.
  *
- * Two Radix behaviours have to be worked around, both commented at the point
- * they're handled below: its built-in typeahead competes for the keystrokes
- * meant for the filter box, and filtering the selected option out of the list
- * would blank the trigger.
+ * WHY THIS ISN'T A <Select>
+ * It was, with the search box pinned inside the dropdown, and that is broken
+ * on any device with an on-screen keyboard. Radix Select closes itself on
+ * window "resize" (it registers the listener itself, in SelectContentImpl —
+ * it can't be stopPropagation'd away), and on Android, focusing a text field
+ * opens the keyboard, which resizes the viewport. So the list vanished the
+ * instant you tapped the search box. Desktop never fired it, because no
+ * keyboard appears, which is why it looked fine there for so long.
+ *
+ * A dialog is built for exactly this — it owns focus, expects to contain
+ * inputs, and doesn't dismiss itself when the viewport changes shape. The
+ * trigger below is a plain button styled to match the other select triggers,
+ * so nothing looks different until it's opened.
  */
 export default function SearchableSelect({
   value,
@@ -28,6 +35,7 @@ export default function SearchableSelect({
   placeholder = "Select…",
   searchPlaceholder = "Search…",
   emptyMessage = "No matches.",
+  title,
   id,
   disabled,
   className = "w-full",
@@ -42,26 +50,52 @@ export default function SearchableSelect({
     if (!open) setQuery("");
   }, [open]);
 
-  // Radix moves focus to the selected item when the dropdown opens, so the
-  // filter box only keeps focus if we take it back afterwards.
-  useEffect(() => {
-    if (!open) return;
-    const timer = setTimeout(() => inputRef.current?.focus(), 0);
-    return () => clearTimeout(timer);
-  }, [open]);
+  const selected = options.find((o) => o.value === value);
 
   const filtered = useMemo(
     () => filterStationOptions(options, query, value),
     [options, query, value]
   );
 
+  function choose(optionValue) {
+    onValueChange?.(optionValue);
+    setOpen(false);
+  }
+
   return (
-    <Select value={value} onValueChange={onValueChange} open={open} onOpenChange={setOpen} disabled={disabled}>
-      <SelectTrigger id={id} className={className}>
-        <SelectValue placeholder={placeholder} />
-      </SelectTrigger>
-      <SelectContent position="popper" className="max-h-72">
-        <div className="sticky top-0 z-10 -mx-1 -mt-1 mb-1 border-b bg-popover px-2 py-2">
+    <>
+      <button
+        type="button"
+        id={id}
+        disabled={disabled}
+        onClick={() => setOpen(true)}
+        // Matches SelectTrigger's styling so this reads as the same control
+        // it replaced.
+        className={`flex h-9 items-center justify-between gap-2 rounded-md border border-input bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-input/30 ${className}`}
+      >
+        <span
+          className="line-clamp-1 text-left"
+          style={{ color: selected ? "var(--text)" : "var(--text-muted)" }}
+        >
+          {selected ? selected.label : placeholder}
+        </span>
+        <ChevronDownIcon className="size-4 shrink-0 opacity-50" />
+      </button>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent
+          className="max-h-[85vh] gap-3 overflow-hidden p-4 sm:max-w-md"
+          // Focus the search box rather than whatever the dialog would pick,
+          // so typing works immediately without a second tap.
+          onOpenAutoFocus={(event) => {
+            event.preventDefault();
+            inputRef.current?.focus();
+          }}
+        >
+          <DialogHeader>
+            <DialogTitle className="text-base">{title ?? placeholder}</DialogTitle>
+          </DialogHeader>
+
           <input
             ref={inputRef}
             type="text"
@@ -69,32 +103,45 @@ export default function SearchableSelect({
             onChange={(e) => setQuery(e.target.value)}
             placeholder={searchPlaceholder}
             aria-label={searchPlaceholder}
-            className="w-full rounded-md border px-2.5 py-1.5 text-sm outline-none"
+            className="w-full rounded-md border px-3 py-2 text-sm outline-none"
             style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--text)" }}
-            // Radix Select listens for printable keys to jump to a matching
-            // option. Left alone it would hijack the letters being typed here
-            // (and reset the box). Navigation and dismissal keys are let
-            // through so arrows, Enter and Escape still drive the list.
-            onKeyDown={(e) => {
-              if (!["ArrowDown", "ArrowUp", "Enter", "Escape", "Tab"].includes(e.key)) {
-                e.stopPropagation();
-              }
-            }}
           />
-        </div>
 
-        {filtered.length === 0 ? (
-          <p className="px-2 py-3 text-center text-sm" style={{ color: "var(--text-muted)" }}>
-            {emptyMessage}
-          </p>
-        ) : (
-          filtered.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))
-        )}
-      </SelectContent>
-    </Select>
+          <div className="-mx-1 max-h-[55vh] overflow-y-auto px-1">
+            {filtered.length === 0 ? (
+              <p className="px-2 py-6 text-center text-sm" style={{ color: "var(--text-muted)" }}>
+                {emptyMessage}
+              </p>
+            ) : (
+              filtered.map((option) => {
+                const isSelected = option.value === value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => choose(option.value)}
+                    className="flex w-full items-center justify-between gap-2 rounded-md px-3 py-2.5 text-left text-sm"
+                    style={{
+                      background: isSelected
+                        ? "color-mix(in srgb, var(--accent) 14%, transparent)"
+                        : "transparent",
+                      color: "var(--text)",
+                      fontWeight: isSelected ? 600 : 400,
+                    }}
+                  >
+                    <span>{option.label}</span>
+                    {isSelected && (
+                      <span aria-hidden="true" style={{ color: "var(--accent-strong)" }}>
+                        ✓
+                      </span>
+                    )}
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
