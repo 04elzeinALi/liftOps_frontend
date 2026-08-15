@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { localToday } from "@/lib/dates";
 
 const PRESETS = [
@@ -172,8 +173,15 @@ export function StatTiles({ tiles }) {
 
 /**
  * A breakdown table. `columns` is [{ key, label, align, format }].
+ *
+ * `rowHref(row)` is optional — when given, every row navigates there on
+ * click (e.g. a summary row drilling into the transactions behind it). Left
+ * off, rows render exactly as before; the reports that don't need drill-down
+ * (fleet, driver cash) are unaffected.
  */
-export function ReportTable({ title, columns, rows, emptyMessage = "Nothing in this period." }) {
+export function ReportTable({ title, columns, rows, emptyMessage = "Nothing in this period.", rowHref }) {
+  const navigate = useNavigate();
+
   return (
     <section className="mb-6">
       {title && (
@@ -202,27 +210,44 @@ export function ReportTable({ title, columns, rows, emptyMessage = "Nothing in t
                     {c.label}
                   </th>
                 ))}
+                {rowHref && <th className="print:hidden" />}
               </tr>
             </thead>
             <tbody>
-              {rows.map((row, i) => (
-                <tr key={row.id ?? i} style={{ borderBottom: "1px solid var(--border)" }}>
-                  {columns.map((c) => (
-                    <td
-                      key={c.key}
-                      className="px-5 py-3 text-sm"
-                      style={{
-                        color: "var(--text)",
-                        textAlign: c.align ?? "left",
-                        fontFamily: c.align === "right" ? "var(--font-mono)" : undefined,
-                        fontVariantNumeric: c.align === "right" ? "tabular-nums" : undefined,
-                      }}
-                    >
-                      {c.format ? c.format(row[c.key], row) : row[c.key]}
-                    </td>
-                  ))}
-                </tr>
-              ))}
+              {rows.map((row, i) => {
+                const href = rowHref?.(row);
+                return (
+                  <tr
+                    key={row.id ?? i}
+                    onClick={href ? () => navigate(href) : undefined}
+                    role={href ? "button" : undefined}
+                    tabIndex={href ? 0 : undefined}
+                    onKeyDown={href ? (e) => e.key === "Enter" && navigate(href) : undefined}
+                    className={href ? "cursor-pointer hover:brightness-95 print:cursor-auto" : undefined}
+                    style={{ borderBottom: "1px solid var(--border)" }}
+                  >
+                    {columns.map((c) => (
+                      <td
+                        key={c.key}
+                        className="px-5 py-3 text-sm"
+                        style={{
+                          color: "var(--text)",
+                          textAlign: c.align ?? "left",
+                          fontFamily: c.align === "right" ? "var(--font-mono)" : undefined,
+                          fontVariantNumeric: c.align === "right" ? "tabular-nums" : undefined,
+                        }}
+                      >
+                        {c.format ? c.format(row[c.key], row) : row[c.key]}
+                      </td>
+                    ))}
+                    {href && (
+                      <td className="px-3 text-sm print:hidden" style={{ color: "var(--text-muted)" }}>
+                        ›
+                      </td>
+                    )}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}

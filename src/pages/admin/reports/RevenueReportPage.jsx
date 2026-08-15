@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useRevenueReport } from "@/api/reports";
 import {
   ReportShell,
@@ -9,10 +11,28 @@ import {
 } from "@/components/reports/ReportShell";
 
 export default function RevenueReportPage() {
-  const range = useReportRange("month");
+  const [searchParams] = useSearchParams();
+  // Coming back from a drill-down carries the period it was opened with
+  // (?period=all or ?from=&to=), so returning here re-selects the same
+  // window instead of resetting to "This month".
+  const range = useReportRange(searchParams.get("period") ?? "month");
+  useEffect(() => {
+    const from = searchParams.get("from");
+    const to = searchParams.get("to");
+    if (from && to) {
+      range.setFrom(from);
+      range.setTo(to);
+    }
+    // Only ever meant to seed from the URL once, on arrival.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const { data, isLoading, isError } = useRevenueReport(range.params);
 
   const t = data?.totals;
+  // Carries the currently-selected period into the drill-down, so it opens
+  // showing the same window instead of resetting to "This month" and looking
+  // like the numbers vanished.
+  const rangeQuery = new URLSearchParams(range.params).toString();
 
   return (
     <ReportShell
@@ -52,6 +72,7 @@ export default function RevenueReportPage() {
           { key: "received", label: "Received", align: "right", format: money },
         ]}
         rows={data?.by_method ?? []}
+        rowHref={(row) => `/admin/reports/revenue/method/${encodeURIComponent(row.method)}?${rangeQuery}`}
       />
 
       <ReportTable
@@ -64,6 +85,7 @@ export default function RevenueReportPage() {
         ]}
         rows={data?.by_route ?? []}
         emptyMessage="No card sales in this period."
+        rowHref={(row) => `/admin/reports/revenue/route/${row.route_id}?${rangeQuery}`}
       />
 
       <ReportTable
@@ -75,6 +97,7 @@ export default function RevenueReportPage() {
         ]}
         rows={data?.by_card_type ?? []}
         emptyMessage="No card sales in this period."
+        rowHref={(row) => `/admin/reports/revenue/card_type/${encodeURIComponent(row.card_type)}?${rangeQuery}`}
       />
     </ReportShell>
   );
