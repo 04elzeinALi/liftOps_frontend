@@ -93,9 +93,26 @@ export function ReportRangePicker({ range }) {
       <button
         type="button"
         onClick={() => window.print()}
-        className="ml-auto rounded-lg px-3 py-1.5 text-sm font-semibold"
+        title="Print / Save PDF"
+        aria-label="Print / Save PDF"
+        className="ml-auto flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-semibold"
         style={{ background: "var(--surface-2)", color: "var(--text)", border: "1px solid var(--border)" }}
       >
+        <svg
+          viewBox="0 0 24 24"
+          width="15"
+          height="15"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M6 9V2h12v7" />
+          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+          <path d="M6 14h12v8H6z" />
+        </svg>
         Print / Save PDF
       </button>
     </div>

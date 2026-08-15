@@ -25,8 +25,8 @@ const CARD_TYPES = ["single", "return", "weekly", "monthly"];
 // source. Shown here so the passenger knows what they're buying before
 // submitting; the server computes the real values independently.
 const CARD_TERMS_PREVIEW = {
-  single: { total_trips: 1, expiry_days: 1, price_multiplier: 1 },
-  return: { total_trips: 2, expiry_days: 3, price_multiplier: 2 },
+  single: { total_trips: 1, expiry_days: 30, price_multiplier: 1 },
+  return: { total_trips: 2, expiry_days: 30, price_multiplier: 2 },
   weekly: { total_trips: 5, expiry_days: 7, price_multiplier: 5 * 0.9 },
   monthly: { total_trips: 20, expiry_days: 30, price_multiplier: 20 * 0.8 },
 };

@@ -5,6 +5,19 @@
 
 import { formatDate } from "@/lib/dates";
 
+// Whole days from today until a 'YYYY-MM-DD' expiry — negative once past.
+// Both sides are pinned to midday so a daylight-saving shift can't drag the
+// difference onto the wrong day.
+function daysUntil(dateStr) {
+  if (!dateStr) return null;
+  const [y, m, d] = String(dateStr).slice(0, 10).split("-").map(Number);
+  if (!y || !m || !d) return null;
+  const target = new Date(y, m - 1, d, 12, 0, 0);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0);
+  return Math.round((target - today) / 86400000);
+}
+
 const wrap = {
   position: "relative",
   borderRadius: 18,
@@ -40,6 +53,12 @@ export default function TravelCardObject({
 }) {
   const spent = remaining <= 0 || status === "expired" || status === "suspended";
   const used = Math.max(0, total - remaining);
+
+  // Warn only while there's still something to lose: trips left on a live
+  // card, and the deadline close enough to act on. Expiry is fair, but it
+  // shouldn't be a surprise the rider only notices once the trips are gone.
+  const daysLeft = daysUntil(expiry);
+  const expiringSoon = !spent && daysLeft !== null && daysLeft >= 0 && daysLeft <= 3;
 
   const content = (
     <>
@@ -120,8 +139,18 @@ export default function TravelCardObject({
           </span>
         </div>
         {expiry && (
-          <div style={{ marginTop: 6, fontSize: 11, color: "var(--ink-muted)", fontFamily: "var(--font-mono)" }}>
-            Expires {formatDate(expiry)}
+          <div
+            style={{
+              marginTop: 6,
+              fontSize: 11,
+              fontFamily: "var(--font-mono)",
+              color: expiringSoon ? "var(--amber)" : "var(--ink-muted)",
+              fontWeight: expiringSoon ? 700 : 400,
+            }}
+          >
+            {expiringSoon
+              ? `Expires ${daysLeft === 0 ? "today" : daysLeft === 1 ? "tomorrow" : `in ${daysLeft} days`} · ${formatDate(expiry)}`
+              : `Expires ${formatDate(expiry)}`}
           </div>
         )}
       </div>

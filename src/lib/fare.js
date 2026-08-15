@@ -16,9 +16,12 @@ export const DEFAULT_PRICING_SETTINGS = {
 // actually driven. Must stay in step with Route::ROAD_FACTOR.
 export const ROAD_FACTOR = 1.1;
 
+// Validity tracks what was bought: single/return are full fare per ride, so
+// the ride keeps for a month; weekly/monthly are discounted, and the deadline
+// is what buys the discount. Mirrors TravelCardController::computeCardTerms().
 export const CARD_TERMS = {
-  single: { total_trips: 1, expiry_days: 1, multiplier: 1 },
-  return: { total_trips: 2, expiry_days: 3, multiplier: 2 },
+  single: { total_trips: 1, expiry_days: 30, multiplier: 1 },
+  return: { total_trips: 2, expiry_days: 30, multiplier: 2 },
   weekly: { total_trips: 5, expiry_days: 7, multiplier: 5 * 0.9 },
   monthly: { total_trips: 20, expiry_days: 30, multiplier: 20 * 0.8 },
 };
